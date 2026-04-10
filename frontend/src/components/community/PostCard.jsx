@@ -1,6 +1,9 @@
 import { Heart, MessageCircle, Share2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const PostCard = ({ post }) => {
+  const navigate = useNavigate();
+
   return (
     <article className="rounded-xl border border-gray-800 bg-gray-900 p-5 hover:border-purple-500/30 transition">
       {/* HEADER */}
@@ -9,7 +12,12 @@ const PostCard = ({ post }) => {
 
         <div>
           <div className="flex gap-2 items-center">
-            <span className="font-semibold">{post.username}</span>
+            <span
+              onClick={() => navigate(`/profile/${post.username}`)}
+              className="font-semibold"
+            >
+              {post.username}
+            </span>
             <span className="text-xs text-purple-400">{post.role}</span>
           </div>
 

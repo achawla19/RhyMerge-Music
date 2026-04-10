@@ -11,6 +11,7 @@ const initialRequests = [
     name: "Jordan Blake",
     role: "Music Producer",
     bio: "Grammy-nominated producer looking to expand my network.",
+    username: "jordan_blake",
   },
   {
     id: 2,
@@ -18,6 +19,7 @@ const initialRequests = [
     name: "Samira Hassan",
     role: "Vocalist / Songwriter",
     bio: "R&B artist with 5 years of studio experience.",
+    username: "samira_hassan",
   },
 ];
 
@@ -28,6 +30,7 @@ const initialConnections = [
     name: "Elena Martinez",
     role: "DJ / Producer",
     status: "Working together",
+    username: "elena_martinez",
   },
 ];
 
@@ -37,12 +40,14 @@ const suggestedArtists = [
     avatar: "https://i.pravatar.cc/150?img=60",
     name: "Maya Sterling",
     role: "Composer",
+    username: "maya_sterling",
   },
   {
     id: 101,
     avatar: "https://i.pravatar.cc/150?img=64",
     name: "Leo Chang",
     role: "Drummer",
+    username: "leo_chang",
   },
 ];
 
@@ -94,7 +99,7 @@ const Network = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B2540] text-white px-4 py-6">
+    <div className="min-h-screen bg-[#0B2540] text-white px-4 py-6 lg:ml-64">
       {/* HEADER */}
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-2">Your Network</h1>
