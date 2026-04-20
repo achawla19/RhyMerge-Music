@@ -121,9 +121,8 @@ const Search = () => {
   });
 
   return (
-    <div className="min-h-screen mx-auto max-w-7xl bg-[#0B2540] text-white px-4 py-6 lg:ml-64">
-      {/* HEADER */}
-      <div className="mb-6">
+    <div className="min-h-screen bg-[#0B2540] text-white">
+      <div className="max-w-7xl mx-auto px-6 py-6">
         <h1 className="bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600 bg-clip-text text-4xl font-bold mb-6 text-transparent">
           Explore Artists
         </h1>

@@ -5,9 +5,9 @@ import AppRouter from "./AppRouter";
 
 function App() {
   return (
-    <MainLayout>
-      <AppRouter />
-    </MainLayout>
+    // <MainLayout>
+    <AppRouter />
+    // </MainLayout>
   );
 }
 

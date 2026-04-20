@@ -1,6 +1,6 @@
 const ConnectionCard = ({ data, statusOptions, onStatusChange, onRemove }) => {
   return (
-    <div className="bg-gray-900 p-4 rounded-xl flex items-center gap-4">
+    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-4 flex items-center gap-4">
       <img src={data.avatar} className="w-12 h-12 rounded-full" />
 
       <div className="flex-1">
@@ -18,7 +18,10 @@ const ConnectionCard = ({ data, statusOptions, onStatusChange, onRemove }) => {
         ))}
       </select>
 
-      <button onClick={() => onRemove(data.id)} className="text-red-400">
+      <button
+        onClick={() => onRemove(data.id)}
+        className="text-sm bg-white/5 border border-purple-400/30 px-3 py-1 rounded-md"
+      >
         Remove
       </button>
     </div>

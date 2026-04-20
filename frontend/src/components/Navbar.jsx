@@ -1,88 +1,51 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Home,
-  Users,
-  FolderOpen,
-  MessageSquare,
-  Menu,
-  X,
-  Search,
-  Settings,
-} from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Home, MessageSquare, Users, Settings } from "lucide-react";
 
-const Navbar = ({ isOpen, setIsOpen }) => {
+const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const navLinks = [
+  const navItems = [
     { path: "/", label: "Home", icon: Home },
-    { path: "/projects", label: "Projects", icon: FolderOpen },
-    { path: "/search", label: "Search", icon: Search },
-    { path: "/network", label: "Network", icon: Users },
     { path: "/messages", label: "Messages", icon: MessageSquare },
-    { path: "/settings", label: "Settings", icon: Settings },
     { path: "/community", label: "Community", icon: Users },
+    { path: "/settings", label: "Settings", icon: Settings },
   ];
 
-  const isActive = (path) => location.pathname === path;
-
   return (
-    <>
-      {/* Menu Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-[1000] p-2 rounded-lg bg-gray-800 text-white"
-      >
-        {isOpen ? <X size={18} /> : <Menu size={18} />}
-      </button>
+    <div className="fixed top-0 left-[80px] right-0 h-20 z-30 backdrop-blur-xl bg-white/5 border-b border-white/10 flex items-center px-8">
+      <nav className="flex items-center gap-2">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.path;
 
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            {/* Overlay */}
-            <motion.div
-              className="fixed inset-0 bg-black/50 z-[998]"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
-            />
-
-            {/* Sidebar */}
-            <motion.div
-              className="fixed top-0 left-0 h-full w-64 bg-[#0f172a] border-r border-gray-800 z-[999]"
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
+          return (
+            <motion.button
+              key={item.path}
+              onClick={() => navigate(item.path)}
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+                isActive ? "text-white" : "text-gray-400 hover:text-white"
+              }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <div className="p-6">
-                <h1 className="text-white text-lg font-bold mb-6">RhyMerge</h1>
+              <Icon className="w-5 h-5" />
+              <span className="text-sm font-medium">{item.label}</span>
 
-                <ul className="space-y-3">
-                  {navLinks.map(({ path, label, icon: Icon }) => (
-                    <li key={path}>
-                      <Link
-                        to={path}
-                        onClick={() => setIsOpen(false)}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
-                          isActive(path)
-                            ? "bg-purple-600 text-white"
-                            : "text-gray-400 hover:bg-gray-800 hover:text-white"
-                        }`}
-                      >
-                        <Icon size={18} />
-                        {label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </>
+              {isActive && (
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute inset-0 -z-10 rounded-full bg-white/5 border border-purple-400/30 border-rounded opacity-80 blur-sm"
+                  transition={{ duration: 0.3 }}
+                />
+              )}
+            </motion.button>
+          );
+        })}
+      </nav>
+    </div>
   );
 };
 

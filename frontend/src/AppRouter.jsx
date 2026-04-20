@@ -9,6 +9,11 @@ import Search from "./pages/Search";
 import Settings from "./pages/Settings";
 import Messages from "./pages/Messages";
 import Projects from "./pages/Projects";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import ProtectedRoute from "./components/ProtectedRoute";
+import MainLayout from "./layouts/MainLayout";
+import { Navigate } from "react-router-dom";
 
 const Placeholder = ({ title }) => (
   <div className="min-h-screen bg-[#0B2540] flex items-center justify-center">
@@ -22,15 +27,94 @@ const Placeholder = ({ title }) => (
 const AppRouter = () => {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/community" element={<Community />} />
-      <Route path="/network" element={<Network />} />
-      <Route path="/profile/:username" element={<Profile />} />
-      <Route path="/search" element={<Search />} />
-      <Route path="/settings" element={<Settings />} />
-      <Route path="/projects" element={<Projects />} />
-      <Route path="/messages" element={<Messages />} />
-      <Route path="*" element={<Placeholder title="Page Not Found" />} />
+      {/* Auth Routes (No Sidebar) */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+
+      {/* Protected Routes (With Sidebar) */}
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Home />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/community"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Community />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/network"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Network />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile/:username"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Profile />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/search"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Search />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Settings />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/projects"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Projects />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/messages"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Messages />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Default Redirect */}
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 };

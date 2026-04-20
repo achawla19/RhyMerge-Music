@@ -46,7 +46,10 @@ const AccountSection = () => {
             <option value="composer">Composer</option>
           </select>
         </div>
-        <button className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-6 py-2.5 rounded-xl font-medium hover:opacity-90 transition">
+        <button
+          className="bg-white/5 text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-400
+hover:bg-clip-text hover:text-transparent hover:opacity-90  px-6 py-2.5 rounded-3xl font-medium hover:opacity-90 transition"
+        >
           Save Changes
         </button>
       </div>

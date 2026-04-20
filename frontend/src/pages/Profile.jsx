@@ -1,13 +1,21 @@
-import React from "react";
-import ProfileHeader from "../components/profile/ProfileHeader";
-import BioSection from "../components/profile/BioSection";
-import ProjectHistory from "../components/profile/ProjectHistory";
-import RightPanel from "../components/profile/RightPanel";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { MessageCircle } from "lucide-react";
 
-const Profile = () => {
+const container = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.08 } },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 },
+};
+
+export default function Profile() {
   const { username } = useParams();
-  // 🔥 Dummy data (replace later with backend)
+  const navigate = useNavigate();
+
   const users = {
     chhavi: {
       name: "Chhavi",
@@ -16,100 +24,164 @@ const Profile = () => {
       avatar: "/assets/who1.jpg",
       connections: 128,
       projects: 24,
-
-      bio: "Passionate about blending soulful vocals with modern beats. Always looking for creative collaborations.",
-
+      bio: "Passionate about blending soulful vocals with modern beats.",
       genre: "Pop / Indie",
-      age: 21,
       instruments: ["Vocals", "Guitar"],
-      pastProjects: ["Midnight Echo", "Lost Frequencies Collab"],
-    },
-
-    arjun: {
-      name: "Arjun",
-      role: "Music Producer",
-      location: "Delhi",
-      avatar: "/assets/who1.jpg",
-      connections: 90,
-      projects: 15,
-      bio: "EDM & trap producer",
-      genre: "EDM",
-      age: 24,
-      instruments: ["FL Studio", "Ableton"],
-      pastProjects: ["Drop Zone"],
     },
   };
 
   const user = users[username];
-
-  const projects = [
-    {
-      id: "1",
-      title: "Midnight Echo",
-      description: "A chill indie track with atmospheric synths.",
-      collaborators: ["Arjun", "Riya"],
-      date: "2024-02-10",
-      genre: "Indie",
-    },
-    {
-      id: "2",
-      title: "City Lights",
-      description: "Upbeat pop song with electronic vibes.",
-      collaborators: ["Kabir"],
-      date: "2024-01-05",
-      genre: "Pop",
-    },
-    {
-      id: "3",
-      title: "Soul Strings",
-      description: "Acoustic collaboration with emotional depth.",
-      collaborators: ["Ananya", "Dev"],
-      date: "2023-12-15",
-      genre: "Acoustic",
-    },
-  ];
 
   if (!user) {
     return <div className="text-white p-10">User not found</div>;
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a12] text-white">
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="min-h-screen px-6 py-6 text-white
+      bg-gradient-to-br from-[#0b1220] via-[#0f1c35] to-[#0a0f1f]
+      relative overflow-hidden"
+    >
+      {/* BG GLOW */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-purple-600/20 blur-[120px]" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500/20 blur-[120px]" />
+
       {/* HEADER */}
-      <ProfileHeader {...user} />
+      <motion.div variants={item} className="relative mb-10">
+        <div className="h-56 rounded-2xl bg-gradient-to-r from-purple-500/10 via-transparent to-cyan-500/10 border border-white/10 backdrop-blur-xl" />
+
+        <div className="absolute -bottom-16 left-8 flex items-end gap-6">
+          {/* AVATAR */}
+          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/10 shadow-lg">
+            <img src={user.avatar} className="w-full h-full object-cover" />
+          </div>
+
+          {/* INFO */}
+          <div>
+            <h1 className="text-4xl font-bold">{user.name}</h1>
+            <p className="text-purple-300">{user.role}</p>
+            <p className="text-sm text-gray-400">{user.location}</p>
+          </div>
+        </div>
+
+        {/* ACTION BUTTON */}
+        <div className="absolute right-6 bottom-6">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate("/messages")}
+            className="px-6 py-3 rounded-full text-white font-medium flex items-center gap-2
+            bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500"
+          >
+            <MessageCircle size={18} />
+            Message
+          </motion.button>
+        </div>
+      </motion.div>
+
+      {/* STATS */}
+      <motion.div
+        variants={item}
+        className="grid grid-cols-3 md:grid-cols-4 gap-4 mt-20 mb-10"
+      >
+        {[
+          { label: "Connections", value: user.connections },
+          { label: "Projects", value: user.projects },
+          { label: "Genre", value: user.genre },
+          { label: "Instruments", value: user.instruments.length },
+        ].map((s, i) => (
+          <div
+            key={i}
+            className="rounded-xl p-4 text-center
+            bg-gradient-to-br from-white/10 to-white/5
+            backdrop-blur-xl border border-white/10"
+          >
+            <p className="text-2xl font-bold text-white">{s.value}</p>
+            <p className="text-xs text-gray-400">{s.label}</p>
+          </div>
+        ))}
+      </motion.div>
 
       {/* MAIN GRID */}
-      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-[320px_1fr_300px] gap-6">
+      <div className="grid lg:grid-cols-[300px_1fr_300px] gap-6">
         {/* LEFT */}
-        <div>
-          <BioSection
-            bio={user.bio}
-            genre={user.genre}
-            instruments={user.instruments}
-            age={user.age}
-            pastProjects={user.pastProjects}
-          />
-        </div>
+        <motion.div variants={item} className="space-y-4">
+          <div className="rounded-xl p-5 bg-white/10 backdrop-blur-xl border border-white/10">
+            <h2 className="font-semibold mb-3">Bio</h2>
+            <p className="text-sm text-gray-300">{user.bio}</p>
+          </div>
+
+          <div className="rounded-xl p-5 bg-white/10 backdrop-blur-xl border border-white/10">
+            <h2 className="font-semibold mb-3">Skills</h2>
+            <div className="flex flex-wrap gap-2">
+              {user.instruments.map((i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1 text-xs rounded-full bg-white/10 border border-white/10"
+                >
+                  {i}
+                </span>
+              ))}
+            </div>
+          </div>
+        </motion.div>
 
         {/* CENTER */}
-        <div>
-          <ProjectHistory projects={projects} />
-        </div>
+        <motion.div variants={item} className="space-y-4">
+          <div className="rounded-xl p-5 bg-white/10 backdrop-blur-xl border border-white/10">
+            <h2 className="font-semibold mb-4">Projects</h2>
 
-        {/* RIGHT */}
-        <div className="lg:block mt-6">
-          <RightPanel
-            responseTime="2 hrs"
-            certificates={[
-              "Berklee Music Certified",
-              "Ableton Pro",
-              "Vocal Training - Trinity",
-            ]}
-            profileUrl={`https://rhymerge.app/${username}`}
-          />
-        </div>
+            {[1, 2, 3].map((p) => (
+              <div key={p} className="mb-4">
+                <p className="text-sm mb-1">Project {p}</p>
+
+                <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-purple-500 to-cyan-500"
+                    style={{ width: `${40 + p * 15}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* RIGHT PANEL */}
+        <motion.div variants={item} className="space-y-4">
+          <div className="rounded-xl p-5 bg-white/10 backdrop-blur-xl border border-white/10">
+            <h2 className="font-semibold mb-3">Activity</h2>
+
+            <div className="space-y-2 text-sm">
+              <div className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition">
+                🎧 Uploaded new track
+              </div>
+
+              <div className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition">
+                🤝 Connected with 2 artists
+              </div>
+
+              <div className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition">
+                🎤 Collaborated on project
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-xl p-5 bg-white/10 backdrop-blur-xl border border-white/10">
+            <h2 className="font-semibold mb-3">Availability</h2>
+
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-400">Open for collab</span>
+
+              <span className="text-xs px-3 py-1 rounded-full bg-green-500/20 text-green-300">
+                Available
+              </span>
+            </div>
+          </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
-};
-export default Profile;
+}
