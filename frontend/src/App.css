@@ -167,7 +167,7 @@
 
   &::before,
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     top: -4.5px;
     border: 5px solid transparent;
@@ -181,4 +181,60 @@
     right: 0;
     border-right-color: var(--border);
   }
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  overflow: hidden;
+}
+
+.glass-heading {
+  position: relative;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* BASE GLASS TEXT */
+.glass-heading .base {
+  color: rgba(255, 255, 255, 0.25);
+  -webkit-text-stroke: 1px rgba(20, 20, 30, 0.9);
+  backdrop-filter: blur(6px);
+}
+
+/* GRADIENT OVERLAY (hidden initially) */
+.glass-heading .overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #a855f7, #ec4899, #22d3ee);
+  -webkit-background-clip: text;
+  color: transparent;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* ON HOVER */
+.glass-heading:hover .overlay {
+  opacity: 1;
+}
+
+/* GLOW ON HOVER */
+.glass-heading:hover {
+  text-shadow:
+    0 0 20px rgba(168, 85, 247, 0.6),
+    0 0 40px rgba(34, 211, 238, 0.4);
+}
+
+.glass-premium {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.04)
+  );
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 10px 30px rgba(0, 0, 0, 0.3);
 }

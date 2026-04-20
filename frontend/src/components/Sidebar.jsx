@@ -1,102 +1,107 @@
-import React from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  Home,
-  LayoutGrid,
-  Search,
-  Users,
-  MessageSquare,
-  Settings,
-  Zap,
-} from "lucide-react";
-
-const NAV_ITEMS = [
-  { icon: Home, label: "Home", path: "/" },
-  { icon: LayoutGrid, label: "Projects", path: "/projects" },
-  { icon: Search, label: "Search", path: "/search" },
-  { icon: Users, label: "Network", path: "/network" },
-  { icon: MessageSquare, label: "Messages", path: "/messages" },
-  { icon: Settings, label: "Settings", path: "/settings" },
-  { icon: Zap, label: "Community", path: "/community" },
-];
-
-// Hardcoded for now — will come from auth context later
-const CURRENT_USER = {
-  username: "akshit_dev",
-  name: "Akshit",
-  role: "Producer",
-  avatar: "https://i.pravatar.cc/150?img=12",
-};
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { LayoutGrid, Search, Users, Music } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // ✅ SINGLE SOURCE OF TRUTH
+  const { user } = useAuth();
+
+  const navItems = [
+    { label: "Projects", icon: LayoutGrid, path: "/projects" },
+    { label: "Search", icon: Search, path: "/search" },
+    { label: "Network", icon: Users, path: "/network" },
+  ];
 
   return (
-    <div className="w-64 h-screen fixed top-0 left-0 flex flex-col bg-[#0a0a12]/90 backdrop-blur-xl border-r border-gray-800 z-[999]">
-      {/* Logo */}
-      <div className="px-6 py-8 border-b border-gray-800">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center text-white font-bold">
-            ℝ
-          </div>
-          <span className="text-lg font-semibold text-white">RhyMerge</span>
+    <motion.div
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => setIsExpanded(false)}
+      animate={{ width: isExpanded ? 200 : 80 }}
+      transition={{ duration: 0.25 }}
+      className="fixed left-0 top-0 h-screen z-40 flex flex-col items-center py-6
+      backdrop-blur-xl bg-white/5 border-r border-white/10"
+    >
+      {/* LOGO */}
+      <div className="mb-10 flex items-center justify-center w-full">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 flex items-center justify-center shadow-lg">
+          <Music className="w-6 h-6 text-white" />
         </div>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 px-3 py-6 space-y-2">
-        {NAV_ITEMS.map((item) => {
+      {/* NAV ITEMS */}
+      <nav className="flex flex-col gap-4 w-full px-2">
+        {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
 
           return (
-            <Link
+            <motion.button
               key={item.path}
-              to={item.path}
-              className={`group relative w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
-                isActive ? "text-white" : "text-gray-400 hover:text-white"
-              }`}
+              onClick={() => navigate(item.path)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all
+                ${
+                  isActive
+                    ? "bg-white/5 border border-purple-400/30 text-white shadow-[0_0_12px_rgba(168,85,247,0.15)]"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                }`}
             >
-              {isActive && (
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 opacity-90" />
-              )}
-              <div className="relative flex items-center gap-3">
-                <Icon size={18} />
-                <span>{item.label}</span>
-              </div>
-            </Link>
+              <Icon className="w-5 h-5 flex-shrink-0" />
+
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isExpanded ? 1 : 0 }}
+                transition={{ duration: 0.2 }}
+                className="text-sm whitespace-nowrap"
+              >
+                {item.label}
+              </motion.span>
+            </motion.button>
           );
         })}
       </nav>
 
-      {/* Divider */}
-      <div className="px-4">
-        <div className="h-px bg-gray-700" />
-      </div>
-
-      {/* My Profile — clicking navigates to your own profile */}
-      <div className="p-4">
-        <div
-          onClick={() => navigate(`/profile/${CURRENT_USER.username}`)}
-          className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#1a1a24] transition cursor-pointer group"
+      {/* USER */}
+      <div className="mt-auto w-full px-3">
+        <motion.div
+          onClick={() => user && navigate("/settings?section=profile")}
+          whileHover={{ scale: 1.05 }}
+          className="flex items-center gap-3 p-2 rounded-xl cursor-pointer hover:bg-white/10"
         >
-          <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-purple-500/30 group-hover:border-purple-500 transition">
-            <img
-              src={CURRENT_USER.avatar}
-              alt={CURRENT_USER.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-white">
-              {CURRENT_USER.name}
-            </p>
-            <p className="text-xs text-gray-400">{CURRENT_USER.role}</p>
-          </div>
-        </div>
+          <img
+            src={
+              user?.avatar ||
+              `https://ui-avatars.com/api/?name=${
+                user?.username || "User"
+              }&background=7c3aed&color=fff`
+            }
+            alt="user"
+            className="w-10 h-10 rounded-full"
+          />
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isExpanded ? 1 : 0 }}
+            className="flex flex-col"
+          >
+            <span className="text-sm font-medium text-white">
+              {user?.username || "Guest"}
+            </span>
+
+            <span className="text-xs text-gray-400">
+              {user?.role || "Music Creator"}
+            </span>
+          </motion.div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

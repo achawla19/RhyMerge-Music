@@ -15,7 +15,7 @@ const ProjectCard = ({ title, description, collaborators, date, genre }) => {
           )}
         </div>
 
-        <span className="text-xs text-slate-500 flex items-center gap-1 whitespace-nowrap ml-2 flex-shrink-0">
+        <span className="text-xs text-slate-500 flex items-center gap-1 whitespace-nowrap flex-shrink-0">
           <Calendar size={12} />
           {date}
         </span>

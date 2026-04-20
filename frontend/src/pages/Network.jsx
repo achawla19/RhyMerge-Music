@@ -1,55 +1,5 @@
 import { useState } from "react";
-import Tabs from "../components/network/Tabs";
-import RequestCard from "../components/network/RequestCard";
-import SuggestedCard from "../components/network/SuggestedCard";
-import ConnectionCard from "../components/network/ConnectionCard";
-
-const initialRequests = [
-  {
-    id: 1,
-    avatar: "https://i.pravatar.cc/150?img=32",
-    name: "Jordan Blake",
-    role: "Music Producer",
-    bio: "Grammy-nominated producer looking to expand my network.",
-    username: "jordan_blake",
-  },
-  {
-    id: 2,
-    avatar: "https://i.pravatar.cc/150?img=36",
-    name: "Samira Hassan",
-    role: "Vocalist / Songwriter",
-    bio: "R&B artist with 5 years of studio experience.",
-    username: "samira_hassan",
-  },
-];
-
-const initialConnections = [
-  {
-    id: 10,
-    avatar: "https://i.pravatar.cc/150?img=44",
-    name: "Elena Martinez",
-    role: "DJ / Producer",
-    status: "Working together",
-    username: "elena_martinez",
-  },
-];
-
-const suggestedArtists = [
-  {
-    id: 100,
-    avatar: "https://i.pravatar.cc/150?img=60",
-    name: "Maya Sterling",
-    role: "Composer",
-    username: "maya_sterling",
-  },
-  {
-    id: 101,
-    avatar: "https://i.pravatar.cc/150?img=64",
-    name: "Leo Chang",
-    role: "Drummer",
-    username: "leo_chang",
-  },
-];
+import { motion } from "framer-motion";
 
 const statusOptions = [
   "Working together",
@@ -58,12 +8,32 @@ const statusOptions = [
   "Past collaborator",
 ];
 
-const Network = () => {
-  const [activeTab, setActiveTab] = useState("connections");
-  const [requests, setRequests] = useState(initialRequests);
-  const [connections, setConnections] = useState(initialConnections);
+export default function Network() {
+  const [requests, setRequests] = useState([
+    {
+      id: 1,
+      name: "Leo Chang",
+      role: "Drummer",
+      avatar: "https://i.pravatar.cc/150?img=12",
+    },
+    {
+      id: 2,
+      name: "Maya Sterling",
+      role: "Composer",
+      avatar: "https://i.pravatar.cc/150?img=32",
+    },
+  ]);
 
-  // Accept
+  const [connections, setConnections] = useState([
+    {
+      id: 10,
+      name: "Elena Martinez",
+      avatar: "https://i.pravatar.cc/150?img=44",
+      status: "Working together",
+    },
+  ]);
+
+  // ✅ ACCEPT
   const handleAccept = (id) => {
     const user = requests.find((r) => r.id === id);
     setRequests((prev) => prev.filter((r) => r.id !== id));
@@ -73,92 +43,159 @@ const Network = () => {
     ]);
   };
 
-  // Decline
+  // ✅ DECLINE
   const handleDecline = (id) => {
     setRequests((prev) => prev.filter((r) => r.id !== id));
   };
 
-  // Update Status
-  const handleStatusChange = (id, status) => {
+  // ✅ QUICK ACTION
+  const handleQuick = (id) => {
     setConnections((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status } : c)),
+      prev.map((c) => (c.id === id ? { ...c, status: "Working together" } : c)),
     );
   };
 
-  // Remove Connection
+  // ✅ REMOVE
   const handleRemove = (id) => {
     setConnections((prev) => prev.filter((c) => c.id !== id));
   };
 
-  // Connect with Suggested Artist
-  const handleConnect = (artist) => {
-    setConnections((prev) => [
-      ...prev,
-      { ...artist, status: "Invite to collab" },
-    ]);
-  };
-
   return (
-    <div className="min-h-screen bg-[#0B2540] text-white px-4 py-6 lg:ml-64">
-      {/* HEADER */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-2">Your Network</h1>
-        <p className="text-gray-400">Manage your connections</p>
-      </div>
+    <div className="min-h-screen px-6 py-6 text-white relative overflow-hidden bg-gradient-to-br from-[#0b1220] via-[#0f1c35] to-[#0a0f1f]">
+      {/* BG GLOW */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-purple-600/20 blur-[120px]" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500/20 blur-[120px]" />
 
-      {/* TABS */}
-      <Tabs
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        connectionsCount={connections.length}
-        requestsCount={requests.length}
-      />
+      <div className="relative flex gap-6">
+        {/* LEFT */}
+        <div className="flex-1 space-y-10">
+          {/* REQUESTS */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Pending Invites</h2>
 
-      {/* REQUESTS */}
-      {activeTab === "requests" && (
-        <div className="space-y-4 mt-6">
-          {requests.length === 0 ? (
-            <p className="text-gray-400 text-center">No pending requests</p>
-          ) : (
-            requests.map((r) => (
-              <RequestCard
-                key={r.id}
-                data={r}
-                onAccept={handleAccept}
-                onDecline={handleDecline}
-              />
-            ))
-          )}
+            <div className="flex gap-4 overflow-x-auto pb-3">
+              {requests.length === 0 && (
+                <p className="text-gray-400">No pending requests</p>
+              )}
+
+              {requests.map((r) => (
+                <motion.div
+                  key={r.id}
+                  whileHover={{ y: -4, scale: 1.02 }}
+                  className="min-w-[260px] rounded-xl p-4 flex items-center gap-3
+                  bg-white/10 backdrop-blur-xl border border-white/20"
+                >
+                  <img src={r.avatar} className="w-12 h-12 rounded-full" />
+
+                  <div className="flex-1">
+                    <p className="font-medium">{r.name}</p>
+                    <p className="text-xs text-gray-400">{r.role}</p>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleAccept(r.id)}
+                      className="px-3 py-1 text-xs rounded-full text-white
+                      bg-gradient-to-r from-purple-500 to-cyan-500"
+                    >
+                      Approve
+                    </button>
+
+                    <button
+                      onClick={() => handleDecline(r.id)}
+                      className="px-3 py-1 text-xs text-gray-400 hover:text-white"
+                    >
+                      Deny
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* CONNECTIONS */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">
+              Frequent Collaborators
+            </h2>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              {connections.map((c) => (
+                <motion.div
+                  key={c.id}
+                  whileHover={{ y: -4, scale: 1.02 }}
+                  className="rounded-xl p-4 flex items-center gap-4
+                  bg-white/10 backdrop-blur-xl border border-white/20"
+                >
+                  <img src={c.avatar} className="w-12 h-12 rounded-full" />
+
+                  <div className="flex-1">
+                    <p className="font-medium">{c.name}</p>
+                    <p className="text-xs text-purple-300">{c.status}</p>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleQuick(c.id)}
+                      className="px-3 py-1 text-xs rounded-full text-white
+                      bg-gradient-to-r from-purple-500 to-cyan-500"
+                    >
+                      Quick
+                    </button>
+
+                    <button
+                      onClick={() => handleRemove(c.id)}
+                      className="px-3 py-1 text-xs text-gray-400 hover:text-red-400"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </div>
-      )}
 
-      {/* CONNECTIONS */}
-      {activeTab === "connections" && (
-        <div className="space-y-4 mt-6">
-          {connections.map((c) => (
-            <ConnectionCard
-              key={c.id}
-              data={c}
-              statusOptions={statusOptions}
-              onStatusChange={handleStatusChange}
-              onRemove={handleRemove}
-            />
-          ))}
-        </div>
-      )}
+        {/* RIGHT PANEL */}
+        <div className="w-[300px] space-y-4">
+          <div className="rounded-xl p-4 bg-white/10 backdrop-blur-xl border border-white/20">
+            <h3 className="font-semibold mb-3">Intelligence Panel</h3>
 
-      {/* SUGGESTED */}
-      <div className="mt-10">
-        <h2 className="mb-4 font-semibold text-xl">Suggested Artists</h2>
+            <div className="space-y-3 text-sm">
+              <div className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition">
+                🎧 3 Producers match your style
+              </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {suggestedArtists.map((a) => (
-            <SuggestedCard key={a.id} data={a} onConnect={handleConnect} />
-          ))}
+              <div className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition">
+                🔥 Trending: Lo-Fi
+              </div>
+
+              <div className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition">
+                🎯 Best Match: Vocal Mixing
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-xl p-4 bg-white/10 backdrop-blur-xl border border-white/20">
+            <h3 className="font-semibold mb-3">Shared Projects</h3>
+
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i}>
+                  <p className="text-sm mb-1">Project {i}</p>
+
+                  <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-purple-500 to-cyan-500"
+                      style={{ width: `${40 + i * 20}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default Network;
+}

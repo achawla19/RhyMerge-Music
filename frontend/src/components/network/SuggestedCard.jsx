@@ -13,7 +13,7 @@ const SuggestedCard = ({ data, onConnect }) => {
   };
 
   return (
-    <div className="bg-gray-900 border border-white/5 p-5 rounded-2xl text-center group hover:border-purple-500/30 transition-all duration-300">
+    <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-xl p-5 text-center group hover:border-purple-500/30 transition-all duration-300">
       <div
         onClick={() => navigate(`/profile/${data.username}`)}
         className="cursor-pointer"

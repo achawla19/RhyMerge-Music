@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+
 import ChatItem from "../components/messages/ChatItem";
 import ChatHeader from "../components/messages/ChatHeader";
 import MessageBubble from "../components/messages/MessageBubble";
@@ -7,26 +9,54 @@ import MessageInput from "../components/messages/MessageInput";
 const chats = [
   {
     id: 1,
-    name: "Chhavi",
+    name: "Luna Ray",
+    role: "Singer",
     avatar: "/assets/who1.jpg",
-    lastMessage: "Hey let's collab 🎵",
+    lastMessage: "That verse sounds perfect! Sending the stem.",
     time: "2m",
     online: true,
   },
   {
     id: 2,
-    name: "Arjun",
+    name: "Alex Storm",
+    role: "Guitarist",
     avatar: "/assets/who1.jpg",
-    lastMessage: "Sending you the track",
+    lastMessage: "Can you check the bridge...",
     time: "1h",
     online: false,
+  },
+  {
+    id: 3,
+    name: "Bass Phantom",
+    role: "DJ",
+    avatar: "/assets/who1.jpg",
+    lastMessage: "Beat is ready...",
+    time: "5m",
+    online: true,
   },
 ];
 
 const initialMessages = {
   1: [
-    { id: 1, text: "Hey!", sender: "other", time: "10:00" },
-    { id: 2, text: "What's up?", sender: "me", time: "10:02" },
+    {
+      id: 1,
+      text: "That verse sounds perfect! Sending the stem now.",
+      sender: "other",
+      time: "2:30 PM",
+    },
+    {
+      id: 2,
+      text: "Hey Luna, just uploaded the new vocal take. Let me know what you think!",
+      sender: "me",
+      time: "2:45 PM",
+      file: "vocals_take3.wav",
+    },
+    {
+      id: 3,
+      text: "That verse sounds perfect! Sending the stem now.",
+      sender: "other",
+      time: "3:00 PM",
+    },
   ],
 };
 
@@ -61,35 +91,52 @@ const Messages = () => {
   const currentMessages = messages[active] || [];
 
   return (
-    <div className="flex h-screen bg-[#0a0a12] text-white">
-      {/* LEFT */}
-      <div className="w-80 border-r border-gray-800">
-        <div className="p-4 font-bold text-lg">Messages</div>
+    <div className="h-screen flex text-white overflow-hidden">
+      {/* LEFT SIDEBAR (CHAT LIST) */}
+      <div className="w-80 glass border-r border-white/10 backdrop-blur-xl flex flex-col">
+        {/* HEADER */}
+        <div className="p-6 border-b border-white/10">
+          <h2 className="text-2xl font-bold">Messages</h2>
+        </div>
 
-        {chats.map((chat) => (
-          <ChatItem
-            key={chat.id}
-            user={chat}
-            isActive={active === chat.id}
-            onClick={() => setActive(chat.id)}
-          />
-        ))}
+        {/* CHAT LIST */}
+        <div className="flex-1 overflow-y-auto">
+          {chats.map((chat) => (
+            <motion.div
+              key={chat.id}
+              whileHover={{ backgroundColor: "rgba(255,255,255,0.04)" }}
+            >
+              <ChatItem
+                user={chat}
+                isActive={active === chat.id}
+                onClick={() => setActive(chat.id)}
+              />
+            </motion.div>
+          ))}
+        </div>
       </div>
 
-      {/* RIGHT */}
-      <div className="flex-1 flex flex-col">
+      {/* RIGHT CHAT AREA */}
+      <div className="flex-1 flex flex-col bg-[#0a0a12]">
         {currentChat ? (
           <>
-            <ChatHeader user={currentChat} />
+            {/* HEADER */}
+            <div className="glass border-b border-white/10 backdrop-blur-xl">
+              <ChatHeader user={currentChat} />
+            </div>
 
-            <div className="flex-1 overflow-y-auto p-4">
+            {/* MESSAGES */}
+            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
               {currentMessages.map((msg) => (
                 <MessageBubble key={msg.id} message={msg} />
               ))}
               <div ref={bottomRef} />
             </div>
 
-            <MessageInput onSend={sendMessage} activeChat={active} />
+            {/* INPUT */}
+            <div className="glass border-t border-white/10 backdrop-blur-xl">
+              <MessageInput onSend={sendMessage} activeChat={active} />
+            </div>
           </>
         ) : (
           <div className="flex items-center justify-center h-full text-gray-500">

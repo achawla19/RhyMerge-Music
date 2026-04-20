@@ -35,7 +35,7 @@ const Hero = () => {
   const MotionDiv = shouldAnimate ? motion.div : "div";
 
   return (
-    <div className="relative min-h-screen w-screen flex items-center justify-center overflow-hidden px-4 sm:px-8 lg:px-16">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden px-4 sm:px-8 lg:px-16">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <img

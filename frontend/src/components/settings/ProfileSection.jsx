@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Camera } from "lucide-react";
+import RoleDropdown from "../ui/RoleDropdown";
+import { useAuth } from "../../context/AuthContext";
 
 const GENRES = [
   "Hip-Hop",
@@ -17,15 +19,48 @@ const GENRES = [
 ];
 
 const ProfileSection = () => {
+  const [role, setRole] = useState("");
   const [bio, setBio] = useState(
     "Producer and beat maker. Always looking for talented vocalists to collaborate with.",
   );
   const [selectedGenres, setSelectedGenres] = useState(["Hip-Hop", "LoFi"]);
 
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user?.role) {
+      setRole(user.role);
+    }
+  }, []);
+
   const toggleGenre = (genre) => {
     setSelectedGenres((prev) =>
       prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre],
     );
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/user/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ role }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        const { updateUser } = useAuth();
+
+        updateUser(data.user);
+
+        alert("Profile updated");
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -65,6 +100,15 @@ const ProfileSection = () => {
         <p className="text-gray-600 text-xs mt-1">{bio.length}/500</p>
       </div>
 
+      {/* Roles */}
+      <div className="mt-6">
+        <div className="mt-6">
+          <label className="text-sm text-gray-400 mb-2 block">Role</label>
+
+          <RoleDropdown value={role} onChange={setRole} />
+        </div>
+      </div>
+
       {/* Genres */}
       <div>
         <label className="text-gray-400 text-sm mb-2 block">
@@ -86,6 +130,14 @@ const ProfileSection = () => {
           ))}
         </div>
       </div>
+
+      {/* Save Profile Button */}
+      <button
+        onClick={handleSaveProfile}
+        className="mt-4 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 transition"
+      >
+        Save Profile
+      </button>
     </div>
   );
 };

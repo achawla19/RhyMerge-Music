@@ -45,30 +45,26 @@ const posts = Array.from({ length: 7 }, (_, i) => ({
 
 const Community = () => {
   return (
-    <div className="min-h-screen mx-auto max-w-7xl bg-[#0B2540] text-white px-4 py-6 lg:ml-64">
-      {/* HEADER */}
-      <div className="mb-8">
-        <h1 className="bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600 bg-clip-text text-4xl font-bold  mb-6 flex justify-start text-transparent">
-          Meet the Musicians
-        </h1>
+  <div className="min-h-screen bg-[#0B2540] text-white">
+    <div className="max-w-7xl mx-auto px-6 py-6">
 
-        <input
-          type="text"
-          placeholder="Search musicians, genres..."
-          className="w-full px-4 py-3 rounded-full bg-gray-900 border border-gray-700 focus:outline-none max-w-2xl flex justify-start"
-        />
-      </div>
+      <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600 bg-clip-text text-transparent">
+        Meet the Musicians
+      </h1>
 
-      {/* GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-5">
-        {/* LEFT */}
+      <input
+        placeholder="Search musicians..."
+        className="w-full px-4 py-3 rounded-full bg-gray-900 border border-gray-700 mb-6"
+      />
+
+      <div className="grid lg:grid-cols-[1fr_450px] gap-6">
         <Feed posts={posts} />
-
-        {/* RIGHT */}
         <RightPanel />
       </div>
+
     </div>
-  );
+  </div>
+);
 };
 
 export default Community;
