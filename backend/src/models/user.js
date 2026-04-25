@@ -2,24 +2,26 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    username: String,
-    email: String,
+    username: { type: String, required: true, unique: true, index: true },
+    email: { type: String, required: true, unique: true },
     password: String,
 
-    role: {
-      type: String,
-      default: "Music Creator",
-    },
-    location: String,
-    avatar: String,
-
+    name: String,
+    role: { type: String, default: "Music Creator", index: true },
     bio: String,
-    genre: String,
-    instruments: [String],
-
-    connections: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    genres: [{ type: String, index: true }],
+    avatar: String,
   },
-  { timestamps: true },
+  { timestamps: true }
 );
+
+// 🔥 text index for search
+userSchema.index({
+  username: "text",
+  name: "text",
+  role: "text",
+  bio: "text",
+  genres: "text",
+});
 
 export default mongoose.model("User", userSchema);

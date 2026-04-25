@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
+import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 
@@ -20,6 +21,8 @@ app.use(
     credentials: true,
   }),
 );
+
+app.use("/api/users", userRoutes);
 
 app.use("/api/auth", authRoutes);
 app.get("/", (req, res) => {
