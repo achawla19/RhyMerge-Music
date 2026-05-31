@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { getAllUsers } from "../api/user";
 
 const statusOptions = [
   "Working together",
@@ -9,29 +10,22 @@ const statusOptions = [
 ];
 
 export default function Network() {
-  const [requests, setRequests] = useState([
-    {
-      id: 1,
-      name: "Leo Chang",
-      role: "Drummer",
-      avatar: "https://i.pravatar.cc/150?img=12",
-    },
-    {
-      id: 2,
-      name: "Maya Sterling",
-      role: "Composer",
-      avatar: "https://i.pravatar.cc/150?img=32",
-    },
-  ]);
+  const [requests, setRequests] = useState([]);
+  const [connections, setConnections] = useState([]);
 
-  const [connections, setConnections] = useState([
-    {
-      id: 10,
-      name: "Elena Martinez",
-      avatar: "https://i.pravatar.cc/150?img=44",
-      status: "Working together",
-    },
-  ]);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const users = await getAllUsers();
+        setRequests(users.slice(0, 2));
+        setConnections(users.slice(2, 6));
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   // ✅ ACCEPT
   const handleAccept = (id) => {
@@ -85,10 +79,16 @@ export default function Network() {
                   className="min-w-[260px] rounded-xl p-4 flex items-center gap-3
                   bg-white/10 backdrop-blur-xl border border-white/20"
                 >
-                  <img src={r.avatar} className="w-12 h-12 rounded-full" />
+                  <img
+                    src={
+                      r.avatar ||
+                      `https://ui-avatars.com/api/?name=${r.username}`
+                    }
+                    className="w-12 h-12 rounded-full"
+                  />
 
                   <div className="flex-1">
-                    <p className="font-medium">{r.name}</p>
+                    <p className="font-medium">{r.username}</p>
                     <p className="text-xs text-gray-400">{r.role}</p>
                   </div>
 
@@ -130,7 +130,7 @@ export default function Network() {
                   <img src={c.avatar} className="w-12 h-12 rounded-full" />
 
                   <div className="flex-1">
-                    <p className="font-medium">{c.name}</p>
+                    <p className="font-medium">{c.username}</p>
                     <p className="text-xs text-purple-300">{c.status}</p>
                   </div>
 

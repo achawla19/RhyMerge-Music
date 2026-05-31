@@ -1,41 +1,87 @@
 import { Heart, MessageCircle, Share2 } from "lucide-react";
+
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+
+import { toggleLike } from "../../api/post";
 
 const PostCard = ({ post }) => {
   const navigate = useNavigate();
 
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+
+  const [likes, setLikes] = useState(post.likes || []);
+
+  // CHECK IF LIKED
+  const isLiked = likes.some((id) => {
+    const likeId = id?._id || id;
+    return String(likeId) === String(currentUser?._id);
+  });
+
+  // HANDLE LIKE
+  const handleLike = async () => {
+    try {
+      // OPTIMISTIC UPDATE
+      if (isLiked) {
+        setLikes(
+          likes.filter((id) => {
+            const likeId = id?._id || id;
+            return String(likeId) !== String(currentUser?._id);
+          }),
+        );
+      } else {
+        setLikes([...likes, currentUser._id]);
+      }
+
+      // BACKEND UPDATE
+      const updatedLikes = await toggleLike(post._id);
+
+      setLikes(updatedLikes);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
-    <article className="rounded-xl border border-gray-800 bg-gray-900 p-5 hover:border-purple-500/30 transition">
+    <article className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
       {/* HEADER */}
       <div className="flex gap-3 mb-4">
-        <img src={post.avatar} alt="" className="w-12 h-12 rounded-full" />
+        <img
+          src={
+            post.author?.avatar ||
+            `https://ui-avatars.com/api/?name=${post.author?.username}`
+          }
+          alt=""
+          className="w-12 h-12 rounded-full object-cover"
+        />
 
         <div>
-          <div className="flex gap-2 items-center">
-            <span
-              onClick={() => navigate(`/profile/${post.username}`)}
-              className="font-semibold"
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate(`/profile/${post.author?.username}`)}
+              className="font-semibold hover:text-purple-400"
             >
-              {post.username}
-            </span>
-            <span className="text-xs text-purple-400">{post.role}</span>
+              {post.author?.username}
+            </button>
+
+            <span className="text-xs text-purple-400">{post.author?.role}</span>
           </div>
 
-          <span className="text-xs text-gray-500 flex justify-start">
-            {post.timestamp}
+          <span className="text-xs text-gray-500">
+            {new Date(post.createdAt).toLocaleString()}
           </span>
         </div>
       </div>
 
       {/* CONTENT */}
-      <p className="text-gray-300 mb-4 flex justify-start">{post.content}</p>
+      <p className="text-gray-300 mb-4">{post.content}</p>
 
       {/* TAGS */}
-      <div className="flex gap-2 flex-wrap mb-4 ">
-        {post.tags.map((tag) => (
+      <div className="flex flex-wrap gap-2 mb-4">
+        {post.tags?.map((tag) => (
           <span
             key={tag}
-            className="text-xs px-2 py-1 bg-gradient-to-br from-purple-900/40 to-pink-900/40 p-5 rounded-full border border-purple-500/20"
+            className="rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-xs text-purple-300"
           >
             #{tag}
           </span>
@@ -43,23 +89,28 @@ const PostCard = ({ post }) => {
       </div>
 
       {/* ACTIONS */}
-      <div className="flex justify-between border-t border-gray-800 pt-4">
-        <div className="flex gap-6 text-gray-400">
-          <button className="flex items-center gap-1 hover:text-pink-500">
-            <Heart size={18} /> {post.likes}
-          </button>
+      <div className="flex items-center gap-6 border-t border-white/10 pt-4 text-gray-400">
+        {/* LIKE */}
+        <button
+          onClick={handleLike}
+          className={`flex items-center gap-1 transition ${
+            isLiked ? "text-pink-500" : "hover:text-pink-400"
+          }`}
+        >
+          <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
 
-          <button className="flex items-center gap-1 hover:text-purple-400">
-            <MessageCircle size={18} /> {post.comments}
-          </button>
+          {likes.length}
+        </button>
 
-          <button className="hover:text-blue-400">
-            <Share2 size={18} />
-          </button>
-        </div>
+        {/* COMMENTS */}
+        <button className="flex items-center gap-1 hover:text-purple-400">
+          <MessageCircle size={18} />
+          {post.comments?.length || 0}
+        </button>
 
-        <button className="text-sm border border-purple-500 px-3 py-1 rounded hover:bg-purple-500/10">
-          Open Thread
+        {/* SHARE */}
+        <button className="hover:text-cyan-400">
+          <Share2 size={18} />
         </button>
       </div>
     </article>

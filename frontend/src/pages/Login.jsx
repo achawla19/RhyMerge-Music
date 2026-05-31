@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-
+import { useAuth } from "../context/AuthContext";
 import hero from "../assets/hero.png";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [form, setForm] = useState({
     email: "",
@@ -14,10 +15,10 @@ const Login = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false); // ✅ FIXED
-  const [checkingAuth, setCheckingAuth] = useState(true); // ✅ NEW
+  const [success, setSuccess] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
-  // 🔐 Auto login check
+  // AUTO LOGIN CHECK
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -27,6 +28,16 @@ const Login = () => {
         });
 
         if (res.ok) {
+          const data = await res.json();
+
+          // SAVE USER
+          login(data.user);
+
+          localStorage.setItem("user", JSON.stringify(data.user));
+
+          // SAVE TOKEN
+          localStorage.setItem("token", data.token);
+
           navigate("/");
           return;
         }
@@ -34,18 +45,22 @@ const Login = () => {
         console.log("Not logged in");
       }
 
-      setCheckingAuth(false); // allow UI to render
+      setCheckingAuth(false);
     };
 
     checkAuth();
   }, []);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
     setLoading(true);
     setError("");
 
@@ -67,20 +82,25 @@ const Login = () => {
         return;
       }
 
-      window.dispatchEvent(new Event("login")); // 🔥 Notify app of login
+      // SAVE USER
+      login(data.user);
 
-      // ✅ success animation
+      // SAVE TOKEN
+      localStorage.setItem("token", data.token);
+      // console.log(localStorage.getItem("token"));
+
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // UPDATE SIDEBAR
+      window.dispatchEvent(new Event("userChanged"));
+
+      navigate("/");
       setSuccess(true);
       setLoading(false);
 
-      const { login } = useAuth();
-      login(data.user);
-
-      window.dispatchEvent(new Event("UserUpdated"));
       setTimeout(() => {
         navigate("/");
-      }, 1200);
-      window.location.reload();
+      }, 1000);
     } catch (err) {
       console.error(err);
       setError("Server error");
@@ -88,7 +108,7 @@ const Login = () => {
     }
   };
 
-  // 🔥 Prevent UI flash
+  // LOADER
   if (checkingAuth) {
     return (
       <div className="h-screen flex items-center justify-center bg-[#0b0f17] text-white">
@@ -106,10 +126,11 @@ const Login = () => {
           className="absolute inset-0 w-full h-full object-cover"
         />
 
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-none" />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
         <div className="relative z-10 text-center px-10">
-          <h1 className="text-5xl font-bold tracking-tight">RhyMerge</h1>
+          <h1 className="text-5xl font-bold">RhyMerge</h1>
+
           <p className="mt-4 text-gray-300 text-sm">
             Elevate Your Sound. Collaborate. Create. Conquer.
           </p>
@@ -120,12 +141,11 @@ const Login = () => {
       <div className="flex w-full lg:w-1/2 items-center justify-center p-6">
         <form
           onSubmit={handleLogin}
-          className="relative z-10 w-full max-w-md p-8 rounded-3xl
+          className="relative w-full max-w-md p-8 rounded-3xl
           bg-white/5 backdrop-blur-2xl border border-white/10
           shadow-[0_0_60px_rgba(139,92,246,0.25)]"
         >
-          {/* glow */}
-          <div className="absolute inset-0 rounded-3xl border border-purple-500/20 blur-xl opacity-40 pointer-events-none -z-10"></div>
+          <div className="absolute inset-0 rounded-3xl border border-purple-500/20 blur-xl opacity-40 pointer-events-none"></div>
 
           <h2 className="text-2xl font-semibold text-center">Welcome Back</h2>
 
@@ -133,7 +153,6 @@ const Login = () => {
             Access your collaboration dashboard.
           </p>
 
-          {/* INPUTS */}
           <div className="mt-6 space-y-4">
             <input
               type="email"
@@ -141,11 +160,7 @@ const Login = () => {
               placeholder="Email Address"
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 rounded-xl bg-transparent
-              border border-blue-400/30
-              focus:ring-2 focus:ring-blue-500/70
-              focus:border-blue-500
-              transition placeholder-gray-400"
+              className="w-full px-4 py-3 rounded-xl bg-transparent border border-blue-400/30 focus:ring-2 focus:ring-blue-500/70 outline-none"
             />
 
             <input
@@ -154,89 +169,39 @@ const Login = () => {
               placeholder="Password"
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 rounded-xl bg-transparent
-              border border-white/10
-              focus:ring-2 focus:ring-purple-500/70
-              focus:border-purple-500
-              transition placeholder-gray-400"
+              className="w-full px-4 py-3 rounded-xl bg-transparent border border-white/10 focus:ring-2 focus:ring-purple-500/70 outline-none"
             />
-
-            <div className="text-right">
-              <span className="text-sm text-blue-400 cursor-pointer hover:underline">
-                Forgot Password?
-              </span>
-            </div>
           </div>
 
-          {/* ERROR */}
           {error && (
             <p className="text-red-400 text-sm mt-3 text-center">{error}</p>
           )}
 
-          {/* BUTTON */}
           <button
             type="submit"
             disabled={loading || success}
-            className={`w-full mt-6 py-3 rounded-xl font-medium
-            transition-all duration-300 flex items-center justify-center gap-2
-            ${
+            className={`w-full mt-6 py-3 rounded-xl font-medium transition ${
               success
-                ? "bg-green-500 scale-95 shadow-[0_0_30px_rgba(34,197,94,0.5)]"
-                : "bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90"
+                ? "bg-green-500"
+                : "bg-gradient-to-r from-purple-500 to-blue-500"
             }`}
           >
-            {success ? (
-              <span className="flex items-center gap-2">✓ Logged In</span>
-            ) : loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Logging in...
-              </>
-            ) : (
-              "Join the Merge"
-            )}
+            {success
+              ? "✓ Logged In"
+              : loading
+                ? "Logging..."
+                : "Join the Merge"}
           </button>
 
-          {/* DIVIDER */}
-          <div className="flex items-center gap-4 my-6">
-            <div className="flex-1 h-px bg-white/10"></div>
-            <span className="text-sm text-gray-400">Or continue with</span>
-            <div className="flex-1 h-px bg-white/10"></div>
-          </div>
-
-          {/* GOOGLE */}
-          <button
-            type="button"
-            className="w-full py-3 rounded-xl border border-white/10
-            hover:bg-white/10 transition flex items-center justify-center gap-2"
-          >
-            <img
-              src="https://www.svgrepo.com/show/475656/google-color.svg"
-              className="w-5 h-5"
-            />
-            Continue with Google
-          </button>
-
-          {/* SIGNUP */}
           <p className="text-sm text-gray-400 mt-6 text-center">
             Don’t have an account?{" "}
             <span
               onClick={() => navigate("/signup")}
-              className="text-blue-400 cursor-pointer hover:underline"
+              className="text-blue-400 cursor-pointer"
             >
               Signup
             </span>
           </p>
-
-          {/* FOOTER */}
-          <div className="flex justify-center gap-6 mt-6 text-xs text-gray-400">
-            <span className="hover:underline cursor-pointer">
-              Terms of Service
-            </span>
-            <span className="hover:underline cursor-pointer">
-              Privacy Policy
-            </span>
-          </div>
         </form>
       </div>
     </div>
