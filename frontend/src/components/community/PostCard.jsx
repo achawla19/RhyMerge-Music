@@ -5,12 +5,17 @@ import { useState } from "react";
 
 import { toggleLike } from "../../api/post";
 
+import { addComment } from "../../api/comment";
+
 const PostCard = ({ post }) => {
   const navigate = useNavigate();
 
   const currentUser = JSON.parse(localStorage.getItem("user"));
 
   const [likes, setLikes] = useState(post.likes || []);
+  const [comments, setComments] = useState(post.comments || []);
+  const [showComments, setShowComments] = useState(false);
+  const [commentText, setCommentText] = useState("");
 
   // CHECK IF LIKED
   const isLiked = likes.some((id) => {
@@ -37,6 +42,20 @@ const PostCard = ({ post }) => {
       const updatedLikes = await toggleLike(post._id);
 
       setLikes(updatedLikes);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleComment = async () => {
+    if (!commentText.trim()) return;
+
+    try {
+      const updatedPost = await addComment(post._id, commentText);
+
+      setComments(updatedPost.comments);
+
+      setCommentText("");
     } catch (err) {
       console.error(err);
     }
@@ -103,9 +122,12 @@ const PostCard = ({ post }) => {
         </button>
 
         {/* COMMENTS */}
-        <button className="flex items-center gap-1 hover:text-purple-400">
+        <button
+          onClick={() => setShowComments(!showComments)}
+          className="flex items-center gap-1 hover:text-purple-400"
+        >
           <MessageCircle size={18} />
-          {post.comments?.length || 0}
+          {comments.length}
         </button>
 
         {/* SHARE */}
@@ -113,6 +135,39 @@ const PostCard = ({ post }) => {
           <Share2 size={18} />
         </button>
       </div>
+      {showComments && (
+        <div className="mt-4 border-t border-white/10 pt-4">
+          {/* Existing Comments */}
+          <div className="space-y-3 mb-4">
+            {comments.map((comment) => (
+              <div key={comment._id} className="rounded-xl bg-white/5 p-3">
+                <div className="text-sm font-medium text-purple-300">
+                  {comment.user?.username}
+                </div>
+
+                <div className="text-sm text-gray-300 mt-1">{comment.text}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Add Comment */}
+          <div className="flex gap-2">
+            <input
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="Write a comment..."
+              className="flex-1 rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm outline-none"
+            />
+
+            <button
+              onClick={handleComment}
+              className="rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-sm"
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      )}
     </article>
   );
 };

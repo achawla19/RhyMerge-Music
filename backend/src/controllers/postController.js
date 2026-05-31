@@ -100,3 +100,44 @@ export const addComment = async (req, res) => {
     });
   }
 };
+
+// Reply
+export const addReply = async (req, res) => {
+  try {
+    const { text } = req.body;
+
+    const post = await Post.findById(req.params.postId);
+
+    if (!post) {
+      return res.status(404).json({
+        message: "Post not found",
+      });
+    }
+
+    const comment = post.comments.id(req.params.commentId);
+
+    if (!comment) {
+      return res.status(404).json({
+        message: "Comment not found",
+      });
+    }
+
+    comment.replies.push({
+      user: req.user.id,
+      text,
+    });
+
+    await post.save();
+
+    const updatedPost = await Post.findById(post._id)
+      .populate("author", "username role avatar")
+      .populate("comments.user", "username avatar")
+      .populate("comments.replies.user", "username avatar");
+
+    res.json(updatedPost);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
