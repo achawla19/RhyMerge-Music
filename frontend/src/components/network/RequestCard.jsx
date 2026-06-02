@@ -10,14 +10,14 @@ const RequestCard = ({ data, onAccept, onDecline }) => {
       </div>
 
       <button
-        onClick={() => onAccept(data.id)}
+        onClick={() => onAccept(data._id)}
         className="bg-purple-500/30 hover:bg-purple-500/70 border border-white/10 rounded-full px-3 py-1 text-white"
       >
         Accept
       </button>
 
       <button
-        onClick={() => onDecline(data.id)}
+        onClick={() => onDecline(data._id)}
         className="text-red-400 hover:bg-red-500/15 border border-red-400 rounded-full px-3 py-1"
       >
         Decline

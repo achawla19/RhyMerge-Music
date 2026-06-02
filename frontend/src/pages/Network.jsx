@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+
+import {
+  acceptRequest,
+  rejectRequest,
+  sendConnectionRequest,
+  getConnections,
+  getRequests,
+} from "../api/connection";
 import { getAllUsers } from "../api/user";
 
 const statusOptions = [
@@ -12,46 +20,73 @@ const statusOptions = [
 export default function Network() {
   const [requests, setRequests] = useState([]);
   const [connections, setConnections] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const users = await getAllUsers();
-        setRequests(users.slice(0, 2));
-        setConnections(users.slice(2, 6));
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchUsers();
+    fetchData();
   }, []);
 
+  const fetchData = async () => {
+    try {
+      const [allUsers, requestsData, connectionsData] = await Promise.all([
+        getAllUsers(),
+        getRequests(),
+        getConnections(),
+      ]);
+
+      setSuggestions(allUsers);
+      setRequests(requestsData);
+      setConnections(connectionsData);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // ✅ ACCEPT
-  const handleAccept = (id) => {
-    const user = requests.find((r) => r.id === id);
-    setRequests((prev) => prev.filter((r) => r.id !== id));
-    setConnections((prev) => [
-      ...prev,
-      { ...user, status: "Invite to collab" },
-    ]);
+  const handleAccept = async (id) => {
+    try {
+      await acceptRequest(id);
+
+      fetchData();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // ✅ DECLINE
-  const handleDecline = (id) => {
-    setRequests((prev) => prev.filter((r) => r.id !== id));
+  const handleDecline = async (id) => {
+    try {
+      await rejectRequest(id);
+
+      fetchData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // ✅ CONNECT
+  const handleConnect = async (user) => {
+    try {
+      await sendConnectionRequest(user._id);
+
+      alert("Request sent");
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // ✅ QUICK ACTION
   const handleQuick = (id) => {
     setConnections((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status: "Working together" } : c)),
+      prev.map((c) =>
+        c._id === id ? { ...c, status: "Working together" } : c,
+      ),
     );
   };
 
   // ✅ REMOVE
   const handleRemove = (id) => {
-    setConnections((prev) => prev.filter((c) => c.id !== id));
+    setConnections((prev) => prev.filter((c) => c._id !== id));
   };
 
   return (
@@ -74,7 +109,7 @@ export default function Network() {
 
               {requests.map((r) => (
                 <motion.div
-                  key={r.id}
+                  key={r._id}
                   whileHover={{ y: -4, scale: 1.02 }}
                   className="min-w-[260px] rounded-xl p-4 flex items-center gap-3
                   bg-white/10 backdrop-blur-xl border border-white/20"
@@ -94,7 +129,7 @@ export default function Network() {
 
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleAccept(r.id)}
+                      onClick={() => handleAccept(r._id)}
                       className="px-3 py-1 text-xs rounded-full text-white
                       bg-gradient-to-r from-purple-500 to-cyan-500"
                     >
@@ -102,13 +137,28 @@ export default function Network() {
                     </button>
 
                     <button
-                      onClick={() => handleDecline(r.id)}
+                      onClick={() => handleDecline(r._id)}
                       className="px-3 py-1 text-xs text-gray-400 hover:text-white"
                     >
                       Deny
                     </button>
                   </div>
                 </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* SUGGESTIONS */}
+          <div className="mb-10">
+            <h2 className="text-xl font-semibold mb-4">Suggested Artists</h2>
+
+            <div className="grid md:grid-cols-3 gap-4">
+              {suggestions.map((user) => (
+                <SuggestedCard
+                  key={user._id}
+                  data={user}
+                  onConnect={handleConnect}
+                />
               ))}
             </div>
           </div>
@@ -122,7 +172,7 @@ export default function Network() {
             <div className="grid md:grid-cols-2 gap-4">
               {connections.map((c) => (
                 <motion.div
-                  key={c.id}
+                  key={c._id}
                   whileHover={{ y: -4, scale: 1.02 }}
                   className="rounded-xl p-4 flex items-center gap-4
                   bg-white/10 backdrop-blur-xl border border-white/20"
@@ -136,7 +186,7 @@ export default function Network() {
 
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleQuick(c.id)}
+                      onClick={() => handleQuick(c._id)}
                       className="px-3 py-1 text-xs rounded-full text-white
                       bg-gradient-to-r from-purple-500 to-cyan-500"
                     >
@@ -144,7 +194,7 @@ export default function Network() {
                     </button>
 
                     <button
-                      onClick={() => handleRemove(c.id)}
+                      onClick={() => handleRemove(c._id)}
                       className="px-3 py-1 text-xs text-gray-400 hover:text-red-400"
                     >
                       Remove

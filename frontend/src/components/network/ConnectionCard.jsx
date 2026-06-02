@@ -10,7 +10,7 @@ const ConnectionCard = ({ data, statusOptions, onStatusChange, onRemove }) => {
 
       <select
         value={data.status}
-        onChange={(e) => onStatusChange(data.id, e.target.value)}
+        onChange={(e) => onStatusChange(data._id, e.target.value)}
         className="bg-gray-800 px-2 py-1 rounded"
       >
         {statusOptions.map((s) => (
@@ -19,7 +19,7 @@ const ConnectionCard = ({ data, statusOptions, onStatusChange, onRemove }) => {
       </select>
 
       <button
-        onClick={() => onRemove(data.id)}
+        onClick={() => onRemove(data._id)}
         className="text-sm bg-white/5 border border-purple-400/30 px-3 py-1 rounded-md"
       >
         Remove
