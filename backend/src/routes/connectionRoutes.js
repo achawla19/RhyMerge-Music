@@ -6,6 +6,7 @@ import {
   rejectRequest,
   getConnections,
   getRequests,
+  getSentRequests,
 } from "../controllers/connectionController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
@@ -21,5 +22,7 @@ router.post("/reject/:id", protect, rejectRequest);
 router.get("/connections", protect, getConnections);
 
 router.get("/requests", protect, getRequests);
+
+router.get("/sent", protect, getSentRequests);
 
 export default router;

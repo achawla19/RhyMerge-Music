@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
+import SuggestedCard from "../components/network/SuggestedCard";
+import RequestCard from "../components/network/RequestCard";
+import ConnectionCard from "../components/network/ConnectionCard";
+import Tabs from "../components/network/Tabs";
+
 import {
   acceptRequest,
   rejectRequest,
   sendConnectionRequest,
   getConnections,
   getRequests,
+  getSentRequests,
 } from "../api/connection";
 import { getAllUsers } from "../api/user";
 
@@ -21,6 +27,8 @@ export default function Network() {
   const [requests, setRequests] = useState([]);
   const [connections, setConnections] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
+  const [sentRequests, setSentRequests] = useState([]);
+  const [activeTab, setActiveTab] = useState("connections");
 
   useEffect(() => {
     fetchData();
@@ -28,15 +36,18 @@ export default function Network() {
 
   const fetchData = async () => {
     try {
-      const [allUsers, requestsData, connectionsData] = await Promise.all([
-        getAllUsers(),
-        getRequests(),
-        getConnections(),
-      ]);
+      const [allUsers, requestsData, connectionsData, sentRequestsData] =
+        await Promise.all([
+          getAllUsers(),
+          getRequests(),
+          getConnections(),
+          getSentRequests(),
+        ]);
 
       setSuggestions(allUsers);
       setRequests(requestsData);
       setConnections(connectionsData);
+      setSentRequests(sentRequestsData);
     } catch (err) {
       console.error(err);
     }
@@ -47,7 +58,7 @@ export default function Network() {
     try {
       await acceptRequest(id);
 
-      fetchData();
+      await fetchData();
     } catch (err) {
       console.error(err);
     }
@@ -58,7 +69,7 @@ export default function Network() {
     try {
       await rejectRequest(id);
 
-      fetchData();
+      await fetchData();
     } catch (err) {
       console.error(err);
     }
@@ -69,6 +80,7 @@ export default function Network() {
     try {
       await sendConnectionRequest(user._id);
 
+      await fetchData();
       alert("Request sent");
     } catch (err) {
       console.error(err);
@@ -94,72 +106,46 @@ export default function Network() {
       {/* BG GLOW */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-purple-600/20 blur-[120px]" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500/20 blur-[120px]" />
+      <Tabs
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        connectionsCount={connections.length}
+        requestsCount={requests.length}
+      />
 
       <div className="relative flex gap-6">
         {/* LEFT */}
+
         <div className="flex-1 space-y-10">
           {/* REQUESTS */}
           <div>
             <h2 className="text-xl font-semibold mb-4">Pending Invites</h2>
 
             <div className="flex gap-4 overflow-x-auto pb-3">
-              {requests.length === 0 && (
+              {/* {requests.length === 0 && (
                 <p className="text-gray-400">No pending requests</p>
+              )} */}
+
+              {activeTab === "requests" && (
+                <div className="space-y-4">
+                  {requests.length === 0 ? (
+                    <p className="text-gray-400">No pending requests</p>
+                  ) : (
+                    requests.map((r) => (
+                      <RequestCard
+                        key={r._id}
+                        data={{
+                          ...r,
+                          id: r._id,
+                          name: r.name || r.username,
+                        }}
+                        onAccept={handleAccept}
+                        onDecline={handleDecline}
+                      />
+                    ))
+                  )}
+                </div>
               )}
-
-              {requests.map((r) => (
-                <motion.div
-                  key={r._id}
-                  whileHover={{ y: -4, scale: 1.02 }}
-                  className="min-w-[260px] rounded-xl p-4 flex items-center gap-3
-                  bg-white/10 backdrop-blur-xl border border-white/20"
-                >
-                  <img
-                    src={
-                      r.avatar ||
-                      `https://ui-avatars.com/api/?name=${r.username}`
-                    }
-                    className="w-12 h-12 rounded-full"
-                  />
-
-                  <div className="flex-1">
-                    <p className="font-medium">{r.username}</p>
-                    <p className="text-xs text-gray-400">{r.role}</p>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleAccept(r._id)}
-                      className="px-3 py-1 text-xs rounded-full text-white
-                      bg-gradient-to-r from-purple-500 to-cyan-500"
-                    >
-                      Approve
-                    </button>
-
-                    <button
-                      onClick={() => handleDecline(r._id)}
-                      className="px-3 py-1 text-xs text-gray-400 hover:text-white"
-                    >
-                      Deny
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          {/* SUGGESTIONS */}
-          <div className="mb-10">
-            <h2 className="text-xl font-semibold mb-4">Suggested Artists</h2>
-
-            <div className="grid md:grid-cols-3 gap-4">
-              {suggestions.map((user) => (
-                <SuggestedCard
-                  key={user._id}
-                  data={user}
-                  onConnect={handleConnect}
-                />
-              ))}
             </div>
           </div>
 
@@ -169,40 +155,44 @@ export default function Network() {
               Frequent Collaborators
             </h2>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              {connections.map((c) => (
-                <motion.div
-                  key={c._id}
-                  whileHover={{ y: -4, scale: 1.02 }}
-                  className="rounded-xl p-4 flex items-center gap-4
-                  bg-white/10 backdrop-blur-xl border border-white/20"
-                >
-                  <img src={c.avatar} className="w-12 h-12 rounded-full" />
+            {activeTab === "connections" && (
+              <>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {connections.map((c) => (
+                    <ConnectionCard
+                      key={c._id}
+                      data={{
+                        ...c,
+                        id: c._id,
+                        name: c.name || c.username,
+                        status: "Working together",
+                      }}
+                      statusOptions={statusOptions}
+                      onStatusChange={() => {}}
+                      onRemove={handleRemove}
+                    />
+                  ))}
+                </div>
 
-                  <div className="flex-1">
-                    <p className="font-medium">{c.username}</p>
-                    <p className="text-xs text-purple-300">{c.status}</p>
+                {/* SUGGESTIONS */}
+                <div className="mb-10">
+                  <h2 className="text-xl font-semibold mb-4">
+                    Suggested Artists
+                  </h2>
+
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {suggestions.map((user) => (
+                      <SuggestedCard
+                        key={user._id}
+                        data={user}
+                        pending={sentRequests.some((r) => r._id === user._id)}
+                        onConnect={handleConnect}
+                      />
+                    ))}
                   </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleQuick(c._id)}
-                      className="px-3 py-1 text-xs rounded-full text-white
-                      bg-gradient-to-r from-purple-500 to-cyan-500"
-                    >
-                      Quick
-                    </button>
-
-                    <button
-                      onClick={() => handleRemove(c._id)}
-                      className="px-3 py-1 text-xs text-gray-400 hover:text-red-400"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

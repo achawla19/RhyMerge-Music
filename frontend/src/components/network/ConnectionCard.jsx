@@ -1,7 +1,10 @@
 const ConnectionCard = ({ data, statusOptions, onStatusChange, onRemove }) => {
   return (
     <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-4 flex items-center gap-4">
-      <img src={data.avatar} className="w-12 h-12 rounded-full" />
+      <img
+        src={data.avatar || `https://ui-avatars.com/api/?name=${data.username}`}
+        className="w-12 h-12 rounded-full"
+      />
 
       <div className="flex-1">
         <p className="font-semibold">{data.name}</p>

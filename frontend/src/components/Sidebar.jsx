@@ -11,6 +11,7 @@ const Sidebar = () => {
 
   // ✅ SINGLE SOURCE OF TRUTH
   const { user } = useAuth();
+  console.log("SIDEBAR USER:", user);
 
   const navItems = [
     { label: "Projects", icon: LayoutGrid, path: "/projects" },

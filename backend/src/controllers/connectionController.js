@@ -149,3 +149,19 @@ export const getRequests = async (req, res) => {
     });
   }
 };
+
+// GET SENT REQUESTS
+export const getSentRequests = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).populate(
+      "sentRequests",
+      "username role avatar genres",
+    );
+
+    res.json(user.sentRequests);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};

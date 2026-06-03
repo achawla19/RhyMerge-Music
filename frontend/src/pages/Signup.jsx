@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 import hero from "../assets/hero.png"; // 🔥 your background image
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [form, setForm] = useState({
     username: "",
@@ -43,12 +45,12 @@ const Signup = () => {
         return;
       }
 
-      localStorage.setItem("user", JSON.stringify(data.user)); // 🔥 Store user data
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-      window.dispatchEvent(new Event("login")); // 🔥 Notify app of login
-      window.dispatchEvent(new Event("UserUpdated"));
+      login(data.user);
+
       navigate("/");
-      window.location.reload();
     } catch (err) {
       console.error(err);
       setError("Something went wrong");

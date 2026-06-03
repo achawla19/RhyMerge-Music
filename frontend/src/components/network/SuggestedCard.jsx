@@ -2,9 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { Plus, Check } from "lucide-react";
 import { useState } from "react";
 
-const SuggestedCard = ({ data, onConnect }) => {
+const SuggestedCard = ({ data, pending, onConnect }) => {
   const navigate = useNavigate();
-  const [pending, setPending] = useState(false);
 
   const handleConnect = async (e) => {
     e.stopPropagation();
@@ -25,7 +24,9 @@ const SuggestedCard = ({ data, onConnect }) => {
         className="cursor-pointer"
       >
         <img
-          src={data.avatar}
+          src={
+            data.avatar || `https://ui-avatars.com/api/?name=${data.username}`
+          }
           className="w-16 h-16 rounded-full mx-auto mb-3 object-cover ring-2 ring-transparent group-hover:ring-purple-500/50 transition"
           alt={data._name}
         />

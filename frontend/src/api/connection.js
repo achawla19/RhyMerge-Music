@@ -58,3 +58,13 @@ export const rejectRequest = async (userId) => {
 
   return res.json();
 };
+
+export const getSentRequests = async () => {
+  const res = await fetch(`${API}/sent`, {
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  });
+
+  return res.json();
+};
