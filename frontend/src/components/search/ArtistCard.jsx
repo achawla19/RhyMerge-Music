@@ -1,139 +1,115 @@
-import { useState } from "react";
-import { MapPin, Users, BadgeCheck, Plus } from "lucide-react";
-
+import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
-const ArtistCard = ({ artist, index }) => {
-  const [isConnected, setIsConnected] = useState(false);
-
+const ArtistCard = ({ artist }) => {
   const navigate = useNavigate();
 
-  const formatFollowers = (num) => {
-    if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}k`;
-    }
-
-    return num.toString();
-  };
+  const [connected, setConnected] = useState(false);
 
   return (
     <div
-      className="group relative overflow-hidden rounded-2xl
-      border border-white/5 bg-gray-900/50
-      transition-all duration-300
-      hover:border-purple-500/30
-      hover:shadow-[0_0_30px_rgba(168,85,247,0.1)]
-      cursor-pointer"
-      style={{ animationDelay: `${index * 50}ms` }}
       onClick={() => navigate(`/profile/${artist.username}`)}
+      className="
+        cursor-pointer
+
+        rounded-2xl
+        border border-white/[0.06]
+
+        bg-white/[0.03]
+        backdrop-blur-xl
+
+        p-4
+
+        hover:border-purple-500/20
+        hover:bg-white/[0.05]
+
+        transition-all duration-300
+      "
     >
-      {/* Hover gradient */}
-      <div
-        className="absolute inset-0
-        bg-gradient-to-br
-        from-purple-500/5 to-pink-500/5
-        opacity-0 transition-opacity duration-300
-        group-hover:opacity-100"
-      />
+      <div className="flex items-start gap-3">
+        <img
+          src={
+            artist.avatar ||
+            `https://ui-avatars.com/api/?name=${artist.username}&background=7c3aed&color=fff`
+          }
+          alt=""
+          className="
+            w-14
+            h-14
 
-      <div className="relative p-5">
-        {/* Avatar + followers */}
-        <div className="mb-4 flex items-start justify-between">
-          <div className="relative">
-            <img
-              src={
-                artist.avatar ||
-                `https://ui-avatars.com/api/?name=${artist.username}&background=7c3aed&color=fff`
-              }
-              alt={artist.username}
-              className="h-16 w-16 rounded-2xl object-cover"
-            />
+            rounded-xl
+            object-cover
+            flex-shrink-0
+          "
+        />
 
-            {artist.isVerified && (
-              <div
-                className="absolute -bottom-1 -right-1
-                flex h-6 w-6 items-center justify-center
-                rounded-full bg-purple-500
-                ring-2 ring-[#0B2540]"
-              >
-                <BadgeCheck className="h-4 w-4 text-white" />
-              </div>
-            )}
-          </div>
-
-          <div
-            className="flex items-center gap-1
-            rounded-full bg-white/5
-            px-2 py-1 text-xs text-gray-400"
-          >
-            <Users className="h-3 w-3" />
-
-            {formatFollowers(artist.followers?.length || 0)}
-          </div>
-        </div>
-
-        {/* Name + role */}
-        <div className="mb-2">
-          <h3
-            className="text-white font-semibold
-            group-hover:text-purple-400
-            transition-colors"
-          >
+        <div className="flex-1 min-w-0">
+          <h3 className="text-white text-sm font-medium truncate">
             {artist.username}
           </h3>
 
-          <p className="text-gray-400 text-sm">
+          <p className="text-xs text-slate-500 mt-1">
             {artist.role || "Music Creator"}
           </p>
+
+          <div className="flex flex-wrap gap-1 mt-3 text-xs">
+            {(artist.genres || []).slice(0, 3).map((genre) => (
+              <span
+                key={genre}
+                className="
+                  px-2
+                  py-1
+
+                  rounded-lg
+
+                  bg-purple-500/10
+                  text-purple-300
+
+                  text-[11px]
+                "
+              >
+                {genre}
+              </span>
+            ))}
+          </div>
         </div>
-
-        {/* Bio */}
-        <div
-          className="mb-3 flex items-center gap-1
-          text-xs text-gray-500 line-clamp-2"
-        >
-          <MapPin className="h-3 w-3" />
-
-          {artist.bio || "Open for collaborations"}
-        </div>
-
-        {/* Genres */}
-        <div className="mb-4 flex flex-wrap gap-1.5">
-          {artist.genres?.map((genre) => (
-            <span
-              key={genre}
-              className="rounded-full bg-white/5
-              px-2.5 py-1 text-xs text-gray-400"
-            >
-              {genre}
-            </span>
-          ))}
-        </div>
-
-        {/* Connect button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-
-            setIsConnected(!isConnected);
-          }}
-          className={`w-full rounded-xl py-2 text-sm font-medium
-          transition-all duration-300 ${
-            isConnected
-              ? "border border-purple-500/50 bg-purple-500/20 text-purple-400"
-              : "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25 hover:from-purple-600 hover:to-pink-600"
-          }`}
-        >
-          {isConnected ? (
-            "Connected"
-          ) : (
-            <span className="flex items-center justify-center gap-1">
-              <Plus className="w-4 h-4" />
-              Connect
-            </span>
-          )}
-        </button>
       </div>
+
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setConnected(!connected);
+        }}
+        className={`
+          mt-4
+          w-full
+
+          h-10
+
+          rounded-xl
+
+          text-sm
+          font-medium
+
+          transition-all
+
+          ${
+            connected
+              ? "bg-purple-500/10 border border-purple-500/30 text-purple-300"
+              : "bg-purple-600 hover:bg-purple-500 text-white"
+          }
+        `}
+      >
+        {connected ? (
+          "Connected"
+        ) : (
+          <span className="flex items-center justify-center gap-2">
+            <Plus size={14} />
+            Connect
+          </span>
+        )}
+      </button>
     </div>
   );
 };

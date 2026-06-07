@@ -3,25 +3,31 @@ import { createContext, useContext, useState } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem("user");
+    return saved ? JSON.parse(saved) : null;
+  });
 
-  // login function
   const login = (userData) => {
     setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
-  // logout function
+  const updateUser = (userData) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// custom hook
 export const useAuth = () => useContext(AuthContext);

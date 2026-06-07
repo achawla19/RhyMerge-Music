@@ -8,18 +8,70 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
-    name: String,
+
+    name: {
+      type: String,
+      required: true,
+    },
+
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
     },
-    role: String,
-    bio: String,
-    genres: [String],
-    avatar: String,
-    password: String,
+
+    password: {
+      type: String,
+      required: true,
+    },
+
+    role: {
+      type: String,
+      default: "",
+    },
+
+    bio: {
+      type: String,
+      default: "",
+    },
+
+    avatar: {
+      type: String,
+      default: "",
+    },
+
+    genres: {
+      type: [String],
+      default: [],
+    },
+
+    instruments: {
+      type: [String],
+      default: [],
+    },
+
+    location: {
+      type: String,
+      default: "",
+    },
+
+    experienceLevel: {
+      type: String,
+      enum: ["Beginner", "Intermediate", "Advanced", "Professional"],
+      default: "Beginner",
+    },
+
+    availability: {
+      type: String,
+      enum: ["Available", "Busy", "Not Looking"],
+      default: "Available",
+    },
+
+    certificates: {
+      type: [String],
+      default: [],
+    },
 
     followers: [
       {

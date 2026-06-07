@@ -102,6 +102,16 @@ const AppRouter = () => {
           </ProtectedRoute>
         }
       />
+      {/* <Route
+        path="/projects/:id"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <ProjectDetails />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      /> */}
       <Route
         path="/messages"
         element={

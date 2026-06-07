@@ -1,80 +1,203 @@
-import React, { useState } from "react";
+import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { LayoutGrid, Search, Users, Music } from "lucide-react";
+import { LayoutGrid, Search, Users, Music, Settings, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { Home } from "lucide-react";
 
 const Sidebar = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  // ✅ SINGLE SOURCE OF TRUTH
+  const location = useLocation();
   const { user } = useAuth();
-  console.log("SIDEBAR USER:", user);
 
   const navItems = [
-    { label: "Projects", icon: LayoutGrid, path: "/projects" },
-    { label: "Search", icon: Search, path: "/search" },
-    { label: "Network", icon: Users, path: "/network" },
+    {
+      label: "Home",
+      icon: Home,
+      path: "/",
+    },
+    {
+      label: "Projects",
+      icon: LayoutGrid,
+      path: "/projects",
+    },
+    {
+      label: "Search",
+      icon: Search,
+      path: "/search",
+    },
+    {
+      label: "Network",
+      icon: Users,
+      path: "/network",
+    },
+    {
+      label: "Profile",
+      icon: User,
+      path: `/profile/${user?.username || ""}`,
+    },
+    {
+      label: "Settings",
+      icon: Settings,
+      path: "/settings",
+    },
   ];
 
   return (
-    <motion.div
-      onMouseEnter={() => setIsExpanded(true)}
-      onMouseLeave={() => setIsExpanded(false)}
-      animate={{ width: isExpanded ? 200 : 80 }}
-      transition={{ duration: 0.25 }}
-      className="fixed left-0 top-0 h-screen z-40 flex flex-col items-center py-6
-      backdrop-blur-xl bg-white/5 border-r border-white/10"
+    <aside
+      className="
+        hidden lg:flex
+
+        fixed
+        left-0
+        top-0
+
+        w-[260px]
+        h-screen
+
+        z-50
+
+        flex-col
+
+        bg-[#0B0C14]/95
+        backdrop-blur-2xl
+
+        border-r
+        border-white/[0.06]
+      "
     >
       {/* LOGO */}
-      <div className="mb-10 flex items-center justify-center w-full">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 flex items-center justify-center shadow-lg">
-          <Music className="w-6 h-6 text-white" />
+
+      <div className="px-6 py-8 border-b border-white/[0.06]">
+        <button
+          onClick={() => navigate("/")}
+          className="
+      flex
+      items-center
+      gap-3
+
+      w-full
+
+      transition-all
+      hover:opacity-90
+    "
+        >
+          <div
+            className="
+        w-12 h-12
+        rounded-2xl
+
+        bg-gradient-to-br
+        from-purple-500
+        via-pink-500
+        to-cyan-500
+
+        flex
+        items-center
+        justify-center
+
+        shadow-lg
+      "
+          >
+            <Music className="w-6 h-6 text-white" />
+          </div>
+
+          <div className="text-left">
+            <h2 className="font-bold text-lg text-white">RhyMerge</h2>
+
+            <p className="text-xs text-slate-400">Music Collaboration</p>
+          </div>
+        </button>
+      </div>
+
+      {/* NAVIGATION */}
+
+      <div className="flex-1 px-4 py-6">
+        <p className="text-xs uppercase tracking-wider text-slate-500 px-3 mb-4">
+          Navigation
+        </p>
+
+        <div className="space-y-2">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+
+            const active = location.pathname === item.path;
+
+            return (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={`
+                  relative
+                  flex
+                  items-center
+                  gap-3
+
+                  w-full
+
+                  px-4
+                  py-3
+
+                  rounded-2xl
+
+                  transition-all
+                  duration-300
+
+                  ${
+                    active
+                      ? "bg-white/[0.08] border border-purple-500/20 text-white"
+                      : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
+                  }
+                `}
+              >
+                {active && (
+                  <div
+                    className="
+                      absolute
+                      left-0
+                      top-2
+                      bottom-2
+
+                      w-1
+
+                      rounded-full
+
+                      bg-gradient-to-b
+                      from-purple-400
+                      to-pink-400
+                    "
+                  />
+                )}
+
+                <Icon className="w-5 h-5" />
+
+                <span className="text-sm font-medium">{item.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* NAV ITEMS */}
-      <nav className="flex flex-col gap-4 w-full px-2">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path;
-
-          return (
-            <motion.button
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all
-                ${
-                  isActive
-                    ? "bg-white/5 border border-purple-400/30 text-white shadow-[0_0_12px_rgba(168,85,247,0.15)]"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
-            >
-              <Icon className="w-5 h-5 flex-shrink-0" />
-
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: isExpanded ? 1 : 0 }}
-                transition={{ duration: 0.2 }}
-                className="text-sm whitespace-nowrap"
-              >
-                {item.label}
-              </motion.span>
-            </motion.button>
-          );
-        })}
-      </nav>
-
       {/* USER */}
-      <div className="mt-auto w-full px-3">
-        <motion.div
-          onClick={() => user && navigate("/settings?section=profile")}
-          whileHover={{ scale: 1.05 }}
-          className="flex items-center gap-3 p-2 rounded-xl cursor-pointer hover:bg-white/10"
+
+      <div className="p-4 border-t border-white/[0.06]">
+        <button
+          onClick={() => navigate("/settings")}
+          className="
+            w-full
+
+            flex
+            items-center
+            gap-3
+
+            p-3
+
+            rounded-2xl
+
+            bg-white/[0.03]
+            hover:bg-white/[0.06]
+
+            transition-all
+          "
         >
           <img
             src={
@@ -83,26 +206,30 @@ const Sidebar = () => {
                 user?.username || "User"
               }&background=7c3aed&color=fff`
             }
-            alt="user"
-            className="w-10 h-10 rounded-full"
+            alt="profile"
+            className="
+              w-12
+              h-12
+
+              rounded-full
+
+              border
+              border-purple-500/30
+            "
           />
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: isExpanded ? 1 : 0 }}
-            className="flex flex-col"
-          >
-            <span className="text-sm font-medium text-white">
+          <div className="text-left">
+            <p className="text-sm text-white font-medium">
               {user?.username || "Guest"}
-            </span>
+            </p>
 
-            <span className="text-xs text-gray-400">
+            <p className="text-xs text-slate-400">
               {user?.role || "Music Creator"}
-            </span>
-          </motion.div>
-        </motion.div>
+            </p>
+          </div>
+        </button>
       </div>
-    </motion.div>
+    </aside>
   );
 };
 

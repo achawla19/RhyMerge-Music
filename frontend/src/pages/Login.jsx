@@ -35,9 +35,6 @@ const Login = () => {
 
           localStorage.setItem("user", JSON.stringify(data.user));
 
-          // SAVE TOKEN
-          localStorage.setItem("token", data.token);
-
           navigate("/");
           return;
         }
@@ -87,7 +84,6 @@ const Login = () => {
 
       // SAVE TOKEN
       localStorage.setItem("token", data.token);
-      // console.log(localStorage.getItem("token"));
 
       localStorage.setItem("user", JSON.stringify(data.user));
 

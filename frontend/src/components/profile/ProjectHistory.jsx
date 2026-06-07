@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, FolderOpen } from "lucide-react";
 import ProjectCard from "./ProjectCard";
 
-const ProjectHistory = ({ projects }) => {
+const ProjectHistory = ({ projects = [] }) => {
   const [sortOrder, setSortOrder] = useState("newest");
 
   const sortedProjects = [...projects].sort((a, b) => {
@@ -13,33 +13,42 @@ const ProjectHistory = ({ projects }) => {
   });
 
   return (
-    <div className="bg-slate-900/20 rounded-xl p-6 border border-slate-800/50 hover:border-slate-700/50 transition-all duration-200">
-      {/* Header */}
+    <div className="bg-[#111118] rounded-2xl p-6 border border-gray-800">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-white">Project History</h2>
+        <div>
+          <h2 className="text-xl font-semibold text-white">Project History</h2>
+
+          <p className="text-sm text-gray-500 mt-1">
+            Previous collaborations and music projects
+          </p>
+        </div>
 
         <button
           onClick={() =>
             setSortOrder(sortOrder === "newest" ? "oldest" : "newest")
           }
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 hover:border-purple-500/50 transition-all duration-200 text-xs font-medium"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-700 text-gray-300 hover:border-purple-500 hover:text-white transition-all text-sm"
         >
           <ArrowUpDown size={14} />
           {sortOrder === "newest" ? "Newest" : "Oldest"}
         </button>
       </div>
 
-      {/* Projects Grid */}
-      <div className="grid gap-4 transition-all duration-300">
-        {sortedProjects.map((project) => (
-          <ProjectCard key={project.id} {...project} />
-        ))}
-      </div>
+      {sortedProjects.length === 0 ? (
+        <div className="py-16 text-center">
+          <FolderOpen size={40} className="mx-auto text-gray-600 mb-3" />
 
-      {/* Empty State */}
-      {sortedProjects.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-slate-400 text-sm">No projects yet</p>
+          <h3 className="text-white font-medium mb-1">No Projects Yet</h3>
+
+          <p className="text-gray-500 text-sm">
+            This creator hasn't published any collaborations.
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {sortedProjects.map((project) => (
+            <ProjectCard key={project._id} {...project} />
+          ))}
         </div>
       )}
     </div>

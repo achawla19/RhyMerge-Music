@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
-import hero from "../assets/hero.png"; // 🔥 your background image
+import hero from "../assets/hero.png";
+
+import { ROLES } from "../constants/profileOptions";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -13,17 +15,22 @@ const Signup = () => {
     username: "",
     email: "",
     password: "",
+    role: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const handleSignup = async (e) => {
     e.preventDefault();
+
     setLoading(true);
     setError("");
 
@@ -45,7 +52,6 @@ const Signup = () => {
         return;
       }
 
-      localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
       login(data.user);
@@ -61,35 +67,63 @@ const Signup = () => {
 
   return (
     <div className="h-screen w-full flex bg-gradient-to-br from-[#0b0f17] via-[#0d1320] to-[#0a0f1c] text-white">
-      {/* ================= LEFT SIDE ================= */}
+      {/* LEFT SIDE */}
       <div className="w-1/2 relative hidden lg:flex items-center justify-center">
         <img
           src={hero}
+          alt=""
           className="absolute inset-0 w-full h-full object-cover"
         />
 
-        {/* overlay */}
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
-        {/* content */}
         <div className="relative z-10 text-center px-10">
           <h1 className="text-5xl font-bold tracking-tight">RhyMerge</h1>
+
           <p className="mt-4 text-gray-300 text-sm">
             Elevate Your Sound. Collaborate. Create. Conquer.
           </p>
         </div>
       </div>
 
-      {/* ================= RIGHT SIDE ================= */}
+      {/* RIGHT SIDE */}
       <div className="flex w-full lg:w-1/2 items-center justify-center p-6">
         <form
           onSubmit={handleSignup}
-          className="relative w-full max-w-md p-8 rounded-3xl
-          bg-white/5 backdrop-blur-2xl border border-white/10
-          shadow-[0_0_60px_rgba(139,92,246,0.25)]"
+          className="
+            relative
+            w-full
+            max-w-md
+
+            p-8
+
+            rounded-3xl
+
+            bg-white/5
+            backdrop-blur-2xl
+
+            border border-white/10
+
+            shadow-[0_0_60px_rgba(139,92,246,0.15)]
+          "
         >
-          {/* glow border */}
-          <div className="absolute inset-0 rounded-3xl border border-purple-500/20 blur-xl opacity-40 pointer-events-none -z-10"></div>
+          <div
+            className="
+              absolute
+              inset-0
+
+              rounded-3xl
+
+              border
+              border-purple-500/20
+
+              blur-xl
+              opacity-40
+
+              pointer-events-none
+              -z-10
+            "
+          />
 
           {/* HEADER */}
           <h2 className="text-2xl font-semibold text-center">
@@ -106,39 +140,115 @@ const Signup = () => {
               type="text"
               name="username"
               placeholder="Username"
+              value={form.username}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 rounded-xl bg-transparent
-              border border-white/10
-              focus:ring-2 focus:ring-purple-500/70
-              focus:border-purple-500
-              transition placeholder-gray-400"
+              className="
+                w-full
+                px-4
+                py-3
+
+                rounded-xl
+
+                bg-transparent
+                border border-white/10
+
+                focus:ring-2
+                focus:ring-purple-500/70
+                focus:border-purple-500
+
+                transition
+
+                placeholder-gray-400
+              "
             />
 
             <input
               type="email"
               name="email"
               placeholder="Email Address"
+              value={form.email}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 rounded-xl bg-transparent
-              border border-blue-400/30
-              focus:ring-2 focus:ring-blue-500/70
-              focus:border-blue-500
-              transition placeholder-gray-400"
+              className="
+                w-full
+                px-4
+                py-3
+
+                rounded-xl
+
+                bg-transparent
+                border border-blue-400/30
+
+                focus:ring-2
+                focus:ring-blue-500/70
+                focus:border-blue-500
+
+                transition
+
+                placeholder-gray-400
+              "
             />
+
+            {/* ROLE */}
+            <select
+              name="role"
+              value={form.role}
+              onChange={handleChange}
+              required
+              className="
+                w-full
+                px-4
+                py-3
+
+                rounded-xl
+
+                bg-[#111827]
+                border border-white/10
+
+                text-white
+
+                focus:ring-2
+                focus:ring-purple-500/70
+                focus:border-purple-500
+
+                transition
+              "
+            >
+              <option value="">Select Your Role</option>
+
+              {ROLES.map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))}
+            </select>
 
             <input
               type="password"
               name="password"
               placeholder="Password"
+              value={form.password}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 rounded-xl bg-transparent
-              border border-white/10
-              focus:ring-2 focus:ring-purple-500/70
-              focus:border-purple-500
-              transition placeholder-gray-400"
+              className="
+                w-full
+                px-4
+                py-3
+
+                rounded-xl
+
+                bg-transparent
+                border border-white/10
+
+                focus:ring-2
+                focus:ring-purple-500/70
+                focus:border-purple-500
+
+                transition
+
+                placeholder-gray-400
+              "
             />
           </div>
 
@@ -147,33 +257,71 @@ const Signup = () => {
             <p className="text-red-400 text-sm mt-3 text-center">{error}</p>
           )}
 
-          {/* BUTTON */}
+          {/* SUBMIT */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-6 py-3 rounded-xl font-medium
-            bg-gradient-to-r from-purple-500 to-blue-500
-            hover:opacity-90 transition flex items-center justify-center gap-2"
+            className="
+              w-full
+              mt-6
+              py-3
+
+              rounded-xl
+
+              font-medium
+
+              bg-gradient-to-r
+              from-purple-500
+              to-blue-500
+
+              hover:opacity-90
+
+              transition
+
+              flex
+              items-center
+              justify-center
+              gap-2
+            "
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+
             {loading ? "Creating..." : "Join the Merge"}
           </button>
 
           {/* DIVIDER */}
           <div className="flex items-center gap-4 my-6">
-            <div className="flex-1 h-px bg-white/10"></div>
+            <div className="flex-1 h-px bg-white/10" />
+
             <span className="text-sm text-gray-400">Or continue with</span>
-            <div className="flex-1 h-px bg-white/10"></div>
+
+            <div className="flex-1 h-px bg-white/10" />
           </div>
 
           {/* GOOGLE */}
           <button
             type="button"
-            className="w-full py-3 rounded-xl border border-white/10
-            hover:bg-white/10 transition flex items-center justify-center gap-2"
+            className="
+              w-full
+              py-3
+
+              rounded-xl
+
+              border border-white/10
+
+              hover:bg-white/10
+
+              transition
+
+              flex
+              items-center
+              justify-center
+              gap-2
+            "
           >
             <img
               src="https://www.svgrepo.com/show/475656/google-color.svg"
+              alt=""
               className="w-5 h-5"
             />
             Continue with Google
@@ -184,7 +332,11 @@ const Signup = () => {
             Already have an account?{" "}
             <span
               onClick={() => navigate("/login")}
-              className="text-blue-400 cursor-pointer hover:underline"
+              className="
+                text-blue-400
+                cursor-pointer
+                hover:underline
+              "
             >
               Login
             </span>
@@ -195,6 +347,7 @@ const Signup = () => {
             <span className="hover:underline cursor-pointer">
               Terms of Service
             </span>
+
             <span className="hover:underline cursor-pointer">
               Privacy Policy
             </span>

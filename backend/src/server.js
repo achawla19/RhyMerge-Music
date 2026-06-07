@@ -7,7 +7,9 @@ import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
+import projectRoutes from "./routes/projectRoutes.js";
 import connectionRoutes from "./routes/connectionRoutes.js";
+import searchRoutes from "./routes/searchRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -21,14 +23,16 @@ app.use(
   }),
 );
 
-app.use(express.json());
 app.use(cookieParser());
+app.use(express.json());
 
 // 🔥 ROUTES
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/projects", projectRoutes);
 app.use("/api/connections", connectionRoutes);
+app.use("/api/search", searchRoutes);
 app.get("/", (req, res) => {
   res.send("API Running");
 });

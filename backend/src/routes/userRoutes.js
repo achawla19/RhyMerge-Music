@@ -1,22 +1,27 @@
 import express from "express";
-import { searchUsers } from "../controllers/userController.js";
+import {
+  searchUsers,
+  getAllUsers,
+  getUserByUsername,
+  updateMyProfile,
+} from "../controllers/userController.js";
 import { protect } from "../middleware/authMiddleware.js";
-import { getAllUsers } from "../controllers/userController.js";
-import User from "../models/user.js";
 
 const router = express.Router();
 
+// Search users
 router.get("/search", searchUsers);
+
+// Get all users
 router.get("/all", getAllUsers);
 
-router.get("/", async (req, res) => {
-  try {
-    const users = await User.find().select("-password");
+// Get single user profile by username
+router.get("/:username", getUserByUsername);
 
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ msg: "Failed to fetch users" });
-  }
-});
+// Update logged-in user's profile
+router.put("/profile", protect, updateMyProfile);
+
+// Optional legacy route
+router.get("/", getAllUsers);
 
 export default router;

@@ -1,94 +1,141 @@
 import { Mic, Headphones, Music2, Disc3, Guitar, X } from "lucide-react";
 
-const ROLES = [
-  { name: "Singer", icon: Mic },
-  { name: "Producer", icon: Headphones },
-  { name: "Songwriter", icon: Music2 },
-  { name: "DJ", icon: Disc3 },
-  { name: "Musician", icon: Guitar },
-];
+import { ROLES, GENRES } from "../../constants/profileOptions";
 
-const GENRES = [
-  "Hip-Hop",
-  "LoFi",
-  "EDM",
-  "Indie",
-  "R&B",
-  "Pop",
-  "Rock",
-  "Jazz",
-  "Soul",
-  "Trap",
-];
+const ROLE_ICONS = {
+  Singer: Mic,
+  Producer: Headphones,
+  Songwriter: Music2,
+  DJ: Disc3,
+  Musician: Guitar,
+  "Sound Engineer": Headphones,
+};
 
 const SmartFilters = ({
   selectedRole,
   selectedGenre,
   onSelectRole,
   onSelectGenre,
+  onSelectTag,
 }) => {
-  const hasActiveFilters = selectedRole || selectedGenre;
+  const hasFilters = selectedRole || selectedGenre;
 
   return (
-    <div className="rounded-2xl border border-white/5 bg-gray-900/50 p-5 mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-white font-semibold">Filters</h3>
-        {hasActiveFilters && (
+    <div
+      className="
+        rounded-2xl
+        border border-white/[0.06]
+
+        bg-white/[0.03]
+        backdrop-blur-xl
+
+        p-5
+      "
+    >
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="text-white text-sm font-medium">Filters</h3>
+
+        {hasFilters && (
           <button
             onClick={() => {
               onSelectRole(null);
               onSelectGenre(null);
+              onSelectTag(null);
             }}
-            className="flex items-center gap-1 text-xs text-gray-400 hover:text-white transition"
+            className="
+              flex items-center gap-1
+
+              text-xs
+              text-slate-400
+
+              hover:text-white
+            "
           >
-            <X className="w-3 h-3" /> Clear all
+            <X size={12} />
+            Clear
           </button>
         )}
       </div>
 
-      {/* Roles */}
-      <div className="mb-4">
-        <p className="text-gray-500 text-sm mb-2">Role</p>
-        <div className="flex flex-wrap gap-2">
-          {ROLES.map(({ name, icon: Icon }) => (
-            <button
-              key={name}
-              onClick={() => onSelectRole(selectedRole === name ? null : name)}
-              className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition-all ${
-                selectedRole === name
-                  ? "border-purple-500 bg-purple-500/20 text-purple-400"
-                  : "border-white/10 bg-white/5 text-gray-400 hover:border-purple-500/30"
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              {name}
-            </button>
-          ))}
-        </div>
-      </div>
+      <div className="space-y-5">
+        <div>
+          <p className="text-xs text-slate-500 mb-3 uppercase tracking-wider">
+            Role
+          </p>
 
-      {/* Genres */}
-      <div>
-        <p className="text-gray-500 text-sm mb-2">Genre</p>
-        <div className="flex flex-wrap gap-2">
-          {GENRES.map((genre) => (
-            <button
-              key={genre}
-              onClick={() =>
-                onSelectGenre(selectedGenre === genre ? null : genre)
-              }
-              className={`rounded-full border px-3 py-1.5 text-sm transition-all ${
-                selectedGenre === genre
-                  ? "border-pink-500 bg-pink-500/20 text-pink-400"
-                  : "border-white/10 bg-white/5 text-gray-400 hover:border-pink-500/30"
-              }`}
-            >
-              {genre}
-            </button>
-          ))}
+          <div className="flex flex-wrap gap-2">
+            {ROLES.map((role) => {
+              const Icon = ROLE_ICONS[role];
+              return (
+                <button
+                  key={role}
+                  onClick={() =>
+                    onSelectRole(selectedRole === role ? null : role)
+                  }
+                  className={`
+                    flex items-center gap-2
+
+                    px-3
+                    py-2
+
+                    rounded-xl
+
+                    text-xs
+
+                    transition-all
+
+                    ${
+                      selectedRole === role
+                        ? "bg-purple-500/15 border border-purple-500/30 text-purple-300"
+                        : "bg-white/[0.03] border border-white/[0.06] text-slate-400"
+                    }
+                  `}
+                >
+                  <Icon size={14} />
+                  {role}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <p className="text-xs text-slate-500 mb-3 uppercase tracking-wider">
+            Genre
+          </p>
+
+          <div className="flex flex-wrap gap-2">
+            {GENRES.map((genre) => (
+              <button
+                key={genre}
+                onClick={() =>
+                  onSelectGenre(selectedGenre === genre ? null : genre)
+                }
+                className={`
+                  px-3
+                  py-1.5
+
+                  rounded-xl
+
+                  text-xs
+
+                  transition-all
+
+                  ${
+                    selectedGenre === genre
+                      ? "bg-purple-500/15 border border-purple-500/30 text-purple-300"
+                      : "bg-white/[0.03] border border-white/[0.06] text-slate-400"
+                  }
+                `}
+              >
+                {genre}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
 };
+
 export default SmartFilters;

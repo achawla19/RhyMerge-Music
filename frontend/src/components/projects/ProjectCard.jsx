@@ -1,37 +1,90 @@
-import Avatar from "../Avatar";
 import { Music } from "lucide-react";
 
-const ProjectCard = ({ project, onClick }) => {
+export default function ProjectCard({ project, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="bg-[#111118] border border-gray-800 rounded-xl p-5 hover:border-purple-500 hover:shadow-lg hover:shadow-purple-500/10 transition cursor-pointer"
+      className="
+        cursor-pointer
+
+        rounded-3xl
+
+        bg-white/[0.04]
+        border border-white/[0.08]
+
+        p-5
+
+        hover:border-purple-500/30
+        hover:bg-white/[0.06]
+
+        transition-all
+      "
     >
-      {/* TITLE */}
-      <div className="flex items-center gap-2 mb-2">
-        <Music size={18} className="text-purple-400" />
-        <h3 className="font-semibold text-white">{project.title}</h3>
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex gap-3">
+          <div
+            className="
+              w-11 h-11
+
+              rounded-2xl
+
+              bg-purple-500/15
+
+              flex items-center justify-center
+            "
+          >
+            <Music size={18} className="text-purple-400" />
+          </div>
+
+          <div>
+            <h3 className="text-white font-semibold text-lg">
+              {project.title}
+            </h3>
+
+            <p className="text-slate-500 text-sm">{project.genre || "Music"}</p>
+          </div>
+        </div>
       </div>
 
-      {/* DESC */}
-      <p className="text-sm text-gray-400 mb-3 line-clamp-2">
+      <p
+        className="
+          text-slate-400
+          text-sm
+
+          line-clamp-3
+          mb-5
+        "
+      >
         {project.description}
       </p>
 
-      {/* META */}
-      <div className="flex justify-between text-xs text-gray-400 mb-3">
-        <span>{project.genre}</span>
-        <span>{project.date}</span>
-      </div>
+      <div
+        className="
+          flex
+          items-center
+          justify-between
+        "
+      >
+        <span
+          className="
+            px-3
+            py-1
 
-      {/* COLLABS */}
-      <div className="flex gap-2">
-        {project.collaborators.slice(0, 3).map((c, i) => (
-          <Avatar key={i} src={c.avatar} alt={c.name} size="sm" />
-        ))}
+            rounded-full
+
+            text-xs
+
+            bg-green-500/10
+            text-green-400
+          "
+        >
+          Active
+        </span>
+
+        <span className="text-xs text-slate-500">
+          {new Date(project.createdAt).toLocaleDateString()}
+        </span>
       </div>
     </div>
   );
-};
-
-export default ProjectCard;
+}

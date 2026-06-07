@@ -8,33 +8,21 @@ const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     const verifyUser = async () => {
       try {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-          setAuthorized(false);
-          setLoading(false);
-          return;
-        }
-
         const res = await fetch("http://localhost:5000/api/auth/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         });
 
         if (!res.ok) {
           setAuthorized(false);
-          setLoading(false);
-          return;
+        } else {
+          setAuthorized(true);
         }
-
-        setAuthorized(true);
       } catch (err) {
         console.error(err);
         setAuthorized(false);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     verifyUser();
@@ -49,7 +37,7 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!authorized) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
   return children;

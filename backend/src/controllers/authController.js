@@ -48,15 +48,25 @@ export const login = async (req, res) => {
     );
 
     // COOKIE
+    res.cookie("token", token, {
+      httpOnly: true,
+
+      secure: false,
+
+      sameSite: "lax",
+
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
+      maxAge: 1000 * 60 * 60 * 24 * 30,
     });
 
     // RETURN TOKEN + USER
     res.json({
-      token,
       user: {
         _id: user._id,
         username: user.username,
@@ -138,8 +148,14 @@ export const register = async (req, res) => {
       },
     );
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+
     res.json({
-      token,
       user: {
         _id: user._id,
         username: user.username,
@@ -178,8 +194,12 @@ export const refresh = async (req, res) => {
 
 // ================= LOGOUT =================
 export const logout = (req, res) => {
+  res.clearCookie("token");
   res.clearCookie("refreshToken");
-  res.json({ msg: "Logged out" });
+
+  res.json({
+    msg: "Logged out",
+  });
 };
 
 export const getMe = async (req, res) => {

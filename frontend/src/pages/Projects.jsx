@@ -1,175 +1,190 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
+import ProjectCard from "../components/projects/ProjectCard";
 import ProjectDetail from "../components/projects/ProjectDetail";
-import Modal from "../components/projects/Modal";
+import CreateProjectModal from "../components/projects/CreateProjectModal";
 
-const mockProjects = [
-  {
-    id: 1,
-    title: "Neon Dreams",
-    genres: ["Synth-Pop"],
-    progress: 65,
-    status: "In Progress",
-    collaborators: ["A", "J"],
-  },
-  {
-    id: 2,
-    title: "Urban Flow",
-    genres: ["Hip-Hop"],
-    progress: 100,
-    status: "Completed",
-    collaborators: ["S"],
-  },
-];
+import PageHeader from "../components/ui/PageHeader";
+import Input from "../components/ui/Input";
 
-const tabs = ["all", "in progress", "completed"];
+import { getProjects, createProject } from "../api/projects";
 
 export default function Projects() {
-  const [activeTab, setActiveTab] = useState("all");
+  const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
+
+  const [loading, setLoading] = useState(true);
+
+  const [search, setSearch] = useState("");
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const filteredProjects = mockProjects.filter((p) =>
-    activeTab === "all" ? true : p.status.toLowerCase() === activeTab,
-  );
+  const location = useLocation();
+
+  const loadProjects = async () => {
+    try {
+      setLoading(true);
+
+      const data = await getProjects();
+
+      setProjects(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProjects();
+  }, []);
+
+  useEffect(() => {
+    if (location.state?.selectedProjectId && projects.length) {
+      const project = projects.find(
+        (p) => p._id === location.state.selectedProjectId,
+      );
+
+      if (project) {
+        setSelectedProject(project);
+      }
+    }
+  }, [projects, location.state]);
+
+  const filteredProjects = useMemo(() => {
+    return projects.filter((project) => {
+      const q = search.toLowerCase();
+
+      return (
+        project.title?.toLowerCase().includes(q) ||
+        project.genre?.toLowerCase().includes(q) ||
+        project.description?.toLowerCase().includes(q)
+      );
+    });
+  }, [projects, search]);
+
+  const handleCreateProject = async (payload) => {
+    try {
+      const project = await createProject(payload);
+
+      setProjects((prev) => [project, ...prev]);
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
 
   return (
-    <div
-      className="min-h-screen px-6 py-6 text-white
-    bg-gradient-to-br from-[#0b1220] via-[#0f1c35] to-[#0a0f1f]
-    relative overflow-hidden"
-    >
-      {/* BG GLOW */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-purple-600/20 blur-[120px]" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500/20 blur-[120px]" />
-
-      <div className="relative">
-        {/* HEADER */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-semibold">Projects</h1>
-
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+    <div className="space-y-8">
+      <PageHeader
+        title="Projects"
+        subtitle="Discover and manage music collaborations"
+        action={
+          <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-white
-            bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500"
+            className="
+              flex items-center gap-2
+              px-5 py-3
+
+              rounded-2xl
+
+              bg-gradient-to-r
+              from-purple-600
+              to-pink-500
+
+              text-white
+              font-medium
+
+              hover:scale-[1.02]
+              transition-all
+            "
           >
             <Plus size={18} />
             New Project
-          </motion.button>
-        </div>
+          </button>
+        }
+      />
 
-        {/* FILTER TABS */}
-        <div className="flex gap-3 mb-8">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 rounded-full text-sm capitalize transition
-                ${
-                  activeTab === tab
-                    ? "bg-white/10 border border-purple-400/30 text-white"
-                    : "bg-white/5 text-gray-400 hover:bg-white/10"
-                }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+      {/* SEARCH */}
 
-        {/* GRID */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProjects.map((project) => (
-            <motion.div
-              key={project.id}
-              whileHover={{ y: -6, scale: 1.02 }}
-              onClick={() => setSelectedProject(project)}
-              className="cursor-pointer rounded-xl p-5
-              bg-white/10 backdrop-blur-xl border border-white/10
-              hover:border-purple-400/30 transition-all"
-            >
-              {/* GENRES */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                {project.genres.map((g) => (
-                  <span
-                    key={g}
-                    className="px-2 py-1 text-xs rounded-full
-                    bg-white/10 border border-white/10"
-                  >
-                    {g}
-                  </span>
-                ))}
-              </div>
+      <div className="relative max-w-lg">
+        <Search
+          size={18}
+          className="
+            absolute
+            left-4
+            top-1/2
+            -translate-y-1/2
+            text-slate-500
+          "
+        />
 
-              {/* TITLE */}
-              <h3 className="text-lg font-semibold mb-4">{project.title}</h3>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search projects..."
+          className="
+            w-full
 
-              {/* PROGRESS */}
-              <div className="mb-5">
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-gray-400">Progress</span>
-                  <span>{project.progress}%</span>
-                </div>
+            pl-12
+            pr-4
+            py-3
 
-                <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${project.progress}%` }}
-                    transition={{ duration: 0.8 }}
-                    className="h-full bg-gradient-to-r from-purple-500 to-cyan-500"
-                  />
-                </div>
-              </div>
+            rounded-2xl
 
-              {/* COLLABS */}
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-2">
-                  {project.collaborators.map((c, i) => (
-                    <div
-                      key={i}
-                      className="w-8 h-8 rounded-full bg-white/20 border border-white/10
-                      flex items-center justify-center text-xs"
-                    >
-                      {c}
-                    </div>
-                  ))}
-                </div>
+            bg-white/[0.04]
+            border border-white/[0.08]
 
-                <span className="text-xs text-gray-400">
-                  {project.collaborators.length} collaborators
-                </span>
-              </div>
+            text-white
 
-              {/* STATUS */}
-              <div className="mt-4 text-xs text-purple-300">
-                {project.status}
-              </div>
-            </motion.div>
-          ))}
+            outline-none
 
-          {filteredProjects.length === 0 && (
-            <div className="col-span-full text-center text-gray-400 py-10">
-              No projects found
-            </div>
-          )}
-        </div>
+            focus:border-purple-500/40
+          "
+        />
       </div>
 
-      {/* MODAL */}
-      <Modal
+      {/* GRID */}
+
+      {loading ? (
+        <div className="text-center py-20 text-slate-400">
+          Loading projects...
+        </div>
+      ) : filteredProjects.length === 0 ? (
+        <div className="text-center py-20 text-slate-400">
+          No projects found
+        </div>
+      ) : (
+        <motion.div
+          layout
+          className="
+            grid
+
+            md:grid-cols-2
+            xl:grid-cols-3
+
+            gap-5
+          "
+        >
+          {filteredProjects.map((project) => (
+            <ProjectCard
+              key={project._id}
+              project={project}
+              onClick={() => setSelectedProject(project)}
+            />
+          ))}
+        </motion.div>
+      )}
+
+      <CreateProjectModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Create Project"
-      >
-        <p className="text-gray-400 text-sm">
-          (Form comes later when backend is ready)
-        </p>
-      </Modal>
+        onCreate={handleCreateProject}
+      />
 
-      {/* DETAIL */}
       {selectedProject && (
         <ProjectDetail
           project={selectedProject}
