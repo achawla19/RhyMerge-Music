@@ -1,6 +1,14 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { LayoutGrid, Search, Users, Music, Settings, User } from "lucide-react";
+import {
+  LayoutGrid,
+  Search,
+  Users,
+  Music,
+  Settings,
+  User,
+  Bookmark,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { Home } from "lucide-react";
 
@@ -19,6 +27,11 @@ const Sidebar = () => {
       label: "Projects",
       icon: LayoutGrid,
       path: "/projects",
+    },
+    {
+      label: "Saved",
+      icon: Bookmark,
+      path: "/saved-projects",
     },
     {
       label: "Search",

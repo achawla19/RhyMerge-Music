@@ -1,12 +1,15 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Bell, Menu, MessageSquare, Plus, Search } from "lucide-react";
 
 import { useAuth } from "../context/AuthContext";
 import NavbarSearch from "./search/NavbarSearch";
+import { getNotifications, markNotificationRead } from "../api/notifications";
+import { useState, useEffect } from "react";
 
 const Navbar = ({ onMenuClick }) => {
   const location = useLocation();
   const { user } = useAuth();
+
   const path = location.pathname.split("/")[1] || "";
   const searchWidth =
     path === ""
@@ -17,7 +20,7 @@ const Navbar = ({ onMenuClick }) => {
 
   const pageContent = {
     "": {
-      title: `Good evening, ${user?.username}`,
+      title: `Greetings, ${user?.username}`,
       subtitle: "Discover creators, projects and opportunities.",
     },
 
@@ -54,6 +57,30 @@ const Navbar = ({ onMenuClick }) => {
 
   const currentPage =
     pageContent[location.pathname.split("/")[1]] || pageContent[""];
+
+  const [notifications, setNotifications] = useState([]);
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const navigate = useNavigate();
+
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await getNotifications();
+
+        setNotifications(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    load();
+
+    const interval = setInterval(load, 15000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <header
@@ -146,31 +173,185 @@ const Navbar = ({ onMenuClick }) => {
           </button>
 
           {/* NOTIFICATIONS */}
-          <button
-            className="
-              w-10 h-10
-              lg:w-11 lg:h-11
+          <div className="relative">
+            <button
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="
+      relative
 
-              rounded-xl
-              lg:rounded-2xl
+      w-10 h-10
+      lg:w-11 lg:h-11
 
-              bg-white/[0.04]
-              border border-white/[0.08]
+      rounded-xl
+      lg:rounded-2xl
 
-              flex
-              items-center
-              justify-center
+      bg-white/[0.04]
+      border border-white/[0.08]
 
-              text-slate-400
+      flex
+      items-center
+      justify-center
 
-              hover:text-white
-              hover:border-purple-500/30
+      text-slate-400
+
+      hover:text-white
+      hover:border-purple-500/30
+
+      transition-all
+    "
+            >
+              <Bell size={18} />
+
+              {unreadCount > 0 && (
+                <span
+                  className="
+          absolute
+          -top-1
+          -right-1
+
+          w-5 h-5
+
+          rounded-full
+
+          bg-red-500
+
+          text-white
+          text-xs
+
+          flex
+          items-center
+          justify-center
+        "
+                >
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {showNotifications && (
+              <div
+                className="
+        absolute
+        right-0
+        top-14
+
+        w-[360px]
+
+        rounded-3xl
+
+        bg-[#12131D]
+
+        border border-white/[0.08]
+
+        shadow-2xl
+
+        overflow-hidden
+
+        z-50
+      "
+              >
+                <div className="p-4 border-b border-white/[0.06]">
+                  <h3 className="text-white font-semibold">Notifications</h3>
+                </div>
+
+                {notifications.length === 0 ? (
+                  <div className="p-5 text-slate-400 text-sm">
+                    No notifications
+                  </div>
+                ) : (
+                  notifications.map((n) => (
+                    <button
+                      key={n._id}
+                      onClick={async () => {
+                        await markNotificationRead(n._id);
+
+                        setNotifications((prev) =>
+                          prev.map((item) =>
+                            item._id === n._id
+                              ? {
+                                  ...item,
+                                  isRead: true,
+                                }
+                              : item,
+                          ),
+                        );
+
+                        navigate(`/projects/${notification.project._id}`, {
+                          state: {
+                            showJoinedBanner: true,
+                          },
+                        });
+
+                        setShowNotifications(false);
+                      }}
+                      className={`
+              w-full
+              text-left
+
+              px-4 py-4
+
+              border-b
+              border-white/[0.05]
+
+              hover:bg-white/[0.04]
 
               transition-all
-            "
-          >
-            <Bell size={18} />
-          </button>
+
+              ${
+                !n.isRead
+                  ? n.type === "request_accepted"
+                    ? "bg-green-500/10"
+                    : n.type === "request_rejected"
+                      ? "bg-red-500/10"
+                      : "bg-purple-500/10"
+                  : ""
+              }
+            `}
+                    >
+                      <p className="text-white text-sm">
+                        {n.type === "project_request" && (
+                          <>
+                            <span className="font-semibold">
+                              {n.sender?.username}
+                            </span>{" "}
+                            requested to join your project
+                          </>
+                        )}
+
+                        {n.type === "request_accepted" && (
+                          <>
+                            Your request to join{" "}
+                            <span className="font-semibold text-green-400">
+                              {n.project?.title}
+                            </span>{" "}
+                            was accepted
+                          </>
+                        )}
+
+                        {n.type === "request_rejected" && (
+                          <>
+                            Your request to join{" "}
+                            <span className="font-semibold text-red-400">
+                              {n.project?.title}
+                            </span>{" "}
+                            was declined
+                          </>
+                        )}
+                      </p>
+
+                      <p className="text-purple-400 text-xs mt-1">
+                        {n.project?.title}
+                      </p>
+
+                      <p className="text-slate-500 text-xs mt-1">
+                        {new Date(n.createdAt).toLocaleString()}
+                      </p>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
 
           {/* CREATE PROJECT */}
           <button

@@ -58,3 +58,17 @@ export const searchProjects = async ({ q = "", genre = "" }) => {
 
   return res.json();
 };
+
+export const getProjectById = async (id) => {
+  const res = await fetch(`${API_URL}/${id}`, {
+    credentials: "include",
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.msg);
+  }
+
+  return data;
+};

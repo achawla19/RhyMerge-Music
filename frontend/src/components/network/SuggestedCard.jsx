@@ -19,6 +19,23 @@ const SuggestedCard = ({ data, pending, onConnect }) => {
 
   return (
     <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-xl p-5 text-center group hover:border-purple-500/30 transition-all duration-300">
+      {data.score > 0 && (
+        <span
+          className="
+      text-xs
+
+      px-2 py-1
+
+      rounded-full
+
+      bg-purple-500/15
+
+      text-purple-400
+    "
+        >
+          Match Score {data.score}
+        </span>
+      )}
       <div
         onClick={() => navigate(`/profile/${data.username}`)}
         className="cursor-pointer"

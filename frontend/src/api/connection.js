@@ -1,13 +1,9 @@
 const API = "http://localhost:5000/api/connections";
 
-const getToken = () => localStorage.getItem("token");
-
 export const sendConnectionRequest = async (userId) => {
   const res = await fetch(`${API}/send/${userId}`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
+    credentials: "include",
   });
 
   if (!res.ok) {
@@ -19,9 +15,7 @@ export const sendConnectionRequest = async (userId) => {
 
 export const getRequests = async () => {
   const res = await fetch(`${API}/requests`, {
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
+    credentials: "include",
   });
 
   return res.json();
@@ -29,9 +23,7 @@ export const getRequests = async () => {
 
 export const getConnections = async () => {
   const res = await fetch(`${API}/connections`, {
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
+    credentials: "include",
   });
 
   return res.json();
@@ -40,9 +32,7 @@ export const getConnections = async () => {
 export const acceptRequest = async (userId) => {
   const res = await fetch(`${API}/accept/${userId}`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
+    credentials: "include",
   });
 
   return res.json();
@@ -51,9 +41,7 @@ export const acceptRequest = async (userId) => {
 export const rejectRequest = async (userId) => {
   const res = await fetch(`${API}/reject/${userId}`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
+    credentials: "include",
   });
 
   return res.json();
@@ -61,9 +49,7 @@ export const rejectRequest = async (userId) => {
 
 export const getSentRequests = async () => {
   const res = await fetch(`${API}/sent`, {
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
+    credentials: "include",
   });
 
   return res.json();

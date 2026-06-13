@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Search } from "lucide-react";
-import { useLocation } from "react-router-dom";
 
 import ProjectCard from "../components/projects/ProjectCard";
-import ProjectDetail from "../components/projects/ProjectDetail";
+
 import CreateProjectModal from "../components/projects/CreateProjectModal";
 
 import PageHeader from "../components/ui/PageHeader";
@@ -14,15 +13,12 @@ import { getProjects, createProject } from "../api/projects";
 
 export default function Projects() {
   const [projects, setProjects] = useState([]);
-  const [selectedProject, setSelectedProject] = useState(null);
 
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const location = useLocation();
 
   const loadProjects = async () => {
     try {
@@ -41,18 +37,6 @@ export default function Projects() {
   useEffect(() => {
     loadProjects();
   }, []);
-
-  useEffect(() => {
-    if (location.state?.selectedProjectId && projects.length) {
-      const project = projects.find(
-        (p) => p._id === location.state.selectedProjectId,
-      );
-
-      if (project) {
-        setSelectedProject(project);
-      }
-    }
-  }, [projects, location.state]);
 
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
@@ -170,11 +154,7 @@ export default function Projects() {
           "
         >
           {filteredProjects.map((project) => (
-            <ProjectCard
-              key={project._id}
-              project={project}
-              onClick={() => setSelectedProject(project)}
-            />
+            <ProjectCard key={project._id} project={project} />
           ))}
         </motion.div>
       )}
@@ -184,13 +164,6 @@ export default function Projects() {
         onClose={() => setIsModalOpen(false)}
         onCreate={handleCreateProject}
       />
-
-      {selectedProject && (
-        <ProjectDetail
-          project={selectedProject}
-          onClose={() => setSelectedProject(null)}
-        />
-      )}
     </div>
   );
 }

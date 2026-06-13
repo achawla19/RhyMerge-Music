@@ -87,7 +87,7 @@ export const login = async (req, res) => {
 // ================= REGISTER =================
 export const register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, name, email, password, role } = req.body;
     // USERNAME
     if (username.length < 3) {
       return res.status(400).json({
@@ -137,6 +137,8 @@ export const register = async (req, res) => {
       username,
       email,
       password: hashed,
+      name,
+      role,
     });
     const token = jwt.sign(
       {

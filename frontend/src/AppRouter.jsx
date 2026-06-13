@@ -12,6 +12,8 @@ import Projects from "./pages/Projects";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ProtectedRoute from "./components/ProtectedRoute";
+import SavedProjects from "./pages/SavedProjects";
+import ProjectDetails from "./pages/ProjectDetails";
 import MainLayout from "./layouts/MainLayout";
 import { Navigate } from "react-router-dom";
 
@@ -102,7 +104,7 @@ const AppRouter = () => {
           </ProtectedRoute>
         }
       />
-      {/* <Route
+      <Route
         path="/projects/:id"
         element={
           <ProtectedRoute>
@@ -111,13 +113,23 @@ const AppRouter = () => {
             </MainLayout>
           </ProtectedRoute>
         }
-      /> */}
+      />
       <Route
         path="/messages"
         element={
           <ProtectedRoute>
             <MainLayout>
               <Messages />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/saved-projects"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <SavedProjects />
             </MainLayout>
           </ProtectedRoute>
         }

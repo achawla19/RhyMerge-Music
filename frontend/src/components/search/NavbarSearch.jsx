@@ -204,7 +204,7 @@ export default function NavbarSearch({ width = "lg:w-[360px]" }) {
           </div>
 
           {/* RESULTS */}
-          <div className="p-4">
+          <div className="p-3px">
             <SearchDropdown
               mobile
               results={results}
@@ -212,6 +212,13 @@ export default function NavbarSearch({ width = "lg:w-[360px]" }) {
               closeEverything={closeEverything}
             />
           </div>
+          {results.users?.length === 0 && results.projects?.length === 0 && (
+            <div className=" text-center">
+              <p className="text-sm text-slate-400">
+                No creators or projects found
+              </p>
+            </div>
+          )}
         </div>
       )}
     </>
@@ -328,11 +335,7 @@ function SearchDropdown({
             <button
               key={project._id}
               onClick={() => {
-                navigate("/projects", {
-                  state: {
-                    selectedProjectId: project._id,
-                  },
-                });
+                navigate(`/projects/${project._id}`);
                 closeEverything();
               }}
               className="
@@ -364,9 +367,15 @@ function SearchDropdown({
               </div>
 
               <div className="text-left">
-                <p className="text-white text-sm">{project.title}</p>
+                <p className="text-white text-sm font-medium">
+                  {project.title}
+                </p>
 
                 <p className="text-xs text-slate-400">{project.genre}</p>
+
+                <p className="text-xs text-slate-500">
+                  by {project.owner?.username}
+                </p>
               </div>
             </button>
           ))}

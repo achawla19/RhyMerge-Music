@@ -12,6 +12,7 @@ const Signup = () => {
   const { login } = useAuth();
 
   const [form, setForm] = useState({
+    name: "",
     username: "",
     email: "",
     password: "",
@@ -136,6 +137,24 @@ const Signup = () => {
 
           {/* INPUTS */}
           <div className="mt-6 space-y-4">
+            <input
+              type="text"
+              name="name"
+              placeholder="Full Name"
+              value={form.name}
+              onChange={handleChange}
+              required
+              className="
+                w-full
+                px-4
+                py-3
+
+                rounded-xl
+
+                bg-transparent
+                border border-white/10
+              "
+            />
             <input
               type="text"
               name="username"

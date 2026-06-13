@@ -3,12 +3,16 @@ import User from "../models/user.js";
 
 export const createProject = async (req, res) => {
   try {
-    const { title, description, genre } = req.body;
+    const { title, description, genre, neededRoles, lookingForCollaborators } =
+      req.body;
 
     const project = await Project.create({
       title,
       description,
       genre,
+      neededRoles: neededRoles || [],
+      lookingForCollaborators:
+        lookingForCollaborators !== undefined ? lookingForCollaborators : true,
       owner: req.user.id,
     });
 
@@ -24,6 +28,7 @@ export const getProjects = async (req, res) => {
   try {
     const projects = await Project.find()
       .populate("owner", "username name avatar role")
+      .populate("collaborators", "username name avatar role")
       .sort({ createdAt: -1 });
 
     res.json(projects);
@@ -50,6 +55,7 @@ export const getProjectsByUsername = async (req, res) => {
       owner: user._id,
     })
       .populate("owner", "username name avatar")
+      .populate("collaborators", "username name avatar")
       .sort({ createdAt: -1 });
 
     res.json(projects);
@@ -92,10 +98,31 @@ export const searchProjects = async (req, res) => {
 
     const projects = await Project.find(filter)
       .populate("owner", "username avatar")
+      .populate("collaborators", "username avatar")
       .sort({ createdAt: -1 });
 
     res.json(projects);
   } catch (err) {
     res.status(500).json({ msg: "Search failed" });
+  }
+};
+
+export const getProjectById = async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id)
+      .populate("owner", "username avatar role")
+      .populate("collaborators", "username avatar role");
+
+    if (!project) {
+      return res.status(404).json({
+        msg: "Project not found",
+      });
+    }
+
+    res.json(project);
+  } catch (err) {
+    res.status(500).json({
+      msg: "Failed to fetch project",
+    });
   }
 };

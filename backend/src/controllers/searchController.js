@@ -24,11 +24,21 @@ export const globalSearch = async (req, res) => {
 
     const projects = await Project.find({
       $or: [
-        { title: { $regex: q, $options: "i" } },
-        { genre: { $regex: q, $options: "i" } },
+        {
+          title: {
+            $regex: q,
+            $options: "i",
+          },
+        },
+        {
+          genre: {
+            $regex: q,
+            $options: "i",
+          },
+        },
       ],
     })
-      .populate("owner", "username")
+      .populate("owner", "username avatar")
       .limit(5);
 
     res.json({

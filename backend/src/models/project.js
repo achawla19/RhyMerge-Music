@@ -41,6 +41,15 @@ const projectSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    neededRoles: {
+      type: [String],
+      default: [],
+    },
+
+    lookingForCollaborators: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     timestamps: true,

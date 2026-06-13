@@ -7,6 +7,7 @@ import {
   User,
   Music,
   X,
+  Bookmark,
 } from "lucide-react";
 
 import { useNavigate, useLocation } from "react-router-dom";
@@ -29,6 +30,11 @@ const MobileSidebar = ({ open, onClose }) => {
       label: "Projects",
       icon: LayoutGrid,
       path: "/projects",
+    },
+    {
+      label: "Saved",
+      icon: Bookmark,
+      path: "/saved-projects",
     },
     {
       label: "Search",

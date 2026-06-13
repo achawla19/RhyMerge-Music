@@ -107,6 +107,12 @@ const userSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    savedProjects: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Project",
+      },
+    ],
   },
   { timestamps: true },
 );

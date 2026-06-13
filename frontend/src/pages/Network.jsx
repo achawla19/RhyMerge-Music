@@ -15,6 +15,7 @@ import {
   getSentRequests,
 } from "../api/connection";
 import { getAllUsers } from "../api/user";
+import { getRecommendations } from "../api/recommendations";
 
 const statusOptions = [
   "Working together",
@@ -38,13 +39,13 @@ export default function Network() {
     try {
       const [allUsers, requestsData, connectionsData, sentRequestsData] =
         await Promise.all([
-          getAllUsers(),
           getRequests(),
           getConnections(),
           getSentRequests(),
+          getRecommendations(),
         ]);
 
-      setSuggestions(allUsers);
+      setSuggestions(allUsers.slice(0, 9));
       setRequests(requestsData);
       setConnections(connectionsData);
       setSentRequests(sentRequestsData);
@@ -109,8 +110,8 @@ export default function Network() {
       <Tabs
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        connectionsCount={connections.length}
-        requestsCount={requests.length}
+        connectionsCount={Array.isArray(connections) ? connections.length : 0}
+        requestsCount={Array.isArray(requests) ? requests.length : 0}
       />
 
       <div className="relative flex gap-6">
@@ -158,20 +159,21 @@ export default function Network() {
             {activeTab === "connections" && (
               <>
                 <div className="grid md:grid-cols-2 gap-4">
-                  {connections.map((c) => (
-                    <ConnectionCard
-                      key={c._id}
-                      data={{
-                        ...c,
-                        id: c._id,
-                        name: c.name || c.username,
-                        status: "Working together",
-                      }}
-                      statusOptions={statusOptions}
-                      onStatusChange={() => {}}
-                      onRemove={handleRemove}
-                    />
-                  ))}
+                  {Array.isArray(connections) &&
+                    connections.map((c) => (
+                      <ConnectionCard
+                        key={c._id}
+                        data={{
+                          ...c,
+                          id: c._id,
+                          name: c.name || c.username,
+                          status: "Working together",
+                        }}
+                        statusOptions={statusOptions}
+                        onStatusChange={() => {}}
+                        onRemove={handleRemove}
+                      />
+                    ))}
                 </div>
 
                 {/* SUGGESTIONS */}

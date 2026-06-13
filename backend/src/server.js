@@ -10,6 +10,10 @@ import postRoutes from "./routes/postRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import connectionRoutes from "./routes/connectionRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
+import savedProjectRoutes from "./routes/savedProjectRoutes.js";
+import projectRequestRoutes from "./routes/projectRequestRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
+import recommendationRoutes from "./routes/recommendationRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -33,6 +37,10 @@ app.use("/api/posts", postRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/connections", connectionRoutes);
 app.use("/api/search", searchRoutes);
+app.use("/api/saved-projects", savedProjectRoutes);
+app.use("/api/project-requests", projectRequestRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/recommendations", recommendationRoutes);
 app.get("/", (req, res) => {
   res.send("API Running");
 });
