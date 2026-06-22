@@ -108,6 +108,9 @@ export default function NavbarSearch({ width = "lg:w-[360px]" }) {
             px-4
 
             rounded-2xl
+
+            bg-white/[0.05]
+            border border-white/[0.07]
           `}
         >
           <Search size={18} className="text-slate-500" />

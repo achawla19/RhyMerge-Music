@@ -1,72 +1,73 @@
 import { Music, Mic, Sparkles } from "lucide-react";
 
-const BioSection = ({ bio, genre, instruments = [], pastProjects = [] }) => {
+const BioSection = ({ bio, genre, instruments = [] }) => {
   return (
-    <div className="bg-[#111118] rounded-2xl p-6 border border-gray-800">
-      {/* Header */}
+    <div
+      className="rounded-2xl p-6"
+      style={{
+        background: "var(--rm-bg-card)",
+        border: "1px solid var(--rm-border)",
+      }}
+    >
       <div className="flex items-center gap-2 mb-5">
-        <Sparkles className="w-5 h-5 text-purple-400" />
-        <h2 className="text-xl font-semibold text-white">About</h2>
+        <Sparkles size={18} color="#C084FC" />
+        <h2 className="text-lg font-semibold text-white">About</h2>
       </div>
 
-      {/* Bio */}
-      <p className="text-gray-300 text-sm leading-relaxed mb-6">
+      <p className="text-sm leading-relaxed mb-6" style={{ color: "#D1D5DB" }}>
         {bio || "No bio available yet."}
       </p>
 
-      {/* Genre */}
       <div className="mb-5">
-        <div className="flex items-center gap-2 text-gray-400 mb-2">
-          <Music size={16} />
-          <span className="text-sm">Genres</span>
+        <div
+          className="flex items-center gap-2 mb-2"
+          style={{ color: "var(--rm-text-muted)" }}
+        >
+          <Music size={14} />
+          <span
+            className="text-xs"
+            style={{ fontFamily: "var(--rm-font-mono)" }}
+          >
+            genres
+          </span>
         </div>
-
-        <p className="text-white">{genre || "Not specified"}</p>
+        <p className="text-sm text-white">{genre || "Not specified"}</p>
       </div>
 
-      {/* Instruments */}
-      <div className="mb-5">
-        <div className="flex items-center gap-2 text-gray-400 mb-3">
-          <Mic size={16} />
-          <span className="text-sm">Skills & Instruments</span>
+      <div>
+        <div
+          className="flex items-center gap-2 mb-3"
+          style={{ color: "var(--rm-text-muted)" }}
+        >
+          <Mic size={14} />
+          <span
+            className="text-xs"
+            style={{ fontFamily: "var(--rm-font-mono)" }}
+          >
+            skills & instruments
+          </span>
         </div>
 
         {instruments.length > 0 ? (
           <div className="flex flex-wrap gap-2">
-            {instruments.map((inst, index) => (
+            {instruments.map((inst) => (
               <span
-                key={index}
-                className="px-3 py-1 rounded-full bg-purple-600/10 border border-purple-500/30 text-purple-300 text-xs"
+                key={inst}
+                className="px-3 py-1 rounded-full text-xs"
+                style={{
+                  background: "var(--rm-purple-dim)",
+                  border: "1px solid var(--rm-purple-border)",
+                  color: "var(--rm-purple-light)",
+                }}
               >
                 {inst}
               </span>
             ))}
           </div>
         ) : (
-          <p className="text-gray-500 text-sm">No instruments listed</p>
-        )}
-      </div>
-
-      {/* Collaborations */}
-      <div>
-        <div className="flex items-center gap-2 text-gray-400 mb-3">
-          <Sparkles size={16} />
-          <span className="text-sm">Past Collaborations</span>
-        </div>
-
-        {pastProjects.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {pastProjects.map((project, index) => (
-              <span
-                key={index}
-                className="px-3 py-1 rounded-full bg-slate-800 text-gray-300 text-xs"
-              >
-                {project}
-              </span>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-500 text-sm">No collaborations yet</p>
+          <p className="text-sm" style={{ color: "var(--rm-text-muted)" }}>
+            no instruments listed
+          </p>
         )}
       </div>
     </div>

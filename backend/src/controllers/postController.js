@@ -18,8 +18,9 @@ export const createPost = async (req, res) => {
 
     res.status(201).json(populatedPost);
   } catch (err) {
+    console.error("postController error:", err);
     res.status(500).json({
-      message: err.message,
+      message: "Something went wrong. Please try again.",
     });
   }
 };
@@ -34,8 +35,9 @@ export const getPosts = async (req, res) => {
 
     res.json(posts);
   } catch (err) {
+    console.error("postController error:", err);
     res.status(500).json({
-      message: err.message,
+      message: "Something went wrong. Please try again.",
     });
   }
 };
@@ -63,8 +65,9 @@ export const toggleLike = async (req, res) => {
 
     res.json(post.likes);
   } catch (err) {
+    console.error("postController error:", err);
     res.status(500).json({
-      message: err.message,
+      message: "Something went wrong. Please try again.",
     });
   }
 };
@@ -95,8 +98,9 @@ export const addComment = async (req, res) => {
 
     res.json(updatedPost);
   } catch (err) {
+    console.error("postController error:", err);
     res.status(500).json({
-      message: err.message,
+      message: "Something went wrong. Please try again.",
     });
   }
 };
@@ -136,8 +140,9 @@ export const addReply = async (req, res) => {
 
     res.json(updatedPost);
   } catch (err) {
+    console.error("postController error:", err);
     res.status(500).json({
-      message: err.message,
+      message: "Something went wrong. Please try again.",
     });
   }
 };

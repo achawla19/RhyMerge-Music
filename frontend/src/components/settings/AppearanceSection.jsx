@@ -1,46 +1,73 @@
 import { useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Info } from "lucide-react";
 import Toggle from "./Toggle";
 
 const accentColors = [
-  "bg-purple-500",
-  "bg-pink-500",
-  "bg-blue-500",
-  "bg-green-500",
-  "bg-orange-500",
+  { hex: "#7C3AED", name: "Groove Violet" },
+  { hex: "#EC4899", name: "Pink" },
+  { hex: "#3B82F6", name: "Blue" },
+  { hex: "#10B981", name: "Green" },
+  { hex: "#F59E0B", name: "Warm Brass" },
 ];
 
 const AppearanceSection = () => {
-  const [darkMode, setDarkMode] = useState(true);
+  const [accent, setAccent] = useState("#7C3AED");
 
   return (
     <div>
       <h2 className="text-white font-semibold text-lg mb-1">Appearance</h2>
-      <p className="text-gray-500 text-sm mb-5">Customize how RhyMerge looks</p>
+      <p className="text-sm mb-5" style={{ color: "var(--rm-text-muted)" }}>
+        Customize how RhyMerge looks
+      </p>
+
+      <div
+        className="flex items-start gap-2 text-xs rounded-xl px-3 py-2.5 mb-5"
+        style={{
+          background: "rgba(245,158,11,0.08)",
+          border: "1px solid rgba(245,158,11,0.25)",
+          color: "#FBBF24",
+        }}
+      >
+        <Info size={14} className="flex-shrink-0 mt-0.5" />
+        <span style={{ fontFamily: "var(--rm-font-mono)" }}>
+          theme preferences aren't saved yet — RhyMerge is dark-mode only for
+          now
+        </span>
+      </div>
+
       <div className="space-y-5">
-        <div className="flex items-center justify-between py-3 border-b border-white/5">
+        <div
+          className="flex items-center justify-between py-3"
+          style={{ borderBottom: "1px solid rgba(124,58,237,0.1)" }}
+        >
           <div className="flex items-center gap-3">
-            {darkMode ? (
-              <Moon className="w-4 h-4 text-purple-400" />
-            ) : (
-              <Sun className="w-4 h-4 text-yellow-400" />
-            )}
+            <Moon size={16} color="#C084FC" />
             <div>
               <p className="text-white text-sm font-medium">Dark Mode</p>
-              <p className="text-gray-500 text-xs">
-                Currently {darkMode ? "enabled" : "disabled"}
+              <p className="text-xs" style={{ color: "var(--rm-text-muted)" }}>
+                always on
               </p>
             </div>
           </div>
-          <Toggle enabled={darkMode} onToggle={() => setDarkMode(!darkMode)} />
+          <Toggle enabled={true} onToggle={() => {}} disabled />
         </div>
+
         <div>
           <p className="text-white text-sm font-medium mb-3">Accent Color</p>
           <div className="flex gap-3">
-            {accentColors.map((color) => (
+            {accentColors.map((c) => (
               <button
-                key={color}
-                className={`w-8 h-8 rounded-full ${color} hover:ring-2 ring-white/50 transition`}
+                key={c.hex}
+                onClick={() => setAccent(c.hex)}
+                title={c.name}
+                className="w-8 h-8 rounded-full transition-all"
+                style={{
+                  background: c.hex,
+                  boxShadow:
+                    accent === c.hex
+                      ? `0 0 0 2px var(--rm-bg-card), 0 0 0 4px ${c.hex}`
+                      : "none",
+                }}
               />
             ))}
           </div>
@@ -49,4 +76,5 @@ const AppearanceSection = () => {
     </div>
   );
 };
+
 export default AppearanceSection;

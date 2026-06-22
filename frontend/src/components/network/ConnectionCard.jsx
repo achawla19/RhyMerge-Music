@@ -1,34 +1,165 @@
-const ConnectionCard = ({ data, statusOptions, onStatusChange, onRemove }) => {
-  return (
-    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-4 flex items-center gap-4">
-      <img
-        src={data.avatar || `https://ui-avatars.com/api/?name=${data.username}`}
-        className="w-12 h-12 rounded-full"
-      />
+import { User, MessageCircle, Circle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-      <div className="flex-1">
-        <p className="font-semibold">{data.name}</p>
-        <p className="text-sm text-gray-400">{data.role}</p>
+export default function ConnectionCard({ data }) {
+  const navigate = useNavigate();
+
+  return (
+    <div
+      className="rm-float-up relative overflow-hidden rounded-2xl p-6 transition-all"
+      style={{
+        background: "var(--rm-bg-card)",
+        border: "1px solid var(--rm-border)",
+      }}
+      onMouseEnter={(e) =>
+        (e.currentTarget.style.borderColor = "rgba(124,58,237,0.4)")
+      }
+      onMouseLeave={(e) =>
+        (e.currentTarget.style.borderColor = "var(--rm-border)")
+      }
+    >
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="flex gap-4 min-w-0">
+          <img
+            src={
+              data.avatar ||
+              `https://ui-avatars.com/api/?name=${data.username}&background=7c3aed&color=fff`
+            }
+            alt=""
+            className="w-16 h-16 rounded-2xl object-cover flex-shrink-0"
+            style={{ border: "1.5px solid var(--rm-purple-border)" }}
+          />
+          <div className="min-w-0">
+            <h3 className="text-lg font-semibold text-white truncate">
+              {data.name || data.username}
+            </h3>
+            <p
+              className="text-sm"
+              style={{ color: "var(--rm-text-secondary)" }}
+            >
+              {data.role || "Music Creator"}
+            </p>
+            <div className="flex items-center gap-1.5 mt-2">
+              <Circle size={8} fill="#10B981" color="#10B981" />
+              <span
+                className="text-xs"
+                style={{ color: "#34D399", fontFamily: "var(--rm-font-mono)" }}
+              >
+                {data.availability || "Available"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <span
+          className="px-3 py-1 rounded-full text-[10px] flex-shrink-0"
+          style={{
+            background: "var(--rm-purple-dim)",
+            color: "var(--rm-purple-light)",
+            border: "1px solid var(--rm-purple-border)",
+            fontFamily: "var(--rm-font-mono)",
+          }}
+        >
+          synced
+        </span>
       </div>
 
-      <select
-        value={data.status}
-        onChange={(e) => onStatusChange(data._id, e.target.value)}
-        className="bg-gray-800 px-2 py-1 rounded"
+      <p
+        className="mt-5 text-sm leading-relaxed min-h-[44px]"
+        style={{ color: "#9CA3AF" }}
       >
-        {statusOptions.map((s) => (
-          <option key={s}>{s}</option>
-        ))}
-      </select>
+        {data.bio || "No bio yet."}
+      </p>
 
-      <button
-        onClick={() => onRemove(data._id)}
-        className="text-sm bg-white/5 border border-purple-400/30 px-3 py-1 rounded-md"
-      >
-        Remove
-      </button>
+      <div className="mt-5 grid grid-cols-3 gap-3">
+        {[
+          { label: "Followers", value: data.followers?.length || 0 },
+          { label: "Network", value: data.connections?.length || 0 },
+          { label: "Genres", value: data.genres?.length || 0 },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            className="rounded-xl p-3 text-center"
+            style={{ background: "var(--rm-bg)" }}
+          >
+            <p
+              className="text-lg font-bold text-white"
+              style={{ fontFamily: "var(--rm-font-mono)" }}
+            >
+              {stat.value}
+            </p>
+            <p
+              className="text-[10px] mt-0.5"
+              style={{ color: "var(--rm-text-muted)" }}
+            >
+              {stat.label}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {data.genres?.length > 0 && (
+        <div className="mt-5 flex flex-wrap gap-2">
+          {data.genres.slice(0, 3).map((genre) => (
+            <span
+              key={genre}
+              className="px-2.5 py-1 rounded-full text-[10px]"
+              style={{
+                background: "var(--rm-purple-dim)",
+                color: "var(--rm-purple-light)",
+                border: "1px solid var(--rm-purple-border)",
+                fontFamily: "var(--rm-font-mono)",
+              }}
+            >
+              {genre}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-6 flex gap-3">
+        <button
+          onClick={() => navigate(`/profile/${data.username}`)}
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white text-sm transition-all"
+          style={{
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.background = "rgba(255,255,255,0.08)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.background = "rgba(255,255,255,0.04)")
+          }
+        >
+          <User size={15} />
+          Profile
+        </button>
+        <button
+          onClick={() =>
+            navigate("/messages", {
+              state: {
+                startChatWithUser: {
+                  _id: data._id,
+                  username: data.username,
+                  name: data.name,
+                  avatar: data.avatar,
+                  role: data.role,
+                },
+              },
+            })
+          }
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white text-sm font-medium transition-all"
+          style={{ background: "var(--rm-purple)" }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "#6D28D9")}
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.background = "var(--rm-purple)")
+          }
+        >
+          <MessageCircle size={15} />
+          Message
+        </button>
+      </div>
     </div>
   );
-};
-
-export default ConnectionCard;
+}

@@ -1,5 +1,6 @@
 import User from "../models/user.js";
 import Post from "../models/post.js";
+import { escapeRegex } from "../utils/sanitize.js";
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -15,7 +16,8 @@ export const searchUsers = async (req, res) => {
   try {
     const clean = (v) => (!v || v === "null" ? "" : v);
 
-    const q = clean(req.query.q);
+    // Escaped before $regex — see escapeRegex for why (ReDoS protection)
+    const q = escapeRegex(clean(req.query.q));
     const role = clean(req.query.role);
     const genre = clean(req.query.genre);
 
@@ -115,12 +117,28 @@ export const updateMyProfile = async (req, res) => {
     if (experienceLevel !== undefined) user.experienceLevel = experienceLevel;
 
     if (availability !== undefined) user.availability = availability;
-    await user.save();
+    // validateModifiedOnly: only re-validate fields this request actually
+    // changed — a corrupted legacy value in an unrelated field (e.g. an old
+    // bad connection-request entry) should never block a profile update.
+    await user.save({ validateModifiedOnly: true });
 
     const updatedUser = await User.findById(user._id).select("-password");
 
     return res.json({ user: updatedUser });
   } catch (err) {
+    // Full detail logged server-side only — never sent to the client.
+    // Leaking raw Mongoose/CastError messages can expose internal field
+    // names, schema structure, and document IDs to anyone calling the API.
+    console.error("updateMyProfile error:", err);
+
+    if (err.name === "ValidationError" || err.name === "CastError") {
+      return res
+        .status(400)
+        .json({
+          msg: "Some of your profile data could not be saved. Please try again or contact support.",
+        });
+    }
+
     return res.status(500).json({ msg: "Failed to update profile" });
   }
 };

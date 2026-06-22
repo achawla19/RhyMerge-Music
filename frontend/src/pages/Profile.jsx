@@ -6,17 +6,21 @@ import ProfileHeader from "../components/profile/ProfileHeader";
 import BioSection from "../components/profile/BioSection";
 import ProjectHistory from "../components/profile/ProjectHistory";
 import RightPanel from "../components/profile/RightPanel";
+import EditProfileModal from "../components/profile/EditProfileModal";
 
+import { useAuth } from "../context/AuthContext";
 import { getUserByUsername } from "../api/profile";
 import { getProjectsByUsername } from "../api/projects";
 
 export default function Profile() {
   const { username } = useParams();
+  const { user } = useAuth();
 
-  const [profile, setProfile] = useState(null);
+  const [profileData, setProfile] = useState(null);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -24,13 +28,13 @@ export default function Profile() {
       setError("");
 
       try {
-        const [profileData, projectsData] = await Promise.all([
+        const [profileRes, projectsRes] = await Promise.all([
           getUserByUsername(username),
           getProjectsByUsername(username),
         ]);
 
-        setProfile(profileData.user);
-        setProjects(projectsData || []);
+        setProfile(profileRes.user);
+        setProjects(projectsRes || []);
       } catch (err) {
         setError(err.message || "Failed to load profile or projects");
       } finally {
@@ -43,87 +47,99 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0b0b12] flex items-center justify-center">
-        <div className="text-purple-400 text-lg font-medium">
-          Loading profile...
-        </div>
+      <div className="flex items-center justify-center py-32">
+        <span
+          style={{
+            fontFamily: "var(--rm-font-mono)",
+            fontSize: 13,
+            color: "var(--rm-purple-light)",
+          }}
+        >
+          loading profile...
+        </span>
       </div>
     );
   }
 
-  if (error || !profile) {
+  if (error || !profileData) {
     return (
-      <div className="min-h-screen bg-[#0b0b12] flex items-center justify-center">
-        <div className="text-red-400 text-lg">
+      <div className="flex items-center justify-center py-32">
+        <span
+          style={{
+            fontFamily: "var(--rm-font-mono)",
+            fontSize: 13,
+            color: "#F87171",
+          }}
+        >
           {error || "Profile not found"}
-        </div>
+        </span>
       </div>
     );
   }
+
+  const isOwnProfile = user?.username === profileData.username;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="min-h-screen bg-[#0b0b12] text-white"
-    >
-      {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-purple-600/10 blur-[150px]" />
-        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-pink-600/10 blur-[150px]" />
-      </div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <ProfileHeader
+        userId={profileData._id}
+        username={profileData.username}
+        name={profileData.name || "Unknown User"}
+        role={profileData.role || "Music Creator"}
+        location={profileData.location || ""}
+        avatar={
+          profileData.avatar ||
+          `https://ui-avatars.com/api/?name=${encodeURIComponent(
+            profileData.name || profileData.username,
+          )}&background=7c3aed&color=fff`
+        }
+        connections={profileData.connectionsCount || 0}
+        projects={projects.length}
+        isOwnProfile={isOwnProfile}
+        onEditClick={() => setEditOpen(true)}
+      />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
-        {/* Header */}
-        <ProfileHeader
-          name={profile.name || "Unknown User"}
-          role={profile.role || "Music Creator"}
-          location={profile.location || "Location not specified"}
-          avatar={
-            profile.avatar ||
-            `https://ui-avatars.com/api/?name=${encodeURIComponent(
-              profile.name || profile.username,
-            )}&background=7c3aed&color=fff`
-          }
-          connections={profile.connectionsCount || 0}
-          projects={profile.projectsCount || 0}
-        />
+      <div className="grid lg:grid-cols-[320px_1fr_300px] gap-6 mt-6">
+        <div>
+          <BioSection
+            bio={profileData.bio || "No bio available yet."}
+            genre={
+              profileData.genres?.length
+                ? profileData.genres.join(", ")
+                : "Not specified"
+            }
+            instruments={profileData.instruments || []}
+          />
+        </div>
 
-        {/* Main Grid */}
-        <div className="grid lg:grid-cols-[320px_1fr_300px] gap-6 mt-6">
-          {/* Left Column */}
-          <div>
-            <BioSection
-              bio={profile.bio || "No bio available yet."}
-              genre={
-                profile.genres?.length
-                  ? profile.genres.join(", ")
-                  : "Not specified"
-              }
-              instruments={profile.instruments || []}
-              pastProjects={[]}
-            />
-          </div>
+        <div>
+          <ProjectHistory projects={projects} />
+        </div>
 
-          {/* Center Column */}
-          <div>
-            <ProjectHistory projects={projects} />
-          </div>
-
-          {/* Right Column */}
-          <div>
-            <RightPanel
-              responseTime={
-                profile.availability === "Available"
-                  ? "Usually Active"
-                  : "Limited Availability"
-              }
-              certificates={profile.certificates || []}
-              profileUrl={window.location.href}
-            />
-          </div>
+        <div>
+          <RightPanel
+            responseTime={
+              profileData.availability === "Available"
+                ? "Usually Active"
+                : "Limited Availability"
+            }
+            certificates={profileData.certificates || []}
+            profileUrl={window.location.href}
+          />
         </div>
       </div>
+
+      {/* Editing opens right here — no navigating away to Settings anymore */}
+      {isOwnProfile && (
+        <EditProfileModal
+          isOpen={editOpen}
+          onClose={() => setEditOpen(false)}
+          onSaved={(updatedUser) => {
+            // Reflect the save instantly without a refetch/reload
+            setProfile((prev) => ({ ...prev, ...updatedUser }));
+          }}
+        />
+      )}
     </motion.div>
   );
 }

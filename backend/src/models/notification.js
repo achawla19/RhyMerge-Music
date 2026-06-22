@@ -15,8 +15,42 @@ const notificationSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: ["project_request", "request_accepted", "request_rejected"],
+      enum: [
+        "project_request",
+        "request_accepted",
+        "request_rejected",
+
+        "connection_request",
+        "connection_accepted",
+
+        "message",
+
+        "recommendation",
+
+        "ai_insight",
+
+        "project_match",
+
+        "system",
+      ],
       required: true,
+    },
+
+    title: {
+      type: String,
+    },
+
+    description: {
+      type: String,
+    },
+
+    link: {
+      type: String,
+    },
+
+    priority: {
+      type: Number,
+      default: 2,
     },
 
     project: {

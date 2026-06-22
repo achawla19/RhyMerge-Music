@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import {
   Home,
   LayoutGrid,
@@ -5,231 +6,387 @@ import {
   Users,
   Settings,
   User,
-  Music,
-  X,
   Bookmark,
+  Radio,
+  X,
+  LogOut,
 } from "lucide-react";
-
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
+// ─── Mini waveform (same as desktop sidebar) ──────────────────
+const MiniWave = () => {
+  const refs = useRef([]);
+  useEffect(() => {
+    const intervals = refs.current.map((bar, i) =>
+      setInterval(
+        () => {
+          if (bar) bar.style.height = `${Math.round(3 + Math.random() * 10)}px`;
+        },
+        300 + i * 90,
+      ),
+    );
+    return () => intervals.forEach(clearInterval);
+  }, []);
+  return (
+    <div className="flex items-center gap-[2px] ml-auto" style={{ height: 14 }}>
+      {[8, 12, 6, 10, 7].map((h, i) => (
+        <div
+          key={i}
+          ref={(el) => (refs.current[i] = el)}
+          style={{
+            width: 2,
+            height: h,
+            borderRadius: 1,
+            background: "var(--rm-purple-light)",
+            transition: "height 0.3s ease",
+            flexShrink: 0,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+// ─── Nav items — paths UNCHANGED ─────────────────────────────
+const NAV_ITEMS = (username) => [
+  { label: "Home", sublabel: "dashboard", icon: Home, path: "/" },
+  {
+    label: "Mixes",
+    sublabel: "open projects",
+    icon: LayoutGrid,
+    path: "/projects",
+  },
+  {
+    label: "Saved",
+    sublabel: "bookmarked",
+    icon: Bookmark,
+    path: "/saved-projects",
+  },
+  { label: "Find Stems", sublabel: "search", icon: Search, path: "/search" },
+  { label: "Syncs", sublabel: "network", icon: Users, path: "/network" },
+  { label: "Signals", sublabel: "community", icon: Radio, path: "/community" },
+  {
+    label: "My Stem",
+    sublabel: "profile",
+    icon: User,
+    path: `/profile/${username || ""}`,
+  },
+  {
+    label: "Settings",
+    sublabel: "preferences",
+    icon: Settings,
+    path: "/settings",
+  },
+];
+
+// ─── Component ────────────────────────────────────────────────
 const MobileSidebar = ({ open, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const [visible, setVisible] = useState(false);
 
-  if (!open) return null;
+  // Drive CSS slide animation separately from open prop
+  useEffect(() => {
+    if (open) {
+      setVisible(true);
+    } else {
+      // Let slide-out play before unmounting
+      const t = setTimeout(() => setVisible(false), 280);
+      return () => clearTimeout(t);
+    }
+  }, [open]);
 
-  const navItems = [
-    {
-      label: "Home",
-      icon: Home,
-      path: "/",
-    },
-    {
-      label: "Projects",
-      icon: LayoutGrid,
-      path: "/projects",
-    },
-    {
-      label: "Saved",
-      icon: Bookmark,
-      path: "/saved-projects",
-    },
-    {
-      label: "Search",
-      icon: Search,
-      path: "/search",
-    },
-    {
-      label: "Network",
-      icon: Users,
-      path: "/network",
-    },
-    {
-      label: "Profile",
-      icon: User,
-      path: `/profile/${user?.username || ""}`,
-    },
-    {
-      label: "Settings",
-      icon: Settings,
-      path: "/settings",
-    },
-  ];
+  if (!visible) return null;
+
+  const navItems = NAV_ITEMS(user?.username);
 
   const handleNavigate = (path) => {
     navigate(path);
     onClose();
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+    onClose();
+  };
+
   return (
-    <div className="lg:hidden fixed inset-0 z-[100]">
-      {/* BACKDROP */}
+    <div className="lg:hidden fixed inset-0" style={{ zIndex: 200 }}>
+      {/* ── Backdrop ── */}
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className="absolute inset-0"
+        style={{
+          background: "rgba(0,0,0,0.75)",
+          backdropFilter: "blur(4px)",
+          WebkitBackdropFilter: "blur(4px)",
+          animation: open
+            ? "rmFadeIn 0.25s ease both"
+            : "rmFadeOut 0.25s ease both",
+        }}
         onClick={onClose}
       />
 
-      {/* DRAWER */}
+      {/* ── Drawer ── */}
       <div
-        className="
-          absolute
-          left-0
-          top-0
-          h-full
-          w-[280px]
-
-          bg-[#0B0C14]
-          border-r
-          border-white/[0.06]
-
-          flex
-          flex-col
-
-          shadow-2xl
-        "
+        className="absolute left-0 top-0 h-full w-[280px] flex flex-col"
+        style={{
+          background: "rgba(10, 6, 18, 0.98)",
+          backdropFilter: "blur(24px)",
+          WebkitBackdropFilter: "blur(24px)",
+          borderRight: "1px solid rgba(124,58,237,0.2)",
+          boxShadow: "8px 0 40px rgba(0,0,0,0.5)",
+          animation: open
+            ? "rmSlideInLeft 0.28s var(--rm-ease) both"
+            : "rmSlideOutLeft 0.25s ease both",
+        }}
       >
-        {/* HEADER */}
-        <div className="p-6 border-b border-white/[0.06] flex items-center justify-between">
+        {/* ── Header ── */}
+        <div
+          className="flex items-center justify-between px-5 py-5"
+          style={{ borderBottom: "1px solid rgba(124,58,237,0.12)" }}
+        >
           <button
             onClick={() => handleNavigate("/")}
-            className="
-              flex
-              items-center
-              gap-3
-              text-left
-              hover:opacity-90
-              transition-all
-            "
+            className="flex items-center gap-3"
           >
+            {/* Waveform logo mark */}
             <div
-              className="
-                w-11 h-11
-                rounded-2xl
-
-                bg-gradient-to-br
-                from-purple-500
-                via-pink-500
-                to-cyan-500
-
-                flex
-                items-center
-                justify-center
-
-                shadow-lg
-              "
+              className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{
+                background: "var(--rm-bg-raised)",
+                border: "1px solid var(--rm-border)",
+              }}
             >
-              <Music className="w-5 h-5 text-white" />
+              <div
+                className="flex items-center gap-[2px]"
+                style={{ height: 18 }}
+              >
+                {[6, 12, 18, 10, 16, 8, 14].map((h, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      width: 2,
+                      height: h,
+                      borderRadius: 1,
+                      background: "var(--rm-purple-light)",
+                      flexShrink: 0,
+                    }}
+                  />
+                ))}
+              </div>
             </div>
+            <div className="text-left">
+              <div className="flex items-baseline gap-0.5 leading-none">
+                <span
+                  className="text-base font-bold"
+                  style={{ color: "var(--rm-purple-light)" }}
+                >
+                  Rhy
+                </span>
+                <span className="text-base font-bold text-white">Merge</span>
+              </div>
+              <p
+                className="text-[9px] mt-0.5 uppercase tracking-widest"
+                style={{
+                  fontFamily: "var(--rm-font-mono)",
+                  color: "var(--rm-text-muted)",
+                }}
+              >
+                where rhythms collide
+              </p>
+            </div>
+          </button>
 
-            <div>
-              <h2 className="text-white font-bold">RhyMerge</h2>
+          {/* Close */}
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.07)",
+              color: "#6B7280",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "rgba(248,113,113,0.4)";
+              e.currentTarget.style.color = "#F87171";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
+              e.currentTarget.style.color = "#6B7280";
+            }}
+          >
+            <X size={16} />
+          </button>
+        </div>
 
-              <p className="text-xs text-slate-400">Music Collaboration</p>
+        {/* ── Navigation ── */}
+        <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-1">
+          <p
+            className="px-3 mb-3 text-[9px] uppercase tracking-[2px]"
+            style={{
+              fontFamily: "var(--rm-font-mono)",
+              color: "var(--rm-text-muted)",
+            }}
+          >
+            navigate
+          </p>
+
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active =
+              location.pathname === item.path ||
+              (item.path !== "/" && location.pathname.startsWith(item.path));
+
+            return (
+              <button
+                key={item.path}
+                onClick={() => handleNavigate(item.path)}
+                className="relative flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-all"
+                style={
+                  active
+                    ? {
+                        background: "rgba(124,58,237,0.14)",
+                        border: "1px solid rgba(124,58,237,0.3)",
+                      }
+                    : {
+                        background: "transparent",
+                        border: "1px solid transparent",
+                      }
+                }
+              >
+                {active && (
+                  <div
+                    className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full"
+                    style={{ background: "var(--rm-purple-light)" }}
+                  />
+                )}
+
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={
+                    active
+                      ? {
+                          background: "var(--rm-purple-dim)",
+                          color: "var(--rm-purple-light)",
+                        }
+                      : {
+                          background: "rgba(255,255,255,0.04)",
+                          color: "#6B7280",
+                        }
+                  }
+                >
+                  <Icon size={15} />
+                </div>
+
+                <div className="flex-1 text-left min-w-0">
+                  <p
+                    className="text-sm font-medium leading-none"
+                    style={{
+                      color: active ? "var(--rm-text-primary)" : "#9CA3AF",
+                    }}
+                  >
+                    {item.label}
+                  </p>
+                  <p
+                    className="text-[10px] mt-0.5"
+                    style={{
+                      fontFamily: "var(--rm-font-mono)",
+                      color: active
+                        ? "var(--rm-purple-light)"
+                        : "var(--rm-text-muted)",
+                    }}
+                  >
+                    {item.sublabel}
+                  </p>
+                </div>
+
+                {active && <MiniWave />}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* ── User stem ── */}
+        <div
+          className="p-4 space-y-2"
+          style={{ borderTop: "1px solid rgba(124,58,237,0.12)" }}
+        >
+          <button
+            onClick={() => handleNavigate(`/profile/${user?.username || ""}`)}
+            className="w-full flex items-center gap-3 p-3 rounded-xl transition-all"
+            style={{
+              background: "rgba(124,58,237,0.07)",
+              border: "1px solid var(--rm-border)",
+            }}
+          >
+            <div className="relative flex-shrink-0">
+              <img
+                src={
+                  user?.avatar ||
+                  `https://ui-avatars.com/api/?name=${user?.username || "U"}&background=7c3aed&color=fff`
+                }
+                alt="avatar"
+                className="w-9 h-9 rounded-full object-cover"
+                style={{ border: "1.5px solid var(--rm-purple)" }}
+              />
+              <span
+                className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full"
+                style={{
+                  background: "var(--rm-green)",
+                  border: "1.5px solid #0B0814",
+                }}
+              />
+            </div>
+            <div className="flex-1 text-left min-w-0">
+              <p className="text-sm font-medium text-white truncate">
+                {user?.username || "Your stem"}
+              </p>
+              <p
+                className="text-[10px] truncate"
+                style={{
+                  fontFamily: "var(--rm-font-mono)",
+                  color: "var(--rm-purple-light)",
+                }}
+              >
+                {user?.role || "music creator"}
+              </p>
             </div>
           </button>
 
           <button
-            onClick={onClose}
-            className="
-              w-10 h-10
-              rounded-xl
-
-              bg-white/[0.04]
-              border border-white/[0.08]
-
-              flex items-center justify-center
-
-              text-slate-300
-            "
+            onClick={handleLogout}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-all text-left"
+            style={{ color: "var(--rm-text-muted)" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "#F87171";
+              e.currentTarget.style.background = "rgba(248,113,113,0.07)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "var(--rm-text-muted)";
+              e.currentTarget.style.background = "transparent";
+            }}
           >
-            <X size={18} />
+            <LogOut size={14} />
+            <span
+              className="text-xs"
+              style={{ fontFamily: "var(--rm-font-mono)" }}
+            >
+              sign out
+            </span>
           </button>
         </div>
-
-        {/* MENU */}
-        <div className="flex-1 p-4">
-          <div className="space-y-2">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-
-              const active = location.pathname === item.path;
-
-              return (
-                <button
-                  key={item.path}
-                  onClick={() => handleNavigate(item.path)}
-                  className={`
-                    flex
-                    items-center
-                    gap-3
-
-                    w-full
-
-                    px-4
-                    py-3
-
-                    rounded-2xl
-
-                    transition-all
-
-                    ${
-                      active
-                        ? `
-                          bg-gradient-to-r
-                          from-purple-500/20
-                          to-pink-500/20
-
-                          border
-                          border-purple-500/20
-
-                          text-white
-                        `
-                        : `
-                          text-slate-400
-                          hover:text-white
-                          hover:bg-white/[0.04]
-                        `
-                    }
-                  `}
-                >
-                  <Icon size={20} />
-
-                  <span className="font-medium">{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* USER */}
-        <div className="p-4 border-t border-white/[0.06]">
-          <div className="flex items-center gap-3">
-            <img
-              src={
-                user?.avatar ||
-                `https://ui-avatars.com/api/?name=${
-                  user?.username || "User"
-                }&background=7c3aed&color=fff`
-              }
-              alt="avatar"
-              className="
-                w-12
-                h-12
-                rounded-full
-                object-cover
-              "
-            />
-
-            <div>
-              <p className="text-white text-sm font-medium">{user?.username}</p>
-
-              <p className="text-xs text-slate-400">{user?.role}</p>
-            </div>
-          </div>
-        </div>
       </div>
+
+      {/* Animation keyframes */}
+      <style>{`
+        @keyframes rmFadeIn      { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes rmFadeOut     { from { opacity: 1 } to { opacity: 0 } }
+        @keyframes rmSlideInLeft  { from { transform: translateX(-100%) } to { transform: translateX(0) } }
+        @keyframes rmSlideOutLeft { from { transform: translateX(0) } to { transform: translateX(-100%) } }
+      `}</style>
     </div>
   );
 };

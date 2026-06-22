@@ -1,87 +1,126 @@
-import Card from "../ui/Card";
 import Avatar from "../Avatar";
 import { ArrowRight } from "lucide-react";
-
-const creators = [
-  {
-    id: 1,
-    name: "Sarah Blake",
-    role: "Vocalist",
-    avatar: "https://i.pravatar.cc/150?img=32",
-    genre: "R&B",
-  },
-  {
-    id: 2,
-    name: "Alex Carter",
-    role: "Producer",
-    avatar: "https://i.pravatar.cc/150?img=15",
-    genre: "Lo-Fi",
-  },
-  {
-    id: 3,
-    name: "David Lee",
-    role: "Guitarist",
-    avatar: "https://i.pravatar.cc/150?img=12",
-    genre: "Rock",
-  },
-];
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getRecommendations } from "../../api/recommendations";
 
 export default function TrendingCreators() {
-  return (
-    <Card>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-white">Trending Creators</h2>
+  const navigate = useNavigate();
+  const [creators, setCreators] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-        <button className="text-purple-400 flex items-center gap-1 text-sm hover:text-purple-300">
-          View All
-          <ArrowRight size={15} />
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getRecommendations();
+        setCreators(data.slice(0, 3));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  return (
+    <div
+      className="rounded-2xl p-5"
+      style={{
+        background: "var(--rm-bg-card)",
+        border: "1px solid var(--rm-border)",
+      }}
+    >
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-base font-semibold text-white">Trending Stems</h2>
+        <button
+          onClick={() => navigate("/network")}
+          className="flex items-center gap-1 text-xs transition-colors"
+          style={{
+            color: "var(--rm-purple-light)",
+            fontFamily: "var(--rm-font-mono)",
+          }}
+        >
+          view all <ArrowRight size={13} />
         </button>
       </div>
 
-      <div className="space-y-4">
-        {creators.map((creator) => (
-          <div
-            key={creator.id}
-            className="
-              flex
-              items-center
-              justify-between
-              p-4
-              rounded-2xl
-              bg-white/[0.03]
-              border
-              border-white/5
-              hover:border-purple-500/20
-              transition-all
-            "
-          >
-            <div className="flex items-center gap-4">
-              <Avatar src={creator.avatar} alt={creator.name} size="lg" />
-
-              <div>
-                <h3 className="text-white font-medium">{creator.name}</h3>
-
-                <p className="text-gray-400 text-sm">{creator.role}</p>
-              </div>
-            </div>
-
-            <span
-              className="
-                px-3
-                py-1
-                rounded-full
-                bg-purple-500/10
-                border
-                border-purple-500/20
-                text-purple-300
-                text-xs
-              "
+      {loading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-14 rounded-xl animate-pulse"
+              style={{ background: "rgba(255,255,255,0.03)" }}
+            />
+          ))}
+        </div>
+      ) : creators.length === 0 ? (
+        <p
+          className="text-xs py-6 text-center"
+          style={{
+            color: "var(--rm-text-muted)",
+            fontFamily: "var(--rm-font-mono)",
+          }}
+        >
+          no recommendations yet
+        </p>
+      ) : (
+        <div className="space-y-3">
+          {creators.map((creator) => (
+            <div
+              key={creator._id}
+              onClick={() => navigate(`/profile/${creator.username}`)}
+              className="flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all"
+              style={{
+                background: "rgba(255,255,255,0.02)",
+                border: "1px solid transparent",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.borderColor = "var(--rm-purple-border)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.borderColor = "transparent")
+              }
             >
-              {creator.genre}
-            </span>
-          </div>
-        ))}
-      </div>
-    </Card>
+              <div className="flex items-center gap-3 min-w-0">
+                <Avatar
+                  src={creator.avatar}
+                  alt={creator.username}
+                  size="md"
+                  online
+                />
+                <div className="min-w-0">
+                  <h3 className="text-sm font-medium text-white truncate">
+                    {creator.name || creator.username}
+                  </h3>
+                  <p
+                    className="text-[11px] truncate"
+                    style={{
+                      color: "var(--rm-text-muted)",
+                      fontFamily: "var(--rm-font-mono)",
+                    }}
+                  >
+                    {creator.role || "Music Creator"}
+                  </p>
+                </div>
+              </div>
+              {creator.genres?.[0] && (
+                <span
+                  className="px-2.5 py-1 rounded-full text-[10px] flex-shrink-0"
+                  style={{
+                    background: "var(--rm-purple-dim)",
+                    color: "var(--rm-purple-light)",
+                    border: "1px solid var(--rm-purple-border)",
+                    fontFamily: "var(--rm-font-mono)",
+                  }}
+                >
+                  {creator.genres[0]}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

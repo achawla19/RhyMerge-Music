@@ -1,37 +1,79 @@
 import Avatar from "../Avatar";
 import { Phone, Info } from "lucide-react";
-import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
-const ChatHeader = ({ user }) => {
+const ChatHeader = ({ user, online, isTyping }) => {
+  const navigate = useNavigate();
+
   return (
-    <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 backdrop-blur-xl bg-white/5">
-      {/* LEFT */}
-      <div className="flex items-center gap-3">
-        <Avatar src={user.avatar} alt={user.name} online={user.online} />
-
+    <div
+      className="flex items-center justify-between px-6 py-4"
+      style={{
+        borderBottom: "1px solid rgba(124,58,237,0.15)",
+        background: "rgba(124,58,237,0.04)",
+      }}
+    >
+      <button
+        onClick={() => navigate(`/profile/${user.username}`)}
+        className="flex items-center gap-3 text-left"
+      >
+        <Avatar
+          src={user.avatar}
+          alt={user.name || user.username}
+          online={online}
+        />
         <div>
-          <p className="text-white font-semibold">{user.name}</p>
-          <p className="text-xs text-gray-400">
-            {user.online ? "● Online" : "● Offline"}
+          <p
+            className="font-medium text-sm"
+            style={{ color: "var(--rm-text-primary)" }}
+          >
+            {user.name || user.username}
+          </p>
+          <p
+            className="text-xs"
+            style={{
+              color: isTyping
+                ? "var(--rm-purple-light)"
+                : online
+                  ? "#34D399"
+                  : "var(--rm-text-muted)",
+              fontFamily: "var(--rm-font-mono)",
+            }}
+          >
+            {isTyping ? "typing..." : online ? "● online" : "● offline"}
           </p>
         </div>
-      </div>
+      </button>
 
-      {/* RIGHT */}
       <div className="flex gap-2">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10"
+        <button
+          disabled
+          title="Voice calls aren't available yet"
+          className="p-2 rounded-lg opacity-30 cursor-not-allowed"
+          style={{
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
         >
-          <Phone size={18} />
-        </motion.button>
-
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10"
+          <Phone size={16} color="var(--rm-text-muted)" />
+        </button>
+        <button
+          onClick={() => navigate(`/profile/${user.username}`)}
+          title="View profile"
+          className="p-2 rounded-lg transition-all"
+          style={{
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.borderColor = "var(--rm-purple-border)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")
+          }
         >
-          <Info size={18} />
-        </motion.button>
+          <Info size={16} color="var(--rm-purple-light)" />
+        </button>
       </div>
     </div>
   );

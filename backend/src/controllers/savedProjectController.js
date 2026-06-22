@@ -32,7 +32,7 @@ export const toggleSavedProject = async (req, res) => {
     console.error(err);
 
     res.status(500).json({
-      msg: err.message,
+      msg: "Something went wrong. Please try again.",
     });
   }
 };

@@ -1,9 +1,13 @@
 import User from "../models/user.js";
 import Project from "../models/project.js";
+import { escapeRegex } from "../utils/sanitize.js";
 
 export const globalSearch = async (req, res) => {
   try {
-    const q = req.query.q || "";
+    // Escaped before ever reaching $regex — an unescaped query lets
+    // anyone submit a catastrophic-backtracking regex pattern and hang
+    // the database processing a single search request (ReDoS).
+    const q = escapeRegex(req.query.q || "");
 
     if (!q.trim()) {
       return res.json({

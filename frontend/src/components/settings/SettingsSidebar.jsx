@@ -11,22 +11,40 @@ const navItems = [
 
 const SettingsSidebar = ({ active, onChange }) => {
   return (
-    <div className="w-52 shrink-0 space-y-1">
-      {navItems.map(({ id, label, icon: Icon }) => (
-        <button
-          key={id}
-          onClick={() => onChange(id)}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition ${
-            active === id
-              ? "bg-purple-500/20 text-purple-400"
-              : "text-gray-400 hover:bg-white/5 hover:text-white"
-          }`}
-        >
-          <Icon className="w-4 h-4" />
-          {label}
-        </button>
-      ))}
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{
+        background: "var(--rm-bg-card)",
+        border: "1px solid var(--rm-border)",
+      }}
+    >
+      {navItems.map(({ id, label, icon: Icon }) => {
+        const isActive = active === id;
+        return (
+          <button
+            key={id}
+            onClick={() => onChange(id)}
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-sm font-medium transition-all"
+            style={
+              isActive
+                ? {
+                    background: "var(--rm-purple-dim)",
+                    color: "var(--rm-purple-light)",
+                    borderLeft: "2px solid var(--rm-purple)",
+                  }
+                : {
+                    color: "var(--rm-text-muted)",
+                    borderLeft: "2px solid transparent",
+                  }
+            }
+          >
+            <Icon size={16} />
+            {label}
+          </button>
+        );
+      })}
     </div>
   );
 };
+
 export default SettingsSidebar;

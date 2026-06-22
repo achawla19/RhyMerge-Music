@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Radio } from "lucide-react";
 
 import Feed from "../components/community/Feed";
 import RightPanel from "../components/community/RightPanel";
@@ -11,7 +12,6 @@ const Community = () => {
   const [tags, setTags] = useState("");
   const [posting, setPosting] = useState(false);
 
-  // FETCH POSTS
   useEffect(() => {
     fetchPosts();
   }, []);
@@ -25,82 +25,108 @@ const Community = () => {
     }
   };
 
-  // CREATE POST
   const handleCreatePost = async () => {
-  if (!content.trim()) return;
-
-  try {
-    setPosting(true);
-
-    const newPost = await createPost({
-      content,
-      tags: tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter(Boolean),
-    });
-
-    setPosts((prev) => [newPost, ...prev]);
-
-    setContent("");
-    setTags("");
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setPosting(false);
-  }
-};
+    if (!content.trim()) return;
+    try {
+      setPosting(true);
+      const newPost = await createPost({
+        content,
+        tags: tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+      });
+      setPosts((prev) => [newPost, ...prev]);
+      setContent("");
+      setTags("");
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPosting(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#121821] text-white">
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        {/* TITLE */}
-        <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600 bg-clip-text text-transparent">
-          Community Feed
-        </h1>
-
-        {/* CREATE POST */}
-        <div className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-5">
-  <textarea
-    value={content}
-    onChange={(e) => setContent(e.target.value)}
-    placeholder="Share your music idea, project, or collaboration request..."
-    maxLength={500}
-    className="w-full bg-transparent outline-none resize-none text-white placeholder:text-gray-500"
-    rows={4}
-  />
-
-  <div className="mt-3">
-    <input
-      type="text"
-      value={tags}
-      onChange={(e) => setTags(e.target.value)}
-      placeholder="Tags (comma separated) e.g. RnB, Producer, LoFi"
-      className="w-full rounded-xl bg-[#1A2230] px-4 py-2 text-sm text-white outline-none border border-white/10"
-    />
-  </div>
-
-  <div className="mt-4 flex items-center justify-between">
-    <span className="text-xs text-gray-500">
-      {content.length}/500 characters
-    </span>
-
-    <button
-      disabled={posting}
-      onClick={handleCreatePost}
-      className="rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-2 font-medium hover:opacity-90 disabled:opacity-50"
-    >
-      {posting ? "Posting..." : "Post"}
-    </button>
-  </div>
-</div>
-
-        {/* FEED */}
-        <div className="grid lg:grid-cols-[1fr_350px] gap-6">
-          <Feed posts={posts} />
-
-          <RightPanel />
+    <div>
+      {/* ── Composer ── */}
+      <div
+        className="mb-6 rounded-2xl p-5"
+        style={{
+          background: "var(--rm-bg-card)",
+          border: "1px solid var(--rm-border)",
+        }}
+      >
+        <div className="flex items-center gap-2 mb-3">
+          <Radio size={14} color="#C084FC" />
+          <span
+            className="text-[11px] uppercase tracking-wider"
+            style={{
+              fontFamily: "var(--rm-font-mono)",
+              color: "var(--rm-purple-light)",
+            }}
+          >
+            broadcast a signal
+          </span>
         </div>
+
+        <textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="share a hook, an open collab, a raw idea..."
+          maxLength={500}
+          className="w-full bg-transparent outline-none resize-none text-sm"
+          style={{ color: "var(--rm-text-primary)" }}
+          rows={4}
+        />
+
+        <input
+          type="text"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          placeholder="tags, comma separated — e.g. RnB, Producer, LoFi"
+          className="w-full mt-3 rounded-xl px-4 py-2.5 text-sm outline-none"
+          style={{
+            background: "var(--rm-bg)",
+            border: "1px solid var(--rm-purple-border)",
+            color: "var(--rm-text-primary)",
+            fontFamily: "var(--rm-font-mono)",
+          }}
+        />
+
+        <div className="mt-4 flex items-center justify-between">
+          <span
+            className="text-[11px]"
+            style={{
+              fontFamily: "var(--rm-font-mono)",
+              color: "var(--rm-text-muted)",
+            }}
+          >
+            {content.length}/500
+          </span>
+
+          <button
+            disabled={posting || !content.trim()}
+            onClick={handleCreatePost}
+            className="rounded-xl px-5 py-2 text-sm font-medium text-white transition-all disabled:opacity-40"
+            style={{ background: "var(--rm-purple)" }}
+            onMouseEnter={(e) =>
+              !e.currentTarget.disabled &&
+              (e.currentTarget.style.background = "#6D28D9")
+            }
+            onMouseLeave={(e) =>
+              !e.currentTarget.disabled &&
+              (e.currentTarget.style.background = "var(--rm-purple)")
+            }
+          >
+            {posting ? "broadcasting..." : "broadcast"}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Feed + sidebar ── */}
+      <div className="grid lg:grid-cols-[1fr_340px] gap-6">
+        <Feed posts={posts} />
+        <RightPanel />
       </div>
     </div>
   );

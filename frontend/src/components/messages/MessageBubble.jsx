@@ -1,40 +1,55 @@
-import { Paperclip } from "lucide-react";
-import { motion } from "framer-motion";
+import { Check, CheckCheck } from "lucide-react";
 
-const MessageBubble = ({ message }) => {
-  const isMe = message.sender === "me";
-
+const MessageBubble = ({ message, isMe }) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`flex ${isMe ? "justify-end" : "justify-start"} mb-3`}
+    <div
+      className={`flex ${isMe ? "justify-end" : "justify-start"} mb-3 rm-slide-in`}
     >
       <div className="max-w-xs">
         <div
-          className={`px-4 py-3 rounded-2xl text-sm relative overflow-hidden
-            ${
-              isMe
-                ? "bg-purple-500/30 border border-purple-400/30 text-white backdrop-blur-md shadow-[0_0_10px_rgba(168,85,247,0.15)]"
-                : "bg-white/5 border border-white/10 text-gray-200 backdrop-blur-md shadow-[0_0_10px_rgba(168,85,247,0.15)]"
-            }`}
+          className="px-4 py-2.5 rounded-2xl text-sm"
+          style={
+            isMe
+              ? {
+                  background: "var(--rm-purple-dim)",
+                  border: "1px solid var(--rm-purple-border)",
+                  color: "var(--rm-text-primary)",
+                }
+              : {
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  color: "#D1D5DB",
+                }
+          }
         >
-          <p>{message.text}</p>
-
-          {/* FILE */}
-          {message.file && (
-            <div className="mt-2 flex items-center gap-2 bg-black/20 px-3 py-2 rounded-lg">
-              <Paperclip size={14} />
-              <span className="text-xs">{message.file}</span>
-            </div>
-          )}
+          <p style={{ wordBreak: "break-word" }}>{message.text}</p>
         </div>
-
-        <span className="text-[10px] text-gray-500 mt-1 block px-1">
-          {message.time}
-        </span>
+        <div
+          className="flex items-center gap-1 mt-1 px-1"
+          style={{ justifyContent: isMe ? "flex-end" : "flex-start" }}
+        >
+          <span
+            className="text-[10px]"
+            style={{
+              color: "var(--rm-text-muted)",
+              fontFamily: "var(--rm-font-mono)",
+            }}
+          >
+            {new Date(message.createdAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </span>
+          {/* Read receipts only make sense on messages I sent */}
+          {isMe &&
+            (message.isRead ? (
+              <CheckCheck size={12} color="#C084FC" />
+            ) : (
+              <Check size={12} color="var(--rm-text-muted)" />
+            ))}
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

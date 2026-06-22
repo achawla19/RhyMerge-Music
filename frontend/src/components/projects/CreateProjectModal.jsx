@@ -1,7 +1,5 @@
 import { useState } from "react";
-
 import Modal from "./Modal";
-
 import Input from "../ui/Input";
 import Textarea from "../ui/Textarea";
 
@@ -19,12 +17,11 @@ const AVAILABLE_ROLES = [
 
 export default function CreateProjectModal({ isOpen, onClose, onCreate }) {
   const [title, setTitle] = useState("");
-
   const [description, setDescription] = useState("");
-
   const [genre, setGenre] = useState("");
-
   const [neededRoles, setNeededRoles] = useState([]);
+  const [lookingForCollaborators, setLookingForCollaborators] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   const toggleRole = (role) => {
     setNeededRoles((prev) =>
@@ -32,31 +29,32 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate }) {
     );
   };
 
-  const [lookingForCollaborators, setLookingForCollaborators] = useState(true);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    await onCreate({
-      title,
-      description,
-      genre,
-      neededRoles,
-    });
-
-    setTitle("");
-    setDescription("");
-    setGenre("");
-    setNeededRoles([]);
-
-    onClose();
+    setSubmitting(true);
+    try {
+      await onCreate({
+        title,
+        description,
+        genre,
+        neededRoles,
+        lookingForCollaborators,
+      });
+      setTitle("");
+      setDescription("");
+      setGenre("");
+      setNeededRoles([]);
+      onClose();
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create Project">
+    <Modal isOpen={isOpen} onClose={onClose} title="Start a Mix">
       <form onSubmit={handleSubmit} className="space-y-5">
         <Input
-          label="Project Name"
+          label="Project name"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Midnight Echoes"
@@ -66,7 +64,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate }) {
           label="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Describe your project..."
+          placeholder="what's this mix about?"
         />
 
         <Input
@@ -76,116 +74,88 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate }) {
           placeholder="Lo-Fi"
         />
 
-        {/* NEEDED ROLES */}
-
         <div>
           <label
-            className="
-              block
-              mb-3
-
-              text-sm
-              font-medium
-
-              text-slate-300
-            "
+            className="block mb-3 text-xs"
+            style={{
+              fontFamily: "var(--rm-font-mono)",
+              color: "var(--rm-text-muted)",
+            }}
           >
-            Looking For
+            looking for
           </label>
-
-          <div
-            className="
-              flex
-              flex-wrap
-              gap-2
-            "
-          >
-            {AVAILABLE_ROLES.map((role) => (
-              <button
-                key={role}
-                type="button"
-                onClick={() => toggleRole(role)}
-                className={`
-                  px-3 py-2
-
-                  rounded-xl
-
-                  text-sm
-
-                  border
-
-                  transition-all
-
-                  ${
-                    neededRoles.includes(role)
-                      ? `
-                        bg-purple-500/20
-                        text-purple-300
-                        border-purple-500/30
-                      `
-                      : `
-                        bg-white/[0.03]
-                        text-slate-400
-                        border-white/[0.08]
-                      `
+          <div className="flex flex-wrap gap-2">
+            {AVAILABLE_ROLES.map((role) => {
+              const active = neededRoles.includes(role);
+              return (
+                <button
+                  key={role}
+                  type="button"
+                  onClick={() => toggleRole(role)}
+                  className="px-3 py-2 rounded-xl text-sm transition-all"
+                  style={
+                    active
+                      ? {
+                          background: "var(--rm-purple-dim)",
+                          color: "var(--rm-purple-light)",
+                          border: "1px solid var(--rm-purple-border)",
+                        }
+                      : {
+                          background: "rgba(255,255,255,0.03)",
+                          color: "var(--rm-text-muted)",
+                          border: "1px solid rgba(255,255,255,0.08)",
+                        }
                   }
-                `}
-              >
-                {role}
-              </button>
-            ))}
+                >
+                  {role}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         <div
-          className="
-    flex
-    items-center
-    justify-between
-
-    rounded-2xl
-
-    bg-white/[0.03]
-
-    border border-white/[0.08]
-
-    px-4 py-3
-  "
+          className="flex items-center justify-between rounded-2xl px-4 py-3"
+          style={{
+            background: "var(--rm-bg)",
+            border: "1px solid var(--rm-purple-border)",
+          }}
         >
           <div>
-            <p className="text-white text-sm">Looking For Collaborators</p>
-
-            <p className="text-slate-500 text-xs">
-              Show this project in opportunity feeds
+            <p className="text-white text-sm">Open for collaborators</p>
+            <p
+              className="text-xs mt-0.5"
+              style={{
+                color: "var(--rm-text-muted)",
+                fontFamily: "var(--rm-font-mono)",
+              }}
+            >
+              show this mix in open mixes
             </p>
           </div>
-
           <input
             type="checkbox"
             checked={lookingForCollaborators}
             onChange={(e) => setLookingForCollaborators(e.target.checked)}
-            className="w-5 h-5"
+            className="w-5 h-5 accent-[#7C3AED]"
           />
         </div>
 
         <button
           type="submit"
-          className="
-            w-full
-
-            py-3
-
-            rounded-2xl
-
-            bg-gradient-to-r
-            from-purple-600
-            to-pink-500
-
-            text-white
-            font-medium
-          "
+          disabled={submitting || !title.trim()}
+          className="w-full py-3 rounded-2xl text-white font-medium transition-all disabled:opacity-40"
+          style={{ background: "var(--rm-purple)" }}
+          onMouseEnter={(e) =>
+            !e.currentTarget.disabled &&
+            (e.currentTarget.style.background = "#6D28D9")
+          }
+          onMouseLeave={(e) =>
+            !e.currentTarget.disabled &&
+            (e.currentTarget.style.background = "var(--rm-purple)")
+          }
         >
-          Create Project
+          {submitting ? "creating..." : "Create Mix"}
         </button>
       </form>
     </Modal>

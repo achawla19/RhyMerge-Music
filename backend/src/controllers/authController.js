@@ -1,11 +1,21 @@
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { isSafeString } from "../utils/sanitize.js";
 
 // ================= LOGIN =================
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Reject anything that isn't a plain string BEFORE it ever reaches
+    // a Mongoose query. Without this, a crafted body like
+    // { "email": { "$ne": null } } gets parsed by express.json() into a
+    // real object, and User.findOne({ email }) would treat it as a
+    // Mongo query operator instead of a value to match against.
+    if (!isSafeString(email) || !isSafeString(password)) {
+      return res.status(400).json({ msg: "Invalid credentials" });
+    }
 
     // FIND USER
     const user = await User.findOne({ email });
@@ -51,7 +61,7 @@ export const login = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
 
-      secure: false,
+      secure: process.env.NODE_ENV === "production", // true (HTTPS-only) in prod, false for local http dev
 
       sameSite: "lax",
 
@@ -60,7 +70,7 @@ export const login = async (req, res) => {
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === "production", // true (HTTPS-only) in prod, false for local http dev
       sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
@@ -88,6 +98,19 @@ export const login = async (req, res) => {
 export const register = async (req, res) => {
   try {
     const { username, name, email, password, role } = req.body;
+
+    // Validate every field is actually a string before using it anywhere
+    // (including in the later findOne() duplicate-checks) — same
+    // NoSQL-injection concern as login() above.
+    if (
+      !isSafeString(username) ||
+      !isSafeString(name) ||
+      !isSafeString(email) ||
+      !isSafeString(password)
+    ) {
+      return res.status(400).json({ msg: "All fields are required" });
+    }
+
     // USERNAME
     if (username.length < 3) {
       return res.status(400).json({
@@ -152,7 +175,7 @@ export const register = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === "production", // true (HTTPS-only) in prod, false for local http dev
       sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
@@ -170,7 +193,7 @@ export const register = async (req, res) => {
     console.error(err);
 
     res.status(500).json({
-      msg: err.message,
+      msg: "Something went wrong. Please try again.",
     });
   }
 };

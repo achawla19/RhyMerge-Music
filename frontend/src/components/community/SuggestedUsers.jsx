@@ -1,37 +1,146 @@
-const suggested = [
-  {
-    id: 1,
-    name: "Alex Storm",
-    role: "Guitarist",
-    avatar: "https://i.pravatar.cc/150?img=15",
-  },
-  {
-    id: 2,
-    name: "Luna Ray",
-    role: "Singer",
-    avatar: "https://i.pravatar.cc/150?img=20",
-  },
-];
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Sparkles } from "lucide-react";
+import { getRecommendations } from "../../api/recommendations";
+import { sendConnectionRequest, getSentRequests } from "../../api/connection";
 
 const SuggestedUsers = () => {
+  const navigate = useNavigate();
+  const [users, setUsers] = useState([]);
+  const [pending, setPending] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [recs, sent] = await Promise.all([
+          getRecommendations(),
+          getSentRequests(),
+        ]);
+        setUsers(recs.slice(0, 3));
+        const pendingMap = {};
+        sent.forEach((u) => (pendingMap[u._id] = true));
+        setPending(pendingMap);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const handleSync = async (id) => {
+    if (pending[id]) return;
+    setPending((prev) => ({ ...prev, [id]: true }));
+    try {
+      await sendConnectionRequest(id);
+    } catch (err) {
+      console.error(err);
+      setPending((prev) => ({ ...prev, [id]: false }));
+    }
+  };
+
   return (
-    <div className="bg-gray-900 p-5 rounded-xl border border-gray-800">
-      <h2 className="font-semibold mb-3 flex justify-start">Suggested</h2>
+    <div
+      className="rounded-2xl p-5"
+      style={{
+        background: "var(--rm-bg-card)",
+        border: "1px solid var(--rm-border)",
+      }}
+    >
+      <div className="flex items-center gap-2 mb-4">
+        <Sparkles size={15} color="#C084FC" />
+        <h2
+          className="text-xs font-semibold uppercase tracking-wider"
+          style={{
+            fontFamily: "var(--rm-font-mono)",
+            color: "var(--rm-purple-light)",
+          }}
+        >
+          sync suggestions
+        </h2>
+      </div>
 
-      {suggested.map((user) => (
-        <div key={user.id} className="flex items-center gap-3 mb-3 pr-10 pl-10">
-          <img src={user.avatar} className="w-10 h-10 rounded-full" />
-
-          <div className="flex-1">
-            <p className="text-sm">{user.name}</p>
-            <p className="text-xs text-gray-500">{user.role}</p>
-          </div>
-
-          <button className="text-xs bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600 px-3 py-1 rounded-full hover:bg-gradient-to-r hover:from-purple-500 hover:via-pink-600 hover:to-purple-700 transition">
-            Connect
-          </button>
+      {loading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-12 rounded-xl animate-pulse"
+              style={{ background: "rgba(255,255,255,0.03)" }}
+            />
+          ))}
         </div>
-      ))}
+      ) : users.length === 0 ? (
+        <p
+          className="text-xs py-4 text-center"
+          style={{
+            color: "var(--rm-text-muted)",
+            fontFamily: "var(--rm-font-mono)",
+          }}
+        >
+          no suggestions right now
+        </p>
+      ) : (
+        <div className="space-y-3">
+          {users.map((u) => (
+            <div key={u._id} className="flex items-center gap-3">
+              <button
+                onClick={() => navigate(`/profile/${u.username}`)}
+                className="flex-shrink-0"
+              >
+                <img
+                  src={
+                    u.avatar ||
+                    `https://ui-avatars.com/api/?name=${u.username}&background=7c3aed&color=fff`
+                  }
+                  alt={u.username}
+                  className="w-9 h-9 rounded-full object-cover"
+                  style={{ border: "1.5px solid var(--rm-purple-border)" }}
+                />
+              </button>
+              <div className="flex-1 min-w-0">
+                <p
+                  className="text-sm font-medium truncate"
+                  style={{ color: "var(--rm-text-primary)" }}
+                >
+                  {u.username}
+                </p>
+                <p
+                  className="text-[10px] truncate"
+                  style={{
+                    fontFamily: "var(--rm-font-mono)",
+                    color: "var(--rm-text-muted)",
+                  }}
+                >
+                  {u.role || "Music Creator"}
+                </p>
+              </div>
+              <button
+                onClick={() => handleSync(u._id)}
+                disabled={pending[u._id]}
+                className="text-[11px] font-medium px-3 py-1.5 rounded-full transition-all flex-shrink-0"
+                style={
+                  pending[u._id]
+                    ? {
+                        background: "var(--rm-purple)",
+                        color: "#fff",
+                        border: "1px solid var(--rm-purple)",
+                        opacity: 0.7,
+                      }
+                    : {
+                        background: "transparent",
+                        color: "var(--rm-purple-light)",
+                        border: "1px solid var(--rm-purple-border)",
+                      }
+                }
+              >
+                {pending[u._id] ? "pending" : "+ sync"}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

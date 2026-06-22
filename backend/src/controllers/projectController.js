@@ -1,4 +1,5 @@
 import Project from "../models/project.js";
+import { escapeRegex } from "../utils/sanitize.js";
 import User from "../models/user.js";
 
 export const createProject = async (req, res) => {
@@ -70,7 +71,8 @@ export const searchProjects = async (req, res) => {
   try {
     const clean = (v) => (!v || v === "null" || v === "undefined" ? "" : v);
 
-    const q = clean(req.query.q);
+    // Escaped before $regex — see escapeRegex for why (ReDoS protection)
+    const q = escapeRegex(clean(req.query.q));
     const genre = clean(req.query.genre);
 
     const filter = {};

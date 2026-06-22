@@ -1,131 +1,123 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import { acceptRequest, rejectRequest } from "../../api/projectRequests";
 
 export default function ProjectRequests({ requests, refresh }) {
   const navigate = useNavigate();
+  const [processingId, setProcessingId] = useState(null);
+
+  const handleAccept = async (id) => {
+    setProcessingId(id);
+    try {
+      await acceptRequest(id);
+      // Real state refresh instead of a full page reload — the original
+      // did window.location.reload() here, which throws away all React
+      // state and reloads the entire app just to update one list.
+      await refresh();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleReject = async (id) => {
+    setProcessingId(id);
+    try {
+      await rejectRequest(id);
+      await refresh();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setProcessingId(null);
+    }
+  };
 
   return (
     <div
-      className="
-        rounded-3xl
-
-        bg-white/[0.04]
-
-        border border-white/[0.08]
-
-        p-6
-      "
+      className="rounded-2xl p-6"
+      style={{
+        background: "var(--rm-bg-card)",
+        border: "1px solid var(--rm-border)",
+      }}
     >
-      <h3
-        className="
-          text-white
-          text-lg
-          font-semibold
-
-          mb-5
-        "
-      >
+      <h3 className="text-white text-lg font-semibold mb-5">
         Pending Requests
       </h3>
 
-      <div className="space-y-4">
-        {requests.map((request) => (
-          <div
-            key={request._id}
-            className="
-              flex
-              items-center
-              justify-between
-
-              bg-white/[0.03]
-
-              rounded-2xl
-
-              p-4
-            "
-          >
+      <div className="space-y-3">
+        {requests.map((request) => {
+          const isProcessing = processingId === request._id;
+          return (
             <div
-              onClick={() => navigate(`/profile/${request.sender.username}`)}
-              className="
-                flex
-                items-center
-                gap-3
-
-                cursor-pointer
-              "
+              key={request._id}
+              className="flex items-center justify-between flex-wrap gap-3 rounded-xl p-4"
+              style={{
+                background: "rgba(255,255,255,0.02)",
+                border: "1px solid var(--rm-border)",
+              }}
             >
-              <img
-                src={
-                  request.sender.avatar ||
-                  `https://ui-avatars.com/api/?name=${request.sender.username}`
-                }
-                alt=""
-                className="
-                  w-12
-                  h-12
+              <button
+                onClick={() => navigate(`/profile/${request.sender.username}`)}
+                className="flex items-center gap-3 text-left"
+              >
+                <img
+                  src={
+                    request.sender.avatar ||
+                    `https://ui-avatars.com/api/?name=${request.sender.username}&background=7c3aed&color=fff`
+                  }
+                  alt=""
+                  className="w-12 h-12 rounded-full transition-transform hover:scale-105"
+                  style={{ border: "1.5px solid var(--rm-purple-border)" }}
+                />
+                <div>
+                  <p className="text-white text-sm font-medium">
+                    {request.sender.username}
+                  </p>
+                  <p
+                    className="text-xs"
+                    style={{ color: "var(--rm-text-muted)" }}
+                  >
+                    {request.sender.role}
+                  </p>
+                  <p
+                    className="text-xs mt-0.5"
+                    style={{ color: "var(--rm-purple-light)" }}
+                  >
+                    wants to join as {request.role}
+                  </p>
+                </div>
+              </button>
 
-                  rounded-full
-
-                  hover:scale-105
-
-                  transition-all
-                "
-              />
-
-              <div>
-                <p className="text-white">{request.sender.username}</p>
-
-                <p className="text-xs text-slate-400">{request.sender.role}</p>
-
-                <p className="text-xs text-purple-400">
-                  Wants to join as {request.role}
-                </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleAccept(request._id)}
+                  disabled={isProcessing}
+                  className="px-4 py-2 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+                  style={{
+                    background: "rgba(16,185,129,0.12)",
+                    color: "#34D399",
+                    border: "1px solid rgba(16,185,129,0.3)",
+                  }}
+                >
+                  {isProcessing ? "..." : "Accept"}
+                </button>
+                <button
+                  onClick={() => handleReject(request._id)}
+                  disabled={isProcessing}
+                  className="px-4 py-2 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+                  style={{
+                    background: "rgba(248,113,113,0.08)",
+                    color: "#F87171",
+                    border: "1px solid rgba(248,113,113,0.25)",
+                  }}
+                >
+                  {isProcessing ? "..." : "Reject"}
+                </button>
               </div>
             </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={async () => {
-                  await acceptRequest(request._id);
-
-                  await refresh();
-                  window.location.reload();
-                }}
-                className="
-                  px-4 py-2
-
-                  rounded-xl
-
-                  bg-green-500/15
-
-                  text-green-400
-                "
-              >
-                Accept
-              </button>
-
-              <button
-                onClick={async () => {
-                  await rejectRequest(request._id);
-
-                  refresh();
-                }}
-                className="
-                  px-4 py-2
-
-                  rounded-xl
-
-                  bg-red-500/15
-
-                  text-red-400
-                "
-              >
-                Reject
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

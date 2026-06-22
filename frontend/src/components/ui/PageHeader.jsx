@@ -1,34 +1,23 @@
 const PageHeader = ({ title, subtitle, action }) => {
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1
-            className="
-              text-4xl
-              font-bold
-              tracking-tight
-              text-white
-            "
+    <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <h1 className="text-2xl lg:text-3xl font-bold text-white tracking-tight">
+          {title}
+        </h1>
+        {subtitle && (
+          <p
+            className="mt-1.5 text-sm"
+            style={{
+              color: "var(--rm-text-muted)",
+              fontFamily: "var(--rm-font-mono)",
+            }}
           >
-            {title}
-          </h1>
-
-          {subtitle && (
-            <p
-              className="
-                mt-2
-                text-[15px]
-                text-slate-400
-              "
-            >
-              {subtitle}
-            </p>
-          )}
-        </div>
-
-        {action && <div>{action}</div>}
+            {subtitle}
+          </p>
+        )}
       </div>
+      {action && <div>{action}</div>}
     </div>
   );
 };

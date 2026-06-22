@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { Users } from "lucide-react";
 
 import SuggestedCard from "../components/network/SuggestedCard";
 import RequestCard from "../components/network/RequestCard";
 import ConnectionCard from "../components/network/ConnectionCard";
 import Tabs from "../components/network/Tabs";
+import PageHeader from "../components/ui/PageHeader";
 
 import {
   acceptRequest,
@@ -14,15 +16,7 @@ import {
   getRequests,
   getSentRequests,
 } from "../api/connection";
-import { getAllUsers } from "../api/user";
 import { getRecommendations } from "../api/recommendations";
-
-const statusOptions = [
-  "Working together",
-  "Invite to collab",
-  "Pending collab",
-  "Past collaborator",
-];
 
 export default function Network() {
   const [requests, setRequests] = useState([]);
@@ -30,6 +24,8 @@ export default function Network() {
   const [suggestions, setSuggestions] = useState([]);
   const [sentRequests, setSentRequests] = useState([]);
   const [activeTab, setActiveTab] = useState("connections");
+  const [loading, setLoading] = useState(true);
+  const [syncError, setSyncError] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -37,206 +33,267 @@ export default function Network() {
 
   const fetchData = async () => {
     try {
-      const [allUsers, requestsData, connectionsData, sentRequestsData] =
-        await Promise.all([
-          getRequests(),
-          getConnections(),
-          getSentRequests(),
-          getRecommendations(),
-        ]);
+      setLoading(true);
+      const [
+        requestsData,
+        connectionsData,
+        sentRequestsData,
+        recommendationsData,
+      ] = await Promise.all([
+        getRequests(),
+        getConnections(),
+        getSentRequests(),
+        getRecommendations(),
+      ]);
 
-      setSuggestions(allUsers.slice(0, 9));
+      const uniqueRecommendations = Array.from(
+        new Map(recommendationsData.map((user) => [user._id, user])).values(),
+      );
+      setSuggestions(uniqueRecommendations.slice(0, 9));
       setRequests(requestsData);
-      setConnections(connectionsData);
+
+      const uniqueConnections = Array.from(
+        new Map(connectionsData.map((u) => [u._id, u])).values(),
+      );
+      setConnections(uniqueConnections);
       setSentRequests(sentRequestsData);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // ✅ ACCEPT
   const handleAccept = async (id) => {
     try {
       await acceptRequest(id);
-
       await fetchData();
     } catch (err) {
       console.error(err);
     }
   };
 
-  // ✅ DECLINE
   const handleDecline = async (id) => {
     try {
       await rejectRequest(id);
-
       await fetchData();
     } catch (err) {
       console.error(err);
     }
   };
 
-  // ✅ CONNECT
   const handleConnect = async (user) => {
+    setSyncError("");
     try {
       await sendConnectionRequest(user._id);
-
       await fetchData();
-      alert("Request sent");
     } catch (err) {
       console.error(err);
+      // Previously this only logged to console — clicking Sync and having
+      // nothing visibly happen (e.g. on an "Already connected" rejection)
+      // looked exactly like the button was broken.
+      setSyncError(err.message || "Failed to send sync request");
+      setTimeout(() => setSyncError(""), 4000);
     }
-  };
-
-  // ✅ QUICK ACTION
-  const handleQuick = (id) => {
-    setConnections((prev) =>
-      prev.map((c) =>
-        c._id === id ? { ...c, status: "Working together" } : c,
-      ),
-    );
-  };
-
-  // ✅ REMOVE
-  const handleRemove = (id) => {
-    setConnections((prev) => prev.filter((c) => c._id !== id));
   };
 
   return (
-    <div className="min-h-screen px-6 py-6 text-white relative overflow-hidden bg-gradient-to-br from-[#0b1220] via-[#0f1c35] to-[#0a0f1f]">
-      {/* BG GLOW */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-purple-600/20 blur-[120px]" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500/20 blur-[120px]" />
+    <div className="space-y-6">
+      <PageHeader
+        title="Your Syncs"
+        subtitle={`${connections.length} musician${connections.length === 1 ? "" : "s"} you're tuned into`}
+      />
+
+      {syncError && (
+        <div
+          className="rounded-xl px-4 py-3 text-sm"
+          style={{
+            background: "rgba(248,113,113,0.1)",
+            border: "1px solid rgba(248,113,113,0.3)",
+            color: "#F87171",
+          }}
+        >
+          {syncError}
+        </div>
+      )}
+
       <Tabs
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        connectionsCount={Array.isArray(connections) ? connections.length : 0}
-        requestsCount={Array.isArray(requests) ? requests.length : 0}
+        connectionsCount={connections.length}
+        requestsCount={requests.length}
       />
 
-      <div className="relative flex gap-6">
-        {/* LEFT */}
-
-        <div className="flex-1 space-y-10">
-          {/* REQUESTS */}
+      <div className="space-y-12 pt-2">
+        {/* ── REQUESTS TAB ── */}
+        {activeTab === "requests" && (
           <div>
-            <h2 className="text-xl font-semibold mb-4">Pending Invites</h2>
+            <h2 className="text-xl font-bold text-white mb-5">
+              Pending Invites
+            </h2>
+            {loading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-20 rounded-2xl animate-pulse"
+                    style={{
+                      background: "var(--rm-bg-card)",
+                      border: "1px solid var(--rm-border)",
+                    }}
+                  />
+                ))}
+              </div>
+            ) : requests.length === 0 ? (
+              <div
+                className="text-center py-16 rounded-2xl"
+                style={{
+                  background: "var(--rm-bg-card)",
+                  border: "1px dashed var(--rm-purple-border)",
+                }}
+              >
+                <p
+                  className="text-sm"
+                  style={{ color: "var(--rm-text-primary)" }}
+                >
+                  No pending requests
+                </p>
+                <p
+                  className="text-xs mt-1"
+                  style={{
+                    fontFamily: "var(--rm-font-mono)",
+                    color: "var(--rm-text-muted)",
+                  }}
+                >
+                  invites you receive will show up here
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {requests.map((r) => (
+                  <RequestCard
+                    key={r._id}
+                    data={{ ...r, id: r._id, name: r.name || r.username }}
+                    onAccept={handleAccept}
+                    onDecline={handleDecline}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
-            <div className="flex gap-4 overflow-x-auto pb-3">
-              {/* {requests.length === 0 && (
-                <p className="text-gray-400">No pending requests</p>
-              )} */}
+        {/* ── CONNECTIONS TAB ── */}
+        {activeTab === "connections" && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-white">
+                Your Collaborators
+              </h2>
+              <p
+                className="text-sm mt-1.5"
+                style={{
+                  color: "var(--rm-text-muted)",
+                  fontFamily: "var(--rm-font-mono)",
+                }}
+              >
+                people you're actively creating music with
+              </p>
+            </div>
 
-              {activeTab === "requests" && (
-                <div className="space-y-4">
-                  {requests.length === 0 ? (
-                    <p className="text-gray-400">No pending requests</p>
-                  ) : (
-                    requests.map((r) => (
-                      <RequestCard
-                        key={r._id}
-                        data={{
-                          ...r,
-                          id: r._id,
-                          name: r.name || r.username,
-                        }}
-                        onAccept={handleAccept}
-                        onDecline={handleDecline}
-                      />
-                    ))
-                  )}
+            {loading ? (
+              <div className="grid md:grid-cols-2 gap-5">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-56 rounded-2xl animate-pulse"
+                    style={{
+                      background: "var(--rm-bg-card)",
+                      border: "1px solid var(--rm-border)",
+                    }}
+                  />
+                ))}
+              </div>
+            ) : connections.length === 0 ? (
+              <div
+                className="text-center py-16 rounded-2xl"
+                style={{
+                  background: "var(--rm-bg-card)",
+                  border: "1px dashed var(--rm-purple-border)",
+                }}
+              >
+                <Users size={26} color="#C084FC" className="mx-auto mb-3" />
+                <p
+                  className="text-sm"
+                  style={{ color: "var(--rm-text-primary)" }}
+                >
+                  No syncs yet
+                </p>
+                <p
+                  className="text-xs mt-1"
+                  style={{
+                    fontFamily: "var(--rm-font-mono)",
+                    color: "var(--rm-text-muted)",
+                  }}
+                >
+                  sync with a creator below to get started
+                </p>
+              </div>
+            ) : (
+              <motion.div layout className="grid md:grid-cols-2 gap-5">
+                {connections.map((c) => (
+                  <ConnectionCard key={c._id} data={c} />
+                ))}
+              </motion.div>
+            )}
+
+            {/* ── DISCOVER ── */}
+            <div className="mt-12">
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-white">
+                  Discover Creators
+                </h2>
+                <p
+                  className="text-sm mt-1.5"
+                  style={{
+                    color: "var(--rm-text-muted)",
+                    fontFamily: "var(--rm-font-mono)",
+                  }}
+                >
+                  handpicked based on your genres and network
+                </p>
+              </div>
+
+              {!loading && suggestions.length === 0 ? (
+                <div
+                  className="text-center py-16 rounded-2xl"
+                  style={{
+                    background: "var(--rm-bg-card)",
+                    border: "1px dashed var(--rm-purple-border)",
+                  }}
+                >
+                  <p
+                    className="text-sm"
+                    style={{ color: "var(--rm-text-muted)" }}
+                  >
+                    No recommendations yet
+                  </p>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+                  {suggestions.map((user) => (
+                    <SuggestedCard
+                      key={user._id}
+                      data={user}
+                      pending={sentRequests.some((r) => r._id === user._id)}
+                      onConnect={handleConnect}
+                    />
+                  ))}
                 </div>
               )}
             </div>
           </div>
-
-          {/* CONNECTIONS */}
-          <div>
-            <h2 className="text-xl font-semibold mb-4">
-              Frequent Collaborators
-            </h2>
-
-            {activeTab === "connections" && (
-              <>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {Array.isArray(connections) &&
-                    connections.map((c) => (
-                      <ConnectionCard
-                        key={c._id}
-                        data={{
-                          ...c,
-                          id: c._id,
-                          name: c.name || c.username,
-                          status: "Working together",
-                        }}
-                        statusOptions={statusOptions}
-                        onStatusChange={() => {}}
-                        onRemove={handleRemove}
-                      />
-                    ))}
-                </div>
-
-                {/* SUGGESTIONS */}
-                <div className="mb-10">
-                  <h2 className="text-xl font-semibold mb-4">
-                    Suggested Artists
-                  </h2>
-
-                  <div className="grid md:grid-cols-3 gap-4">
-                    {suggestions.map((user) => (
-                      <SuggestedCard
-                        key={user._id}
-                        data={user}
-                        pending={sentRequests.some((r) => r._id === user._id)}
-                        onConnect={handleConnect}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* RIGHT PANEL */}
-        <div className="w-[300px] space-y-4">
-          <div className="rounded-xl p-4 bg-white/10 backdrop-blur-xl border border-white/20">
-            <h3 className="font-semibold mb-3">Intelligence Panel</h3>
-
-            <div className="space-y-3 text-sm">
-              <div className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition">
-                🎧 3 Producers match your style
-              </div>
-
-              <div className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition">
-                🔥 Trending: Lo-Fi
-              </div>
-
-              <div className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition">
-                🎯 Best Match: Vocal Mixing
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-xl p-4 bg-white/10 backdrop-blur-xl border border-white/20">
-            <h3 className="font-semibold mb-3">Shared Projects</h3>
-
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <div key={i}>
-                  <p className="text-sm mb-1">Project {i}</p>
-
-                  <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-purple-500 to-cyan-500"
-                      style={{ width: `${40 + i * 20}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

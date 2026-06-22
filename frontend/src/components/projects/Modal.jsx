@@ -1,23 +1,37 @@
-const Modal = ({ isOpen, onClose, title, children }) => {
+const Modal = ({ isOpen, onClose, title, children, wide = false }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      {/* CONTAINER */}
-      <div className="bg-[#111118] border border-gray-800 rounded-xl w-full max-w-md p-6 relative">
-        {/* HEADER */}
-        <div className="flex justify-between items-center mb-4">
+    <div
+      className="fixed inset-0 flex items-center justify-center z-[100] p-4"
+      style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)" }}
+      onClick={onClose}
+    >
+      <div
+        className={`w-full ${wide ? "max-w-xl" : "max-w-md"} p-6 rounded-2xl relative max-h-[88vh] overflow-y-auto`}
+        style={{
+          background: "var(--rm-bg-card)",
+          border: "1px solid var(--rm-border)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-center mb-5">
           <h2 className="text-lg font-semibold text-white">{title}</h2>
-
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-lg"
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              color: "var(--rm-text-muted)",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#F87171")}
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.color = "var(--rm-text-muted)")
+            }
           >
             ✕
           </button>
         </div>
-
-        {/* CONTENT */}
         <div>{children}</div>
       </div>
     </div>

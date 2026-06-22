@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Info } from "lucide-react";
 import Toggle from "./Toggle";
 
 const NotificationsSection = () => {
@@ -10,25 +11,25 @@ const NotificationsSection = () => {
   const items = [
     {
       label: "Email Notifications",
-      desc: "Receive updates via email",
+      desc: "receive updates via email",
       state: emailNotifs,
       toggle: () => setEmailNotifs(!emailNotifs),
     },
     {
       label: "Push Notifications",
-      desc: "Browser push alerts",
+      desc: "browser push alerts",
       state: pushNotifs,
       toggle: () => setPushNotifs(!pushNotifs),
     },
     {
       label: "Connection Requests",
-      desc: "When someone wants to connect",
+      desc: "when someone wants to sync",
       state: connectionAlerts,
       toggle: () => setConnectionAlerts(!connectionAlerts),
     },
     {
       label: "New Messages",
-      desc: "When you receive a message",
+      desc: "when you receive a message",
       state: messageAlerts,
       toggle: () => setMessageAlerts(!messageAlerts),
     },
@@ -37,18 +38,40 @@ const NotificationsSection = () => {
   return (
     <div>
       <h2 className="text-white font-semibold text-lg mb-1">Notifications</h2>
-      <p className="text-gray-500 text-sm mb-5">
+      <p className="text-sm mb-5" style={{ color: "var(--rm-text-muted)" }}>
         Choose what you get notified about
       </p>
-      <div className="space-y-1">
+
+      <div
+        className="flex items-start gap-2 text-xs rounded-xl px-3 py-2.5 mb-5"
+        style={{
+          background: "rgba(245,158,11,0.08)",
+          border: "1px solid rgba(245,158,11,0.25)",
+          color: "#FBBF24",
+        }}
+      >
+        <Info size={14} className="flex-shrink-0 mt-0.5" />
+        <span style={{ fontFamily: "var(--rm-font-mono)" }}>
+          these preferences aren't saved to your account yet — in-app
+          notifications work regardless
+        </span>
+      </div>
+
+      <div>
         {items.map(({ label, desc, state, toggle }) => (
           <div
             key={label}
-            className="flex items-center justify-between py-3 border-b border-white/5"
+            className="flex items-center justify-between py-3"
+            style={{ borderBottom: "1px solid rgba(124,58,237,0.1)" }}
           >
             <div>
               <p className="text-white text-sm font-medium">{label}</p>
-              <p className="text-gray-500 text-xs">{desc}</p>
+              <p
+                className="text-xs mt-0.5"
+                style={{ color: "var(--rm-text-muted)" }}
+              >
+                {desc}
+              </p>
             </div>
             <Toggle enabled={state} onToggle={toggle} />
           </div>
@@ -57,4 +80,5 @@ const NotificationsSection = () => {
     </div>
   );
 };
+
 export default NotificationsSection;

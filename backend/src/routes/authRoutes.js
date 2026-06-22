@@ -9,13 +9,18 @@ import {
 } from "../controllers/authController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
+import { authRateLimiter } from "../middleware/rateLimiter.js";
 
 const router = express.Router();
 
-// AUTH
-router.post("/login", login);
+// Rate-limited: max 20 attempts per 15 minutes per IP, to slow down
+// brute-force / credential-stuffing attempts against these two endpoints.
+const loginLimiter = authRateLimiter({ windowMs: 15 * 60 * 1000, max: 20 });
 
-router.post("/register", register);
+// AUTH
+router.post("/login", loginLimiter, login);
+
+router.post("/register", loginLimiter, register);
 
 router.post("/refresh", refresh);
 

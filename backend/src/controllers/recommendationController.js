@@ -5,10 +5,16 @@ export const getRecommendations = async (req, res) => {
     const currentUser = await User.findById(req.user.id);
 
     const users = await User.find({
-      _id: {
-        $ne: req.user.id,
-      },
-    });
+  _id: {
+    $nin: [
+      currentUser._id,
+      ...(currentUser.connections || []),
+      ...(currentUser.sentRequests || []),
+      ...(currentUser.receivedRequests || []),
+    ],
+  },
+}).select("-password");
+   
 
     const recommendations = users
       .map((user) => {
