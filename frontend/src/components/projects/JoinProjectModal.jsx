@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Modal from "./Modal";
+import Select from "../ui/Select";
 
 export default function JoinProjectModal({
   isOpen,
@@ -30,6 +31,10 @@ export default function JoinProjectModal({
     }
   };
 
+  const roleOptions = project.neededRoles?.length
+    ? project.neededRoles.map((r) => ({ value: r, label: r }))
+    : [{ value: "Collaborator", label: "Collaborator" }];
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Join Project">
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -43,24 +48,12 @@ export default function JoinProjectModal({
           >
             Role you'd join as
           </label>
-          <select
+          <Select
             value={role}
-            onChange={(e) => setRole(e.target.value)}
-            required
-            className="w-full p-3 rounded-xl outline-none transition-all"
-            style={{
-              background: "var(--rm-bg)",
-              border: "1px solid var(--rm-purple-border)",
-              color: "var(--rm-text-primary)",
-            }}
-          >
-            <option value="">Select Role</option>
-            {project.neededRoles?.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
+            onChange={setRole}
+            options={roleOptions}
+            placeholder="Select a role"
+          />
         </div>
 
         <div>
@@ -78,12 +71,18 @@ export default function JoinProjectModal({
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Tell them why you'd be a good fit..."
             rows={5}
-            className="w-full p-3 rounded-xl outline-none resize-none transition-all"
+            className="w-full p-3 rounded-xl outline-none resize-none transition-all text-sm"
             style={{
               background: "var(--rm-bg)",
               border: "1px solid var(--rm-purple-border)",
               color: "var(--rm-text-primary)",
             }}
+            onFocus={(e) =>
+              (e.currentTarget.style.borderColor = "var(--rm-purple)")
+            }
+            onBlur={(e) =>
+              (e.currentTarget.style.borderColor = "var(--rm-purple-border)")
+            }
           />
         </div>
 

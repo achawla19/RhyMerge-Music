@@ -4,24 +4,35 @@ import {
   getAllUsers,
   getUserByUsername,
   updateMyProfile,
+  uploadAvatar,
+  unsyncConnection,
 } from "../controllers/userController.js";
 import { protect } from "../middleware/authMiddleware.js";
+import { imageUploader } from "../middleware/upload.js";
+import { uploadRateLimiter } from "../middleware/rateLimiter.js";
 
 const router = express.Router();
 
-// Search users
 router.get("/search", searchUsers);
-
-// Get all users
 router.get("/all", getAllUsers);
-
-// Get single user profile by username
 router.get("/:username", getUserByUsername);
 
-// Update logged-in user's profile
 router.put("/profile", protect, updateMyProfile);
 
-// Optional legacy route
-router.get("/", getAllUsers);
+router.post(
+  "/avatar",
+  protect,
+  uploadRateLimiter,
+  (req, res, next) => {
+    imageUploader.single("avatar")(req, res, (err) => {
+      if (err)
+        return res.status(400).json({ msg: err.message || "Upload failed" });
+      next();
+    });
+  },
+  uploadAvatar,
+);
+
+router.delete("/unsync/:id", protect, unsyncConnection);
 
 export default router;

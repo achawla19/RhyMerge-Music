@@ -1,49 +1,69 @@
-const API_URL = `${import.meta.env.VITE_API_URL}/api/projects`;
+const API = import.meta.env.VITE_API_URL;
 
-export const getProjects = async () => {
-  const response = await fetch(API_URL);
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.msg);
+const handle = async (res) => {
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.msg || "Request failed");
   return data;
 };
 
-export const getProjectsByUsername = async (username) => {
-  const response = await fetch(`${API_URL}/user/${username}`);
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.msg);
-  return data;
-};
+export const getProjects = (page = 1, limit = 20) =>
+  fetch(`${API}/api/projects?page=${page}&limit=${limit}`, {
+    credentials: "include",
+  }).then(handle);
 
-export const createProject = async (payload) => {
-  const response = await fetch(API_URL, {
+export const getProjectById = (id) =>
+  fetch(`${API}/api/projects/${id}`, { credentials: "include" }).then(handle);
+
+export const getProjectsByUsername = (username) =>
+  fetch(`${API}/api/projects/user/${username}`, {
+    credentials: "include",
+  }).then(handle);
+
+export const searchProjects = ({
+  q = "",
+  genre = "",
+  status = "",
+  role = "",
+} = {}) =>
+  fetch(
+    `${API}/api/projects/search?q=${encodeURIComponent(q)}&genre=${encodeURIComponent(genre)}&status=${encodeURIComponent(status)}&role=${encodeURIComponent(role)}`,
+    { credentials: "include" },
+  ).then(handle);
+
+export const createProject = (data) =>
+  fetch(`${API}/api/projects`, {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.msg);
-  return data;
-};
+    body: JSON.stringify(data),
+  }).then(handle);
 
-// FIX: was hardcoded to http://localhost:5000
-export const searchProjects = async ({ q = "", genre = "" }) => {
-  const query = new URLSearchParams();
-  if (q) query.append("q", q);
-  if (genre) query.append("genre", genre);
-
-  const res = await fetch(`${API_URL}/search?${query}`, {
+export const updateProject = (id, data) =>
+  fetch(`${API}/api/projects/${id}`, {
+    method: "PATCH",
     credentials: "include",
-  });
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  }).then(handle);
 
-  return res.json();
-};
-
-export const getProjectById = async (id) => {
-  const res = await fetch(`${API_URL}/${id}`, {
+export const deleteProject = (id) =>
+  fetch(`${API}/api/projects/${id}`, {
+    method: "DELETE",
     credentials: "include",
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.msg);
-  return data;
+  }).then(handle);
+
+export const uploadProjectCover = (id, file) => {
+  const fd = new FormData();
+  fd.append("cover", file);
+  return fetch(`${API}/api/projects/${id}/cover`, {
+    method: "PATCH",
+    credentials: "include",
+    body: fd,
+  }).then(handle);
 };
+
+export const removeCollaborator = (projectId, userId) =>
+  fetch(`${API}/api/projects/${projectId}/collaborators/${userId}`, {
+    method: "DELETE",
+    credentials: "include",
+  }).then(handle);

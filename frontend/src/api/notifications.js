@@ -1,13 +1,30 @@
-const API = `${import.meta.env.VITE_API_URL}/api/notifications`;
+const API = import.meta.env.VITE_API_URL;
 
-export const getNotifications = async () => {
-  const res = await fetch(API, { credentials: "include" });
-  return res.json();
+const handle = async (res) => {
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.msg || "Request failed");
+  return data;
 };
 
-export const markNotificationRead = async (id) => {
-  await fetch(`${API}/${id}/read`, {
+export const getNotifications = (page = 1) =>
+  fetch(`${API}/api/notifications?page=${page}`, {
+    credentials: "include",
+  }).then(handle);
+
+export const markNotificationRead = (id) =>
+  fetch(`${API}/api/notifications/${id}/read`, {
     method: "PUT",
     credentials: "include",
-  });
-};
+  }).then(handle);
+
+export const markAllNotificationsRead = () =>
+  fetch(`${API}/api/notifications/read-all`, {
+    method: "PUT",
+    credentials: "include",
+  }).then(handle);
+
+export const deleteNotification = (id) =>
+  fetch(`${API}/api/notifications/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  }).then(handle);

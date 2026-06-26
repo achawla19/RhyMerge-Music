@@ -12,21 +12,26 @@ const messageSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    // Stores the encrypted payload ("iv:authTag:ciphertext"), never plain
-    // text. Encrypted/decrypted via backend/src/utils/encryption.js —
-    // always go through that utility rather than reading this field raw.
+    // Encrypted text content — always go through encryption.js, never raw
     content: {
       type: String,
       required: true,
+      default: "",
     },
-    isRead: {
-      type: Boolean,
-      default: false,
+
+    // File attachment — stored as CDN URL + metadata.
+    // The URL is a permanent Cloudinary URL — no expiry.
+    // content is still required (even for attachment-only messages)
+    // so we store an empty encrypted string for those.
+    attachment: {
+      url: { type: String, default: "" },
+      name: { type: String, default: "" },
+      type: { type: String, default: "" }, // MIME type
+      size: { type: Number, default: 0 }, // bytes
     },
-    readAt: {
-      type: Date,
-      default: null,
-    },
+
+    isRead: { type: Boolean, default: false },
+    readAt: { type: Date, default: null },
   },
   { timestamps: true },
 );

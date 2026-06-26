@@ -1,12 +1,18 @@
+import "./config/env.js";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import http from "http";
 
 import connectDB from "./config/db.js";
-import userRoutes from "./routes/userRoutes.js";
+import {
+  applySecurityMiddleware,
+  globalErrorHandler,
+} from "./middleware/security.js";
+import { generalRateLimiter } from "./middleware/rateLimiter.js";
+
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import connectionRoutes from "./routes/connectionRoutes.js";
@@ -17,39 +23,55 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 import recommendationRoutes from "./routes/recommendationRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import projectFileRoutes from "./routes/projectFilesRoutes.js";
+import authSecurityRoutes from "./routes/authSecurityRoutes.js";
+import aiInsightRoutes from "./routes/aiInsightRoutes.js";
+import messageAttachmentRoutes from "./routes/messageAttachmentRoutes.js";
 
 import { initSocket } from "./socket/index.js";
 
-dotenv.config();
 connectDB();
 
 const app = express();
 
-// CORS origin is now configurable via env instead of hardcoded, so this
-// doesn't silently break (or get loosened to "*" as a quick fix) the
-// moment this is deployed somewhere other than localhost:5173.
+// ── 1. CORS ───────────────────────────────────────────────────────────────────
+const ALLOWED_ORIGINS = (process.env.CLIENT_URL || "http://localhost:5173")
+  .split(",")
+  .map((o) => o.trim());
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: (origin, cb) => {
+      if (!origin || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+      cb(new Error(`CORS: origin ${origin} not allowed`));
+    },
     credentials: true,
   }),
 );
 
+// ── 2. Cookie parser — must be before protect middleware ──────────────────────
 app.use(cookieParser());
-app.use(express.json());
 
-// Serves uploaded message attachments (audio files) at /uploads/messages/<file>.
-// Note: these files are NOT encrypted at rest, unlike message text — text
-// goes through AES-256-GCM before touching the database, but the binary
-// audio files themselves sit as plain files on disk. Encrypting/decrypting
-// a streamed audio file on every playback request is a meaningfully bigger
-// piece of work (no simple way to seek/stream an encrypted file without
-// decrypting it server-side on every request); flagging this clearly as a
-// known scope boundary rather than leaving it unmentioned.
-app.use("/uploads", express.static("uploads"));
+// ── 3. Attachment route — BEFORE express.json() and mongoSanitize ─────────────
+// express.json() + mongoSanitize consume/mutate the request stream.
+// Multer needs the raw multipart stream so this route must come first.
+app.use("/api/message-attachments", messageAttachmentRoutes);
 
-// 🔥 ROUTES
+// ── 4. Security headers + sanitization ───────────────────────────────────────
+applySecurityMiddleware(app);
+
+// ── 5. Body parsers ───────────────────────────────────────────────────────────
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true, limit: "1mb" }));
+
+// ── 6. General rate limiter ───────────────────────────────────────────────────
+app.use("/api", generalRateLimiter);
+
+// ── 7. Health check ───────────────────────────────────────────────────────────
+app.get("/", (req, res) => res.json({ status: "ok", service: "RhyMerge API" }));
+
+// ── 8. API routes ─────────────────────────────────────────────────────────────
 app.use("/api/auth", authRoutes);
+app.use("/api/auth", authSecurityRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/projects", projectRoutes);
@@ -61,18 +83,17 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/project-files", projectFileRoutes);
-app.get("/", (req, res) => {
-  res.send("API Running");
-});
+app.use("/api/ai-insights", aiInsightRoutes);
 
-// Socket.io needs a raw http.Server to attach to — express's app.listen()
-// creates one internally but doesn't expose it, so we create it explicitly
-// here and hand it to both Express and Socket.io.
+// ── 9. 404 ────────────────────────────────────────────────────────────────────
+app.use((req, res) => res.status(404).json({ msg: "Route not found" }));
+
+// ── 10. Global error handler ──────────────────────────────────────────────────
+app.use(globalErrorHandler);
+
+// ── 11. HTTP server + Socket.io ───────────────────────────────────────────────
 const httpServer = http.createServer(app);
 initSocket(httpServer);
 
-const PORT = process.env.PORT;
-
-httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const PORT = process.env.PORT || 5000;
+httpServer.listen(PORT, () => console.log(`RhyMerge API running on :${PORT}`));

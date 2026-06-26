@@ -1,58 +1,35 @@
-const API = `${import.meta.env.VITE_API_URL}/api/project-files`;
+const API = import.meta.env.VITE_API_URL;
 
-export const getProjectFiles = async (projectId) => {
-  const res = await fetch(`${API}/${projectId}`, {
+const handle = async (res) => {
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.msg || "Request failed");
+  return data;
+};
+
+export const getProjectFiles = (projectId) =>
+  fetch(`${API}/api/project-files/${projectId}`, {
     credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to load files");
-  return res.json();
+  }).then(handle);
+
+export const uploadProjectFile = (
+  projectId,
+  file,
+  { stemType = "other", notes = "", version = 1 } = {},
+) => {
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("stemType", stemType);
+  fd.append("notes", notes);
+  fd.append("version", String(version));
+  return fetch(`${API}/api/project-files/${projectId}`, {
+    method: "POST",
+    credentials: "include",
+    body: fd,
+  }).then(handle);
 };
 
-export const uploadProjectFile = async (projectId, file, notes, onProgress) => {
-  const formData = new FormData();
-  formData.append("file", file);
-  if (notes) formData.append("notes", notes);
-
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-
-    xhr.upload.addEventListener("progress", (e) => {
-      if (e.lengthComputable && onProgress) {
-        onProgress(Math.round((e.loaded / e.total) * 100));
-      }
-    });
-
-    xhr.addEventListener("load", () => {
-      try {
-        const data = JSON.parse(xhr.responseText);
-        if (xhr.status >= 200 && xhr.status < 300) {
-          resolve(data);
-        } else {
-          reject(new Error(data.msg || "Upload failed"));
-        }
-      } catch {
-        reject(new Error("Upload failed"));
-      }
-    });
-
-    xhr.addEventListener("error", () =>
-      reject(new Error("Upload failed — check your connection")),
-    );
-
-    xhr.open("POST", `${API}/${projectId}`);
-    xhr.withCredentials = true;
-    xhr.send(formData);
-  });
-};
-
-export const deleteProjectFile = async (fileId) => {
-  const res = await fetch(`${API}/${fileId}`, {
+export const deleteProjectFile = (fileId) =>
+  fetch(`${API}/api/project-files/${fileId}`, {
     method: "DELETE",
     credentials: "include",
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.msg || "Failed to delete file");
-  }
-  return res.json();
-};
+  }).then(handle);

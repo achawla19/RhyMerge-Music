@@ -3,105 +3,69 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { isSafeString } from "../utils/sanitize.js";
 
-// ================= LOGIN =================
+const cookieOpts = (maxAge) => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  maxAge,
+});
+
+// ── LOGIN ─────────────────────────────────────────────────────────────────────
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Reject anything that isn't a plain string BEFORE it ever reaches
-    // a Mongoose query. Without this, a crafted body like
-    // { "email": { "$ne": null } } gets parsed by express.json() into a
-    // real object, and User.findOne({ email }) would treat it as a
-    // Mongo query operator instead of a value to match against.
     if (!isSafeString(email) || !isSafeString(password)) {
       return res.status(400).json({ msg: "Invalid credentials" });
     }
 
-    // FIND USER
     const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ msg: "Invalid credentials" });
 
-    if (!user) {
-      return res.status(400).json({
-        msg: "Invalid credentials",
-      });
-    }
-
-    // CHECK PASSWORD
     const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
 
-    if (!isMatch) {
-      return res.status(400).json({
-        msg: "Invalid credentials",
-      });
-    }
-
-    // ACCESS TOKEN
-    const token = jwt.sign(
-      {
-        id: user._id,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      },
-    );
-
-    // REFRESH TOKEN
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
     const refreshToken = jwt.sign(
-      {
-        id: user._id,
-      },
+      { id: user._id },
       process.env.JWT_REFRESH_SECRET,
-      {
-        expiresIn: "30d",
-      },
+      { expiresIn: "30d" },
     );
 
-    // COOKIE
-    res.cookie("token", token, {
-      httpOnly: true,
+    res.cookie("token", token, cookieOpts(1000 * 60 * 60 * 24 * 7));
+    res.cookie(
+      "refreshToken",
+      refreshToken,
+      cookieOpts(1000 * 60 * 60 * 24 * 30),
+    );
 
-      secure: process.env.NODE_ENV === "production", // true (HTTPS-only) in prod, false for local http dev
-
-      sameSite: "lax",
-
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-    });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // true (HTTPS-only) in prod, false for local http dev
-      sameSite: "lax",
-      maxAge: 1000 * 60 * 60 * 24 * 30,
-    });
-
-    // RETURN TOKEN + USER
+    // Return token in body so frontend can store it in memory for
+    // Socket.io auth (browsers like Brave block cookies on WS upgrade).
+    // This token is NEVER stored in localStorage — only JS memory.
     res.json({
+      token,
       user: {
         _id: user._id,
         username: user.username,
         email: user.email,
         role: user.role,
         avatar: user.avatar,
+        name: user.name,
       },
     });
   } catch (err) {
-    console.error(err);
-
-    res.status(500).json({
-      msg: "Server error",
-    });
+    console.error("login:", err);
+    res.status(500).json({ msg: "Server error" });
   }
 };
 
-// ================= REGISTER =================
+// ── REGISTER ──────────────────────────────────────────────────────────────────
 export const register = async (req, res) => {
   try {
     const { username, name, email, password, role } = req.body;
 
-    // Validate every field is actually a string before using it anywhere
-    // (including in the later findOne() duplicate-checks) — same
-    // NoSQL-injection concern as login() above.
     if (
       !isSafeString(username) ||
       !isSafeString(name) ||
@@ -111,51 +75,32 @@ export const register = async (req, res) => {
       return res.status(400).json({ msg: "All fields are required" });
     }
 
-    // USERNAME
     if (username.length < 3) {
+      return res
+        .status(400)
+        .json({ msg: "Username must be at least 3 characters" });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res
+        .status(400)
+        .json({ msg: "Please enter a valid email address" });
+    }
+
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)) {
       return res.status(400).json({
-        msg: "Username must be at least 3 characters",
+        msg: "Password must be 8+ characters with uppercase, lowercase and a number",
       });
     }
 
-    // EMAIL
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({
-        msg: "Please enter a valid email address",
-      });
+    if (await User.findOne({ email })) {
+      return res.status(400).json({ msg: "Email already registered" });
     }
-
-    // PASSWORD
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-
-    if (!passwordRegex.test(password)) {
-      return res.status(400).json({
-        msg: "Password must be at least 8 characters long and contain uppercase, lowercase and a number",
-      });
-    }
-
-    const existingEmail = await User.findOne({ email });
-
-    if (existingEmail) {
-      return res.status(400).json({
-        msg: "Email already registered",
-      });
-    }
-
-    const existingUsername = await User.findOne({
-      username,
-    });
-
-    if (existingUsername) {
-      return res.status(400).json({
-        msg: "Username already taken",
-      });
+    if (await User.findOne({ username })) {
+      return res.status(400).json({ msg: "Username already taken" });
     }
 
     const hashed = await bcrypt.hash(password, 10);
-
     const user = await User.create({
       username,
       email,
@@ -163,86 +108,74 @@ export const register = async (req, res) => {
       name,
       role,
     });
-    const token = jwt.sign(
-      {
-        id: user._id,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      },
-    );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // true (HTTPS-only) in prod, false for local http dev
-      sameSite: "lax",
-      maxAge: 1000 * 60 * 60 * 24 * 7,
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
     });
 
+    res.cookie("token", token, cookieOpts(1000 * 60 * 60 * 24 * 7));
+
     res.json({
+      token,
       user: {
         _id: user._id,
         username: user.username,
         email: user.email,
         role: user.role,
         avatar: user.avatar,
+        name: user.name,
       },
     });
   } catch (err) {
-    console.error(err);
-
-    res.status(500).json({
-      msg: "Something went wrong. Please try again.",
-    });
+    console.error("register:", err);
+    res.status(500).json({ msg: "Something went wrong. Please try again." });
   }
 };
 
-// ================= REFRESH =================
+// ── REFRESH ───────────────────────────────────────────────────────────────────
 export const refresh = async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
-
-    if (!token) {
-      return res.status(401).json({ msg: "Not logged in" });
-    }
+    if (!token) return res.status(401).json({ msg: "Not logged in" });
 
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-
     const user = await User.findById(decoded.id).select("-password");
+    if (!user) return res.status(401).json({ msg: "User not found" });
 
-    res.json({ user });
+    // Issue a fresh access token and return it in the body
+    // so the frontend can refresh its memory token too
+    const newToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    res.cookie("token", newToken, cookieOpts(1000 * 60 * 60 * 24 * 7));
+
+    res.json({ token: newToken, user });
   } catch (err) {
     res.status(401).json({ msg: "Invalid token" });
   }
 };
 
-// ================= LOGOUT =================
+// ── LOGOUT ────────────────────────────────────────────────────────────────────
 export const logout = (req, res) => {
-  res.clearCookie("token");
-  res.clearCookie("refreshToken");
-
-  res.json({
-    msg: "Logged out",
+  res.clearCookie("token", {
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    secure: process.env.NODE_ENV === "production",
   });
+  res.clearCookie("refreshToken", {
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+  res.json({ msg: "Logged out" });
 };
 
+// ── GET ME ────────────────────────────────────────────────────────────────────
 export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
-
-    if (!user) {
-      return res.status(404).json({
-        msg: "User not found",
-      });
-    }
-
+    if (!user) return res.status(404).json({ msg: "User not found" });
     res.json(user);
   } catch (err) {
-    console.error(err);
-
-    res.status(500).json({
-      msg: "Server error",
-    });
+    console.error("getMe:", err);
+    res.status(500).json({ msg: "Server error" });
   }
 };

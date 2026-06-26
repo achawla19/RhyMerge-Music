@@ -1,19 +1,37 @@
-const API_URL = `${import.meta.env.VITE_API_URL}/api/users`;
+const API = import.meta.env.VITE_API_URL;
 
-export const getAllUsers = async () => {
-  const res = await fetch(API_URL, { credentials: "include" });
-  return res.json();
+const handle = async (res) => {
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.msg || "Request failed");
+  return data;
 };
 
-export const searchUsers = async ({ q = "", role = "", genre = "" }) => {
-  const query = new URLSearchParams({ q, role, genre });
-  const res = await fetch(`${API_URL}/search?${query}`, {
+export const getAllUsers = () =>
+  fetch(`${API}/api/users/all`, { credentials: "include" }).then(handle);
+
+export const searchUsers = ({
+  q = "",
+  role = "",
+  genre = "",
+  availability = "",
+} = {}) =>
+  fetch(
+    `${API}/api/users/search?q=${encodeURIComponent(q)}&role=${encodeURIComponent(role)}&genre=${encodeURIComponent(genre)}&availability=${encodeURIComponent(availability)}`,
+    { credentials: "include" },
+  ).then(handle);
+
+export const uploadAvatar = (file) => {
+  const fd = new FormData();
+  fd.append("avatar", file);
+  return fetch(`${API}/api/users/avatar`, {
+    method: "POST",
     credentials: "include",
-  });
-  return res.json();
+    body: fd,
+  }).then(handle);
 };
 
-// NOTE: connection request logic lives in api/connection.js
-// (matches the real backend routes under /api/connections).
-// Do not duplicate sendConnectionRequest/acceptConnectionRequest
-// here — those endpoints don't exist under /api/users.
+export const unsyncConnection = (userId) =>
+  fetch(`${API}/api/users/unsync/${userId}`, {
+    method: "DELETE",
+    credentials: "include",
+  }).then(handle);

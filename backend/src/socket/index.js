@@ -5,9 +5,6 @@ import Conversation from "../models/conversation.js";
 import { persistMessage } from "../controllers/messageController.js";
 import { setNotificationSocket } from "../utils/createNotification.js";
 
-// userId -> Set of socket.ids. A Set (not a single value) because the same
-// person can have the app open in multiple tabs/devices at once — they
-// should only show "offline" once ALL of those connections close.
 const onlineUsers = new Map();
 
 const addOnlineSocket = (userId, socketId) => {
@@ -24,11 +21,6 @@ const removeOnlineSocket = (userId, socketId) => {
 
 const isOnline = (userId) => onlineUsers.has(userId);
 
-// Presence is scoped to people you actually have a CONVERSATION with —
-// not the separate "connections" (synced) social graph. Messaging has no
-// requirement to be synced first, so using `user.connections` here meant
-// two people actively chatting (but not synced) would never see each
-// other's online status, even while messages and typing worked fine.
 const getConversationPartnerIds = async (userId) => {
   const conversations = await Conversation.find({
     participants: userId,
@@ -43,9 +35,6 @@ const getConversationPartnerIds = async (userId) => {
   return [...ids];
 };
 
-// Minimal manual cookie parsing — avoids depending on the `cookie` package
-// being a direct dependency (cookie-parser uses it internally, but that
-// doesn't guarantee it's resolvable as a top-level import here).
 const parseCookie = (cookieHeader, name) => {
   if (!cookieHeader) return null;
   const match = cookieHeader
@@ -58,23 +47,30 @@ const parseCookie = (cookieHeader, name) => {
 export const initSocket = (httpServer) => {
   const io = new Server(httpServer, {
     cors: {
-      origin: process.env.CLIENT_URL || "http://localhost:5173",
+      origin: (process.env.CLIENT_URL || "http://localhost:5173")
+        .split(",")
+        .map((o) => o.trim()),
       credentials: true,
     },
   });
 
-  // Auth middleware — every socket connection must present the same
-  // httpOnly JWT cookie used by the REST API. Unauthenticated sockets are
-  // rejected before `connection` ever fires.
+  // ── Auth middleware ─────────────────────────────────────────────────────────
+  // Accept token from either:
+  //   1. httpOnly cookie (Chrome, Firefox, Safari — standard flow)
+  //   2. socket.handshake.auth.token (Brave, cross-origin WS scenarios)
+  // Both are JWT — verified identically. REST API always uses cookie only.
   io.use((socket, next) => {
     try {
-      const token = parseCookie(socket.handshake.headers.cookie, "token");
+      const token =
+        parseCookie(socket.handshake.headers.cookie, "token") ||
+        socket.handshake.auth?.token;
+
       if (!token) return next(new Error("Not authorized"));
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       socket.userId = decoded.id;
       next();
-    } catch (err) {
+    } catch {
       next(new Error("Invalid token"));
     }
   });
@@ -86,9 +82,6 @@ export const initSocket = (httpServer) => {
     addOnlineSocket(userId, socket.id);
     socket.join(`user:${userId}`);
 
-    // Only broadcast "online" on the FIRST connection for this user (not
-    // on every extra tab they open), and only to people you actually
-    // have a conversation with.
     if (wasOffline) {
       const partnerIds = await getConversationPartnerIds(userId);
       partnerIds.forEach((partnerId) => {
@@ -99,20 +92,17 @@ export const initSocket = (httpServer) => {
       });
     }
 
-    // Let the newly-connected client know who among their conversation
-    // partners is currently online, so the UI can show correct dots
-    // immediately instead of waiting for the next presence_update.
     const myPartnerIds = await getConversationPartnerIds(userId);
     const onlinePartnerIds = myPartnerIds.filter((id) => isOnline(id));
     socket.emit("online_users", onlinePartnerIds);
 
-    // ── SEND MESSAGE ──────────────────────────────────────────────
+    // ── SEND MESSAGE ──────────────────────────────────────────────────────────
     socket.on(
       "send_message",
       async ({ recipientId, text, attachment }, callback) => {
         try {
           const hasText = text && text.trim();
-          const hasAttachment = attachment && attachment.url;
+          const hasAttachment = attachment?.url;
 
           if ((!hasText && !hasAttachment) || !recipientId) {
             return callback?.({ error: "Invalid message" });
@@ -138,11 +128,8 @@ export const initSocket = (httpServer) => {
             createdAt: message.createdAt,
           };
 
-          // Deliver to both participants — the sender's other open tabs
-          // included, so their UI stays in sync across devices too.
           io.to(`user:${recipientId}`).emit("receive_message", payload);
           io.to(`user:${userId}`).emit("receive_message", payload);
-
           callback?.({ success: true, message: payload });
         } catch (err) {
           console.error("send_message error:", err);
@@ -151,24 +138,19 @@ export const initSocket = (httpServer) => {
       },
     );
 
-    // ── TYPING INDICATORS ─────────────────────────────────────────
+    // ── TYPING ────────────────────────────────────────────────────────────────
     socket.on("typing", ({ recipientId }) => {
-      if (!recipientId) return;
-      io.to(`user:${recipientId}`).emit("typing", { userId });
+      if (recipientId) io.to(`user:${recipientId}`).emit("typing", { userId });
     });
-
     socket.on("stop_typing", ({ recipientId }) => {
-      if (!recipientId) return;
-      io.to(`user:${recipientId}`).emit("stop_typing", { userId });
+      if (recipientId)
+        io.to(`user:${recipientId}`).emit("stop_typing", { userId });
     });
 
-    // ── READ RECEIPTS ─────────────────────────────────────────────
+    // ── READ RECEIPTS ─────────────────────────────────────────────────────────
     socket.on("mark_read", async ({ conversationId, otherUserId }) => {
       try {
         if (!conversationId) return;
-
-        // Only mark messages the OTHER person sent as read by me —
-        // you can't "read" your own messages.
         await Message.updateMany(
           {
             conversation: conversationId,
@@ -177,7 +159,6 @@ export const initSocket = (httpServer) => {
           },
           { isRead: true, readAt: new Date() },
         );
-
         if (otherUserId) {
           io.to(`user:${otherUserId}`).emit("messages_read", {
             conversationId,
@@ -189,10 +170,9 @@ export const initSocket = (httpServer) => {
       }
     });
 
-    // ── DISCONNECT ─────────────────────────────────────────────────
+    // ── DISCONNECT ────────────────────────────────────────────────────────────
     socket.on("disconnect", async () => {
       removeOnlineSocket(userId, socket.id);
-
       if (!isOnline(userId)) {
         const partnerIds = await getConversationPartnerIds(userId);
         partnerIds.forEach((partnerId) => {
@@ -205,9 +185,6 @@ export const initSocket = (httpServer) => {
     });
   });
 
-  // Lets createNotification() push live updates over this same socket
-  // server, instead of recipients only finding out on their next REST poll.
   setNotificationSocket(io);
-
   return io;
 };

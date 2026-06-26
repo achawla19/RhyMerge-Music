@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Bell, Menu, MessageSquare, Plus } from "lucide-react";
+import { Bell, Menu, MessageSquare, Plus, CheckCheck, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useNotifications } from "../context/NotificationsContext";
 import { useMessages } from "../context/MessagesContext";
@@ -23,10 +23,7 @@ const PAGE_META = (username) => ({
     title: "Find Stems",
     subtitle: "Discover artists, roles, and sounds that match yours.",
   },
-  network: {
-    title: "Your Syncs",
-    subtitle: "The people you're tuned into.",
-  },
+  network: { title: "Your Syncs", subtitle: "The people you're tuned into." },
   community: {
     title: "Signal Feed",
     subtitle: "Raw ideas, hooks, and open collabs — live.",
@@ -45,19 +42,16 @@ const PAGE_META = (username) => ({
   },
 });
 
-const notifBg = {
-  project_request: "rgba(124,58,237,0.12)",
-  request_accepted: "rgba(16,185,129,0.10)",
-  request_rejected: "rgba(248,113,113,0.10)",
-  connection_request: "rgba(124,58,237,0.12)",
-  connection_accepted: "rgba(16,185,129,0.10)",
+const TYPE_STYLE = {
+  project_request: { bg: "rgba(124,58,237,0.12)", dot: "#C084FC" },
+  request_accepted: { bg: "rgba(16,185,129,0.10)", dot: "#34D399" },
+  request_rejected: { bg: "rgba(248,113,113,0.10)", dot: "#F87171" },
+  connection_request: { bg: "rgba(124,58,237,0.12)", dot: "#C084FC" },
+  connection_accepted: { bg: "rgba(16,185,129,0.10)", dot: "#34D399" },
+  system: { bg: "rgba(96,165,250,0.10)", dot: "#60A5FA" },
 };
 
-// Centralizes how each notification type renders its message — was
-// previously an inline if-chain in JSX that silently rendered nothing
-// for connection_request/connection_accepted, since those branches were
-// never added even though the backend type enum already supported them.
-const renderNotificationText = (n) => {
+const notifText = (n) => {
   switch (n.type) {
     case "project_request":
       return (
@@ -70,7 +64,7 @@ const renderNotificationText = (n) => {
       return (
         <>
           Merge accepted —{" "}
-          <span className="font-semibold" style={{ color: "var(--rm-green)" }}>
+          <span className="font-semibold" style={{ color: "#34D399" }}>
             {n.project?.title}
           </span>
         </>
@@ -94,62 +88,66 @@ const renderNotificationText = (n) => {
     case "connection_accepted":
       return (
         <>
-          <span className="font-semibold" style={{ color: "var(--rm-green)" }}>
+          <span className="font-semibold" style={{ color: "#34D399" }}>
             {n.sender?.username}
           </span>{" "}
-          accepted your sync request
+          accepted your sync
         </>
       );
+    case "system":
+      return n.description || n.title;
     default:
       return n.description || n.title || "New notification";
   }
+};
+
+const timeAgo = (date) => {
+  const secs = Math.floor((Date.now() - new Date(date)) / 1000);
+  if (secs < 60) return "just now";
+  if (secs < 3600) return `${Math.floor(secs / 60)}m ago`;
+  if (secs < 86400) return `${Math.floor(secs / 3600)}h ago`;
+  return `${Math.floor(secs / 86400)}d ago`;
 };
 
 const Navbar = ({ onMenuClick }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { notifications, unreadCount, markRead } = useNotifications();
-  const { unreadCount: unreadMessageCount } = useMessages();
+  const {
+    notifications,
+    unreadCount,
+    markRead,
+    markAllRead,
+    removeNotification,
+  } = useNotifications();
+  const { unreadCount: unreadMsgs } = useMessages();
 
   const segment = location.pathname.split("/")[1] || "";
   const meta = PAGE_META(user?.username);
   const current = meta[segment] || meta[""];
 
-  const searchWidth =
-    segment === ""
-      ? "lg:w-[420px]"
-      : segment === "messages"
-        ? "lg:w-[240px]"
-        : "lg:w-[320px]";
-
-  const [showNotifications, setShowNotifications] = useState(false);
+  const [open, setOpen] = useState(false);
   const bellRef = useRef(null);
   const dropRef = useRef(null);
 
-  // Close dropdown on outside click
+  // Close on outside click
   useEffect(() => {
-    if (!showNotifications) return;
+    if (!open) return;
     const handler = (e) => {
       if (
-        bellRef.current &&
-        !bellRef.current.contains(e.target) &&
-        dropRef.current &&
-        !dropRef.current.contains(e.target)
-      ) {
-        setShowNotifications(false);
-      }
+        !bellRef.current?.contains(e.target) &&
+        !dropRef.current?.contains(e.target)
+      )
+        setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [showNotifications]);
+  }, [open]);
 
-  const handleNotifClick = async (n) => {
+  const handleClick = async (n) => {
     await markRead(n._id);
-    setShowNotifications(false);
-    if (n.link) {
-      navigate(n.link, { state: { showJoinedBanner: true } });
-    }
+    setOpen(false);
+    if (n.link) navigate(n.link);
   };
 
   return (
@@ -163,11 +161,11 @@ const Navbar = ({ onMenuClick }) => {
         }}
       >
         <div className="h-16 px-4 lg:px-8 flex items-center justify-between gap-4">
-          {/* ── LEFT ── */}
+          {/* LEFT */}
           <div className="flex items-center gap-4 min-w-0 flex-1 overflow-hidden">
             <button
               onClick={onMenuClick}
-              className="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
+              className="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{
                 background: "rgba(124,58,237,0.08)",
                 border: "1px solid rgba(124,58,237,0.2)",
@@ -176,12 +174,8 @@ const Navbar = ({ onMenuClick }) => {
             >
               <Menu size={18} />
             </button>
-
             <div className="min-w-0">
-              <h1
-                className="text-base md:text-lg lg:text-xl font-bold leading-tight text-white truncate"
-                style={{ margin: 0 }}
-              >
+              <h1 className="text-base md:text-lg lg:text-xl font-bold leading-tight text-white truncate">
                 {current.title}
               </h1>
               <p
@@ -196,9 +190,9 @@ const Navbar = ({ onMenuClick }) => {
             </div>
           </div>
 
-          {/* ── RIGHT ── */}
+          {/* RIGHT */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            <NavbarSearch width={searchWidth} />
+            <NavbarSearch />
 
             {/* Messages */}
             <button
@@ -219,7 +213,7 @@ const Navbar = ({ onMenuClick }) => {
               }}
             >
               <MessageSquare size={17} />
-              {unreadMessageCount > 0 && (
+              {unreadMsgs > 0 && (
                 <span
                   className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-white flex items-center justify-center"
                   style={{
@@ -229,36 +223,24 @@ const Navbar = ({ onMenuClick }) => {
                     fontWeight: 700,
                   }}
                 >
-                  {unreadMessageCount > 9 ? "9+" : unreadMessageCount}
+                  {unreadMsgs > 9 ? "9+" : unreadMsgs}
                 </span>
               )}
             </button>
 
-            {/* Notifications bell — dropdown is FIXED, escapes sticky stack */}
+            {/* Notifications bell */}
             <button
               ref={bellRef}
-              onClick={() => setShowNotifications((v) => !v)}
+              onClick={() => setOpen((v) => !v)}
               className="relative w-10 h-10 rounded-xl flex items-center justify-center transition-all"
               style={{
-                background: showNotifications
+                background: open
                   ? "rgba(124,58,237,0.14)"
                   : "rgba(255,255,255,0.04)",
-                border: showNotifications
+                border: open
                   ? "1px solid rgba(124,58,237,0.4)"
                   : "1px solid rgba(255,255,255,0.07)",
-                color: showNotifications ? "var(--rm-purple-light)" : "#6B7280",
-              }}
-              onMouseEnter={(e) => {
-                if (!showNotifications) {
-                  e.currentTarget.style.borderColor = "rgba(124,58,237,0.35)";
-                  e.currentTarget.style.color = "var(--rm-purple-light)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!showNotifications) {
-                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
-                  e.currentTarget.style.color = "#6B7280";
-                }
+                color: open ? "var(--rm-purple-light)" : "#6B7280",
               }}
             >
               <Bell size={17} />
@@ -280,12 +262,11 @@ const Navbar = ({ onMenuClick }) => {
             {/* New Mix */}
             <button
               onClick={() => navigate("/projects")}
-              className="flex items-center justify-center gap-2 h-10 px-4 rounded-xl font-medium transition-all"
+              className="flex items-center gap-2 h-10 px-4 rounded-xl font-medium transition-all"
               style={{
                 background: "var(--rm-purple)",
                 color: "#fff",
                 fontSize: 13,
-                fontFamily: "var(--rm-font-sans)",
                 border: "1px solid rgba(124,58,237,0.5)",
               }}
               onMouseEnter={(e) =>
@@ -302,52 +283,76 @@ const Navbar = ({ onMenuClick }) => {
         </div>
       </header>
 
-      {/* ── Notification dropdown — position:fixed so it clears ticker & PulseBar ── */}
-      {showNotifications && (
+      {/* Notification Dropdown */}
+      {open && (
         <div
           ref={dropRef}
           style={{
             position: "fixed",
             top: 68,
             right: 16,
-            width: 340,
-            maxHeight: "70vh",
+            width: 360,
+            maxHeight: "72vh",
             overflowY: "auto",
             background: "#110820",
             border: "1px solid rgba(124,58,237,0.28)",
             borderRadius: 16,
-            boxShadow: "0 24px 60px rgba(0,0,0,0.6)",
+            boxShadow: "0 24px 60px rgba(0,0,0,0.65)",
             zIndex: 9999,
           }}
         >
+          {/* Header */}
           <div
             className="flex items-center justify-between px-4 py-3 sticky top-0"
             style={{
               borderBottom: "1px solid rgba(124,58,237,0.15)",
               background: "#110820",
+              zIndex: 1,
             }}
           >
-            <span className="text-sm font-medium text-white">
-              Notifications
-            </span>
-            {unreadCount > 0 && (
-              <span
-                className="text-[9px] px-2 py-0.5 rounded-full"
-                style={{
-                  fontFamily: "var(--rm-font-mono)",
-                  background: "var(--rm-purple-dim)",
-                  color: "var(--rm-purple-light)",
-                  border: "1px solid var(--rm-purple-border)",
-                }}
-              >
-                {unreadCount} new
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-white">
+                Notifications
               </span>
+              {unreadCount > 0 && (
+                <span
+                  className="text-[9px] px-2 py-0.5 rounded-full"
+                  style={{
+                    fontFamily: "var(--rm-font-mono)",
+                    background: "var(--rm-purple-dim)",
+                    color: "var(--rm-purple-light)",
+                    border: "1px solid var(--rm-purple-border)",
+                  }}
+                >
+                  {unreadCount} new
+                </span>
+              )}
+            </div>
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllRead}
+                className="flex items-center gap-1 text-xs transition-colors"
+                style={{
+                  color: "var(--rm-text-muted)",
+                  fontFamily: "var(--rm-font-mono)",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.color = "var(--rm-purple-light)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = "var(--rm-text-muted)")
+                }
+              >
+                <CheckCheck size={13} />
+                mark all read
+              </button>
             )}
           </div>
 
+          {/* List */}
           {notifications.length === 0 ? (
             <div
-              className="px-4 py-8 text-center text-sm"
+              className="px-4 py-10 text-center text-sm"
               style={{
                 color: "var(--rm-text-muted)",
                 fontFamily: "var(--rm-font-mono)",
@@ -356,40 +361,79 @@ const Navbar = ({ onMenuClick }) => {
               no signals yet
             </div>
           ) : (
-            notifications.map((n) => (
-              <button
-                key={n._id}
-                onClick={() => handleNotifClick(n)}
-                className="w-full text-left px-4 py-3 transition-all"
-                style={{
-                  borderBottom: "1px solid rgba(124,58,237,0.08)",
-                  background: !n.isRead
-                    ? notifBg[n.type] || "rgba(124,58,237,0.08)"
-                    : "transparent",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "rgba(124,58,237,0.1)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = !n.isRead
-                    ? notifBg[n.type] || "rgba(124,58,237,0.08)"
-                    : "transparent")
-                }
-              >
-                <p className="text-sm text-white leading-snug">
-                  {renderNotificationText(n)}
-                </p>
-                <p
-                  className="text-xs mt-1"
+            notifications.map((n) => {
+              const style = TYPE_STYLE[n.type] || TYPE_STYLE.system;
+              return (
+                <div
+                  key={n._id}
+                  className="flex items-start gap-3 px-4 py-3 group transition-all cursor-pointer"
                   style={{
-                    fontFamily: "var(--rm-font-mono)",
-                    color: "var(--rm-text-muted)",
+                    borderBottom: "1px solid rgba(124,58,237,0.07)",
+                    background: !n.isRead ? style.bg : "transparent",
                   }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "rgba(124,58,237,0.08)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = !n.isRead
+                      ? style.bg
+                      : "transparent")
+                  }
+                  onClick={() => handleClick(n)}
                 >
-                  {new Date(n.createdAt).toLocaleString()}
-                </p>
-              </button>
-            ))
+                  {/* Dot */}
+                  <div
+                    className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5"
+                    style={{
+                      background: n.isRead ? "transparent" : style.dot,
+                      border: `1.5px solid ${style.dot}`,
+                    }}
+                  />
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    {n.sender?.avatar && (
+                      <img
+                        src={n.sender.avatar}
+                        alt=""
+                        className="w-7 h-7 rounded-full mb-1.5"
+                        style={{ border: "1px solid rgba(255,255,255,0.1)" }}
+                      />
+                    )}
+                    <p className="text-sm text-white leading-snug">
+                      {notifText(n)}
+                    </p>
+                    <p
+                      className="text-[11px] mt-1"
+                      style={{
+                        fontFamily: "var(--rm-font-mono)",
+                        color: "var(--rm-text-muted)",
+                      }}
+                    >
+                      {timeAgo(n.createdAt)}
+                    </p>
+                  </div>
+
+                  {/* Delete button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeNotification(n._id);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ color: "#6B7280" }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = "#F87171")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = "#6B7280")
+                    }
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              );
+            })
           )}
         </div>
       )}

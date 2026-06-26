@@ -39,11 +39,11 @@ export default function RecentProjects() {
   useEffect(() => {
     (async () => {
       try {
-        const data = await getProjects();
-        const sorted = [...data].sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-        );
-        setProjects(sorted.slice(0, 3));
+        const data = await getProjects(1, 6);
+        // const sorted = [...data].sort(
+        //   (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+        // );
+        setProjects(data.projects || []);
       } catch (err) {
         console.error(err);
       } finally {

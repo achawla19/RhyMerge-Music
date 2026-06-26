@@ -2,16 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-
+import Select from "../components/ui/Select";
 import hero from "../assets/hero.png";
 import { ROLES } from "../constants/profileOptions";
 
 const API = import.meta.env.VITE_API_URL;
-
-const inputStyle = {
-  border: "1px solid rgba(124,58,237,0.3)",
-  color: "white",
-};
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -24,19 +19,16 @@ const Signup = () => {
     password: "",
     role: "",
   });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
 
   const handleSignup = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-
     try {
       const res = await fetch(`${API}/api/auth/register`, {
         method: "POST",
@@ -44,29 +36,31 @@ const Signup = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
         setError(data.msg || "Signup failed");
         setLoading(false);
         return;
       }
-
-      // login() already persists to localStorage — no need to duplicate it here
-      login(data.user);
+      login(data.user, data.token);
       navigate("/");
     } catch (err) {
-      console.error(err);
       setError(
         err instanceof TypeError
           ? "Can't reach the server. Is the backend running?"
-          : "Something went wrong. Please try again.",
+          : "Something went wrong.",
       );
     }
-
     setLoading(false);
   };
+
+  const inputStyle = {
+    border: "1px solid rgba(124,58,237,0.3)",
+    color: "white",
+  };
+  const focus = (e) => (e.currentTarget.style.borderColor = "#7C3AED");
+  const blur = (e) =>
+    (e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)");
 
   return (
     <div
@@ -118,64 +112,33 @@ const Signup = () => {
           </p>
 
           <div className="mt-6 space-y-4">
-            <input
-              type="text"
-              name="name"
-              placeholder="Full Name"
-              value={form.name}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 rounded-xl bg-transparent outline-none transition-all"
-              style={inputStyle}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#7C3AED")}
-              onBlur={(e) =>
-                (e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)")
-              }
-            />
-            <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={form.username}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 rounded-xl bg-transparent outline-none transition-all"
-              style={inputStyle}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#7C3AED")}
-              onBlur={(e) =>
-                (e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)")
-              }
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email Address"
-              value={form.email}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 rounded-xl bg-transparent outline-none transition-all"
-              style={inputStyle}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#7C3AED")}
-              onBlur={(e) =>
-                (e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)")
-              }
-            />
+            {[
+              { name: "name", type: "text", placeholder: "Full Name" },
+              { name: "username", type: "text", placeholder: "Username" },
+              { name: "email", type: "email", placeholder: "Email Address" },
+            ].map(({ name, type, placeholder }) => (
+              <input
+                key={name}
+                type={type}
+                name={name}
+                placeholder={placeholder}
+                value={form[name]}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 rounded-xl bg-transparent outline-none transition-all"
+                style={inputStyle}
+                onFocus={focus}
+                onBlur={blur}
+              />
+            ))}
 
-            <select
-              name="role"
+            {/* Custom role select */}
+            <Select
               value={form.role}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 rounded-xl outline-none transition-all"
-              style={{ ...inputStyle, background: "#150A24" }}
-            >
-              <option value="">Select Your Role</option>
-              {ROLES.map((role) => (
-                <option key={role} value={role}>
-                  {role}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setForm((f) => ({ ...f, role: val }))}
+              options={ROLES.map((r) => ({ value: r, label: r }))}
+              placeholder="Select Your Role"
+            />
 
             <input
               type="password"
@@ -186,10 +149,8 @@ const Signup = () => {
               required
               className="w-full px-4 py-3 rounded-xl bg-transparent outline-none transition-all"
               style={inputStyle}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#7C3AED")}
-              onBlur={(e) =>
-                (e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)")
-              }
+              onFocus={focus}
+              onBlur={blur}
             />
           </div>
 
@@ -207,6 +168,14 @@ const Signup = () => {
             disabled={loading}
             className="w-full mt-6 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-60"
             style={{ background: "#7C3AED", color: "#fff" }}
+            onMouseEnter={(e) =>
+              !e.currentTarget.disabled &&
+              (e.currentTarget.style.background = "#6D28D9")
+            }
+            onMouseLeave={(e) =>
+              !e.currentTarget.disabled &&
+              (e.currentTarget.style.background = "#7C3AED")
+            }
           >
             {loading && <Loader2 size={16} className="animate-spin" />}
             {loading ? "Creating..." : "Join the Merge"}
@@ -226,8 +195,6 @@ const Signup = () => {
             />
           </div>
 
-          {/* Not implemented — no OAuth backend exists. Disabled rather than
-              silently doing nothing when clicked. */}
           <button
             type="button"
             disabled

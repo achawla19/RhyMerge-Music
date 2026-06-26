@@ -27,7 +27,7 @@ const Login = () => {
 
         if (res.ok) {
           const data = await res.json();
-          login(data.user);
+          login(data.user, data.token);
           navigate("/");
           return;
         }
@@ -67,7 +67,7 @@ const Login = () => {
       }
 
       // login() already persists to localStorage — no need to duplicate it here
-      login(data.user);
+      login(data.user, data.token);
       setSuccess(true);
       setLoading(false);
 

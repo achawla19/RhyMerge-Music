@@ -7,11 +7,15 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       trim: true,
+      minlength: 3,
+      maxlength: 30,
     },
 
     name: {
       type: String,
       required: true,
+      trim: true,
+      maxlength: 60,
     },
 
     email: {
@@ -19,6 +23,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       lowercase: true,
+      trim: true,
     },
 
     password: {
@@ -26,35 +31,21 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
 
-    role: {
-      type: String,
-      default: "",
-    },
+    role: { type: String, default: "", trim: true },
 
-    bio: {
-      type: String,
-      default: "",
-    },
+    bio: { type: String, default: "", maxlength: 500 },
 
-    avatar: {
-      type: String,
-      default: "",
-    },
+    // Cloudinary secure URL
+    avatar: { type: String, default: "" },
 
-    genres: {
-      type: [String],
-      default: [],
-    },
+    // Needed to delete the old avatar from CDN on update
+    avatarPublicId: { type: String, default: "" },
 
-    instruments: {
-      type: [String],
-      default: [],
-    },
+    genres: { type: [String], default: [] },
+    instruments: { type: [String], default: [] },
+    certificates: { type: [String], default: [] },
 
-    location: {
-      type: String,
-      default: "",
-    },
+    location: { type: String, default: "", trim: true },
 
     experienceLevel: {
       type: String,
@@ -68,56 +59,31 @@ const userSchema = new mongoose.Schema(
       default: "Available",
     },
 
-    certificates: {
-      type: [String],
-      default: [],
+    // Social links (optional — shown on profile)
+    socials: {
+      instagram: { type: String, default: "" },
+      soundcloud: { type: String, default: "" },
+      spotify: { type: String, default: "" },
+      youtube: { type: String, default: "" },
+      website: { type: String, default: "" },
     },
 
-    followers: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 
-    following: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
+    connections: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    sentRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    receivedRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 
-    connections: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        default: [],
-      },
-    ],
+    savedProjects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Project" }],
 
-    sentRequests: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        default: [],
-      },
-    ],
-
-    receivedRequests: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        default: [],
-      },
-    ],
-    savedProjects: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Project",
-      },
-    ],
+    // Soft-delete
+    deletedAt: { type: Date, default: null },
   },
   { timestamps: true },
 );
+
+userSchema.index({ role: 1 });
+userSchema.index({ genres: 1 });
 
 export default mongoose.model("User", userSchema);

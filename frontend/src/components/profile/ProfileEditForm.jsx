@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Camera, Check } from "lucide-react";
-
 import TagInput from "./TagInput";
+import Select from "../ui/Select";
 import { useAuth } from "../../context/AuthContext";
 import { updateMyProfile } from "../../api/profile";
 import {
@@ -11,11 +11,6 @@ import {
   AVAILABILITY_OPTIONS,
 } from "../../constants/profileOptions";
 
-// One real, complete edit form covering every field your backend's
-// updateMyProfile actually supports. Used both inline (Settings → Profile)
-// and inside a modal (Edit Profile button on your own profile page) so
-// there's exactly one place this logic lives — no duplicate/conflicting
-// "Role" fields fighting each other on save anymore.
 const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
   const { user, updateUser } = useAuth();
 
@@ -32,7 +27,6 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
     experienceLevel: "Beginner",
     availability: "Available",
   });
-
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -55,15 +49,15 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
   }, [user]);
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+  const setVal = (key) => (val) => setForm((f) => ({ ...f, [key]: val }));
 
-  const toggleGenre = (genre) => {
+  const toggleGenre = (genre) =>
     setForm((f) => ({
       ...f,
       genres: f.genres.includes(genre)
         ? f.genres.filter((g) => g !== genre)
         : [...f.genres, genre],
     }));
-  };
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -85,6 +79,16 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
       setSaving(false);
     }
   };
+
+  const inputStyle = {
+    background: "var(--rm-bg)",
+    border: "1px solid var(--rm-purple-border)",
+    color: "var(--rm-text-primary)",
+  };
+
+  const focus = (e) => (e.currentTarget.style.borderColor = "var(--rm-purple)");
+  const blur = (e) =>
+    (e.currentTarget.style.borderColor = "var(--rm-purple-border)");
 
   return (
     <form onSubmit={handleSave} className="space-y-5">
@@ -130,11 +134,9 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
               onChange={set("avatar")}
               placeholder="https://..."
               className="flex-1 min-w-0 rounded-xl px-3 py-2 outline-none text-sm"
-              style={{
-                background: "var(--rm-bg)",
-                border: "1px solid var(--rm-purple-border)",
-                color: "var(--rm-text-primary)",
-              }}
+              style={inputStyle}
+              onFocus={focus}
+              onBlur={blur}
             />
           </div>
         </div>
@@ -156,11 +158,9 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
             value={form.name}
             onChange={set("name")}
             className="w-full rounded-xl px-4 py-2.5 outline-none text-sm"
-            style={{
-              background: "var(--rm-bg)",
-              border: "1px solid var(--rm-purple-border)",
-              color: "var(--rm-text-primary)",
-            }}
+            style={inputStyle}
+            onFocus={focus}
+            onBlur={blur}
           />
         </div>
         <div>
@@ -189,11 +189,9 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
               value={form.username}
               onChange={set("username")}
               className="flex-1 rounded-r-xl px-4 py-2.5 outline-none text-sm"
-              style={{
-                background: "var(--rm-bg)",
-                border: "1px solid var(--rm-purple-border)",
-                color: "var(--rm-text-primary)",
-              }}
+              style={inputStyle}
+              onFocus={focus}
+              onBlur={blur}
             />
           </div>
         </div>
@@ -211,23 +209,12 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
           >
             Role
           </label>
-          <select
+          <Select
             value={form.role}
-            onChange={set("role")}
-            className="w-full rounded-xl px-3 py-2.5 outline-none text-sm"
-            style={{
-              background: "var(--rm-bg)",
-              border: "1px solid var(--rm-purple-border)",
-              color: "var(--rm-text-primary)",
-            }}
-          >
-            <option value="">Select</option>
-            {ROLES.map((r) => (
-              <option key={r} value={r.toLowerCase()}>
-                {r}
-              </option>
-            ))}
-          </select>
+            onChange={setVal("role")}
+            options={ROLES.map((r) => ({ value: r.toLowerCase(), label: r }))}
+            placeholder="Select role"
+          />
         </div>
         <div>
           <label
@@ -239,22 +226,11 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
           >
             Experience
           </label>
-          <select
+          <Select
             value={form.experienceLevel}
-            onChange={set("experienceLevel")}
-            className="w-full rounded-xl px-3 py-2.5 outline-none text-sm"
-            style={{
-              background: "var(--rm-bg)",
-              border: "1px solid var(--rm-purple-border)",
-              color: "var(--rm-text-primary)",
-            }}
-          >
-            {EXPERIENCE_LEVELS.map((l) => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-          </select>
+            onChange={setVal("experienceLevel")}
+            options={EXPERIENCE_LEVELS}
+          />
         </div>
         <div>
           <label
@@ -266,22 +242,11 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
           >
             Availability
           </label>
-          <select
+          <Select
             value={form.availability}
-            onChange={set("availability")}
-            className="w-full rounded-xl px-3 py-2.5 outline-none text-sm"
-            style={{
-              background: "var(--rm-bg)",
-              border: "1px solid var(--rm-purple-border)",
-              color: "var(--rm-text-primary)",
-            }}
-          >
-            {AVAILABILITY_OPTIONS.map((a) => (
-              <option key={a} value={a}>
-                {a}
-              </option>
-            ))}
-          </select>
+            onChange={setVal("availability")}
+            options={AVAILABILITY_OPTIONS}
+          />
         </div>
       </div>
 
@@ -303,11 +268,9 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
           maxLength={500}
           placeholder="tell other musicians about yourself..."
           className="w-full rounded-xl px-4 py-3 outline-none resize-none text-sm"
-          style={{
-            background: "var(--rm-bg)",
-            border: "1px solid var(--rm-purple-border)",
-            color: "var(--rm-text-primary)",
-          }}
+          style={inputStyle}
+          onFocus={focus}
+          onBlur={blur}
         />
         <p
           className="text-[11px] mt-1"
@@ -336,11 +299,9 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
           onChange={set("location")}
           placeholder="Mumbai, India"
           className="w-full rounded-xl px-4 py-2.5 outline-none text-sm"
-          style={{
-            background: "var(--rm-bg)",
-            border: "1px solid var(--rm-purple-border)",
-            color: "var(--rm-text-primary)",
-          }}
+          style={inputStyle}
+          onFocus={focus}
+          onBlur={blur}
         />
       </div>
 
@@ -385,7 +346,6 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
         </div>
       </div>
 
-      {/* Instruments */}
       <TagInput
         label="Skills & Instruments"
         hint="press Enter or tap + to add"
@@ -394,7 +354,6 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
         placeholder="e.g. Guitar, Ableton, Mixing"
       />
 
-      {/* Certificates */}
       <TagInput
         label="Certifications"
         hint="courses, degrees, or credentials"

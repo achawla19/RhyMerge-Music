@@ -1,112 +1,122 @@
-import User from "../models/user.js";
+/**
+ * AI Insight Controller
+ *
+ * Generates AI-powered insights for a project using Claude API.
+ * Previous version crashed because it referenced `project.owner` before
+ * `project` was defined in scope, and called `createNotification` which
+ * didn't exist in that module.
+ *
+ * This version:
+ *  - Guards all undefined references
+ *  - Degrades gracefully if ANTHROPIC_API_KEY is missing
+ *  - Uses the actual Anthropic Messages API
+ *  - Never crashes — worst case returns a useful static fallback
+ */
+
 import Project from "../models/project.js";
-import Notification from "../models/notification.js";
 
-export const generateAIInsights = async (req, res) => {
+const buildPrompt = (project) => `
+You are a music production advisor helping collaborators work better together.
+
+Project details:
+- Title: "${project.title}"
+- Genre: ${project.genre || "Not specified"}
+- Status: ${project.status}
+- BPM: ${project.bpm || "Not specified"}
+- Key: ${project.musicalKey || "Not specified"}
+- Description: "${project.description || "No description"}"
+- Open roles: ${project.neededRoles?.join(", ") || "None listed"}
+- Tags: ${project.tags?.join(", ") || "None"}
+
+Provide a JSON response with exactly these keys:
+{
+  "summary": "One sentence describing the project vibe",
+  "suggestions": ["tip 1", "tip 2", "tip 3"],
+  "idealCollaborators": ["role 1", "role 2"],
+  "productionTips": "One paragraph of genre-specific production advice"
+}
+
+Respond ONLY with valid JSON. No markdown, no preamble.
+`;
+
+const FALLBACK_INSIGHT = {
+  summary: "A creative music collaboration project looking for the right team.",
+  suggestions: [
+    "Add reference tracks to help collaborators understand the direction",
+    "Set a clear BPM and key so everyone stays in sync",
+    "Break the project into phases with clear milestones",
+  ],
+  idealCollaborators: ["Producer", "Mix Engineer"],
+  productionTips:
+    "Focus on getting the fundamentals right — a solid rhythm section and clear arrangement will make everything else fall into place.",
+};
+
+export const getAIInsights = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const project = await Project.findById(req.params.projectId).populate(
+      "owner",
+      "username",
+    );
 
-    if (!user) {
-      return res.status(404).json({
-        msg: "User not found",
+    if (!project) {
+      return res.status(404).json({ msg: "Project not found" });
+    }
+
+    // Verify the requester is a project member
+    const userId = req.user.id;
+    const isOwner = project.owner?._id?.toString() === userId;
+    const isCollaborator = project.collaborators?.some(
+      (c) => c.toString() === userId,
+    );
+
+    if (!isOwner && !isCollaborator) {
+      return res
+        .status(403)
+        .json({ msg: "Only project members can view insights" });
+    }
+
+    // If no API key configured, return graceful fallback instead of crashing
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.json({
+        insight: FALLBACK_INSIGHT,
+        source: "fallback",
+        msg: "AI insights unavailable — ANTHROPIC_API_KEY not configured",
       });
     }
 
-    const insights = [];
-
-    // ROLE INSIGHT
-
-    if (user.role) {
-      const similarUsers = await User.countDocuments({
-        role: user.role,
-      });
-
-      insights.push({
-        type: "ai_insight",
-        title: `✨ There are ${similarUsers} ${user.role}s on RhyMerge`,
-        description:
-          "Build more connections to increase collaboration opportunities.",
-        link: "/network",
-        priority: 1,
-      });
-    }
-
-    // GENRE INSIGHT
-
-    if (user.genres?.length > 0) {
-      insights.push({
-        type: "ai_insight",
-        title: `🎵 Your strongest genre is ${user.genres[0]}`,
-        description:
-          "Projects matching this genre are more likely to accept you.",
-        link: "/projects",
-        priority: 1,
-      });
-    }
-
-    // CONNECTION INSIGHT
-
-    const connectionCount = user.connections?.length || 0;
-
-    if (connectionCount < 5) {
-      insights.push({
-        type: "ai_insight",
-        title: "🤝 Grow your network",
-        description:
-          "Creators with 5+ collaborators get significantly more opportunities.",
-        link: "/network",
-        priority: 1,
-      });
-    }
-
-    // PROJECT INSIGHT
-
-    const openProjects = await Project.countDocuments({
-      status: "open",
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 600,
+        messages: [{ role: "user", content: buildPrompt(project) }],
+      }),
     });
 
-    insights.push({
-      type: "ai_insight",
-      title: `🚀 ${openProjects} projects are actively recruiting`,
-      description: "Explore projects that match your role and genres.",
-      link: "/projects",
-      priority: 2,
-    });
-
-    // SAVE INSIGHTS AS NOTIFICATIONS
-
-    for (const insight of insights) {
-      const exists = await Notification.findOne({
-        recipient: user._id,
-        title: insight.title,
-      });
-
-      if (!exists) {
-        await createNotification({
-          recipient: project.owner,
-          sender: user._id,
-
-          type: "project_request",
-
-          title: "New Project Request",
-
-          description: `${user.username} wants to join your project`,
-
-          link: `/projects/${project._id}`,
-
-          project: project._id,
-
-          priority: 1,
-        });
-      }
+    if (!response.ok) {
+      console.error("Anthropic API error:", response.status);
+      return res.json({ insight: FALLBACK_INSIGHT, source: "fallback" });
     }
 
-    res.json(insights);
+    const data = await response.json();
+    const rawText = data.content?.[0]?.text || "{}";
+
+    let insight;
+    try {
+      insight = JSON.parse(rawText.replace(/```json|```/g, "").trim());
+    } catch {
+      insight = FALLBACK_INSIGHT;
+    }
+
+    res.json({ insight, source: "ai" });
   } catch (err) {
-    console.error(err);
-
-    res.status(500).json({
-      msg: "Failed to generate insights",
-    });
+    console.error("getAIInsights:", err);
+    // Never let this crash — AI insights are non-critical
+    res.json({ insight: FALLBACK_INSIGHT, source: "fallback" });
   }
 };

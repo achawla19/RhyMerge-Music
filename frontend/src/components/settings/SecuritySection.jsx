@@ -1,138 +1,292 @@
-import { LogOut, Trash2, Loader2, Info } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
+import {
+  Shield,
+  Eye,
+  EyeOff,
+  Loader2,
+  AlertTriangle,
+  CheckCircle2,
+} from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL;
 
-const SecuritySection = () => {
-  const navigate = useNavigate();
-  const { logout: clearAuthContext } = useAuth();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+const handle = async (res) => {
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.msg || "Request failed");
+  return data;
+};
 
-  // Real, working — calls your actual /api/auth/logout endpoint
-  const handleLogout = async () => {
-    if (!window.confirm("Are you sure you want to log out?")) return;
+const inputStyle = {
+  background: "rgba(255,255,255,0.04)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  color: "var(--rm-text-primary)",
+  borderRadius: 12,
+  padding: "10px 44px 10px 16px",
+  width: "100%",
+  outline: "none",
+  fontSize: 14,
+};
+
+const PasswordField = ({ value, onChange, placeholder }) => {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative">
+      <input
+        type={show ? "text" : "password"}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        style={inputStyle}
+        onFocus={(e) =>
+          (e.currentTarget.style.borderColor = "var(--rm-purple)")
+        }
+        onBlur={(e) =>
+          (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")
+        }
+      />
+      <button
+        type="button"
+        onClick={() => setShow((v) => !v)}
+        className="absolute right-3 top-1/2 -translate-y-1/2"
+        style={{ color: "var(--rm-text-muted)" }}
+      >
+        {show ? <EyeOff size={15} /> : <Eye size={15} />}
+      </button>
+    </div>
+  );
+};
+
+const Toast = ({ msg, type }) => (
+  <div
+    className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm"
+    style={{
+      background:
+        type === "success" ? "rgba(16,185,129,0.1)" : "rgba(248,113,113,0.1)",
+      border: `1px solid ${type === "success" ? "rgba(16,185,129,0.3)" : "rgba(248,113,113,0.3)"}`,
+      color: type === "success" ? "#34D399" : "#F87171",
+    }}
+  >
+    {type === "success" ? (
+      <CheckCircle2 size={15} />
+    ) : (
+      <AlertTriangle size={15} />
+    )}
+    {msg}
+  </div>
+);
+
+export default function SecuritySection() {
+  const [current, setCurrent] = useState("");
+  const [newPass, setNewPass] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [pwLoading, setPwLoading] = useState(false);
+  const [pwMsg, setPwMsg] = useState(null);
+
+  const [deletePass, setDeletePass] = useState("");
+  const [delLoading, setDelLoading] = useState(false);
+  const [delMsg, setDelMsg] = useState(null);
+  const [showDeleteBox, setShowDeleteBox] = useState(false);
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (newPass !== confirm) {
+      setPwMsg({ type: "error", text: "Passwords don't match" });
+      return;
+    }
+    if (newPass.length < 8) {
+      setPwMsg({ type: "error", text: "Min 8 characters" });
+      return;
+    }
+    setPwLoading(true);
+    setPwMsg(null);
     try {
-      setIsLoggingOut(true);
-      await fetch(`${API}/api/auth/logout`, {
-        method: "POST",
-        credentials: "include",
-      });
-      clearAuthContext();
-      navigate("/login");
+      await handle(
+        await fetch(`${API}/api/auth/change-password`, {
+          method: "PUT",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            currentPassword: current,
+            newPassword: newPass,
+          }),
+        }),
+      );
+      setPwMsg({ type: "success", text: "Password updated" });
+      setCurrent("");
+      setNewPass("");
+      setConfirm("");
     } catch (err) {
-      console.error("Logout failed:", err);
+      setPwMsg({ type: "error", text: err.message });
     } finally {
-      setIsLoggingOut(false);
+      setPwLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deletePass) {
+      setDelMsg({ type: "error", text: "Enter your password" });
+      return;
+    }
+    setDelLoading(true);
+    setDelMsg(null);
+    try {
+      await handle(
+        await fetch(`${API}/api/auth/delete-account`, {
+          method: "DELETE",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: deletePass }),
+        }),
+      );
+      window.location.href = "/login";
+    } catch (err) {
+      setDelMsg({ type: "error", text: err.message });
+      setDelLoading(false);
     }
   };
 
   return (
-    <div>
-      <h2 className="text-white font-semibold text-lg mb-1">Security</h2>
-      <p className="text-sm mb-5" style={{ color: "var(--rm-text-muted)" }}>
-        Keep your account safe
-      </p>
-
-      <div
-        className="flex items-start gap-2 text-xs rounded-xl px-3 py-2.5 mb-6"
-        style={{
-          background: "rgba(245,158,11,0.08)",
-          border: "1px solid rgba(245,158,11,0.25)",
-          color: "#FBBF24",
-        }}
-      >
-        <Info size={14} className="flex-shrink-0 mt-0.5" />
-        <span style={{ fontFamily: "var(--rm-font-mono)" }}>
-          password changes and account deletion need backend support that
-          doesn't exist yet — disabled below to avoid a broken action
-        </span>
-      </div>
-
-      {/* PASSWORD — disabled, no backend route exists */}
-      <div className="space-y-4 mb-6 opacity-50 pointer-events-none">
-        {["Current Password", "New Password", "Confirm New Password"].map(
-          (label) => (
-            <div key={label}>
-              <label
-                className="text-xs mb-1.5 block"
-                style={{
-                  fontFamily: "var(--rm-font-mono)",
-                  color: "var(--rm-text-muted)",
-                }}
-              >
-                {label}
-              </label>
-              <input
-                type="password"
-                disabled
-                placeholder="not available yet"
-                className="w-full rounded-xl px-4 py-2.5 outline-none"
-                style={{
-                  background: "var(--rm-bg)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  color: "var(--rm-text-muted)",
-                }}
-              />
-            </div>
-          ),
-        )}
-        <button
-          disabled
-          className="px-6 py-2.5 rounded-xl font-medium text-white"
-          style={{ background: "var(--rm-purple)" }}
-        >
-          Update Password
-        </button>
-      </div>
-
-      {/* ACTIONS */}
-      <div
-        className="pt-5 space-y-3"
-        style={{ borderTop: "1px solid rgba(124,58,237,0.12)" }}
-      >
-        <button
-          onClick={handleLogout}
-          disabled={isLoggingOut}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all disabled:opacity-50"
+    <div className="space-y-8">
+      <div className="flex items-center gap-3 mb-2">
+        <div
+          className="w-9 h-9 rounded-xl flex items-center justify-center"
           style={{
+            background: "var(--rm-purple-dim)",
             border: "1px solid var(--rm-purple-border)",
-            color: "var(--rm-text-secondary)",
           }}
         >
-          {isLoggingOut ? (
-            <Loader2 size={15} className="animate-spin" />
-          ) : (
-            <LogOut size={15} />
-          )}
-          {isLoggingOut ? "Logging out..." : "Log Out"}
-        </button>
-
-        <div className="pt-2">
+          <Shield size={16} color="#C084FC" />
+        </div>
+        <div>
+          <h2 className="text-white font-semibold text-lg">Security</h2>
           <p
-            className="text-xs font-medium mb-2"
-            style={{ color: "#F87171", fontFamily: "var(--rm-font-mono)" }}
+            className="text-xs"
+            style={{
+              fontFamily: "var(--rm-font-mono)",
+              color: "var(--rm-text-muted)",
+            }}
           >
-            danger zone
+            manage your password and account access
           </p>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-white font-medium mb-1">Change Password</h3>
+        <p className="text-sm mb-4" style={{ color: "var(--rm-text-muted)" }}>
+          Use a strong password of at least 8 characters.
+        </p>
+        <form onSubmit={handleChangePassword} className="space-y-3 max-w-md">
+          <PasswordField
+            value={current}
+            onChange={(e) => setCurrent(e.target.value)}
+            placeholder="Current password"
+          />
+          <PasswordField
+            value={newPass}
+            onChange={(e) => setNewPass(e.target.value)}
+            placeholder="New password"
+          />
+          <PasswordField
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            placeholder="Confirm new password"
+          />
+          {pwMsg && <Toast msg={pwMsg.text} type={pwMsg.type} />}
           <button
-            disabled
-            title="Account deletion requires a backend endpoint that doesn't exist yet"
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm opacity-50 cursor-not-allowed"
+            type="submit"
+            disabled={pwLoading || !current || !newPass || !confirm}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white disabled:opacity-40 transition-all"
+            style={{ background: "var(--rm-purple)" }}
+            onMouseEnter={(e) =>
+              !e.currentTarget.disabled &&
+              (e.currentTarget.style.background = "#6D28D9")
+            }
+            onMouseLeave={(e) =>
+              !e.currentTarget.disabled &&
+              (e.currentTarget.style.background = "var(--rm-purple)")
+            }
+          >
+            {pwLoading && <Loader2 size={14} className="animate-spin" />}
+            {pwLoading ? "Updating..." : "Update Password"}
+          </button>
+        </form>
+      </div>
+
+      <div style={{ borderTop: "1px solid var(--rm-border)" }} />
+
+      <div>
+        <h3 className="font-medium mb-1" style={{ color: "#F87171" }}>
+          Delete Account
+        </h3>
+        <p className="text-sm mb-4" style={{ color: "var(--rm-text-muted)" }}>
+          Permanently removes your account. Projects remain visible to
+          collaborators for 30 days.
+        </p>
+        {!showDeleteBox ? (
+          <button
+            onClick={() => setShowDeleteBox(true)}
+            className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all"
             style={{
               background: "rgba(248,113,113,0.08)",
               border: "1px solid rgba(248,113,113,0.25)",
               color: "#F87171",
             }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = "rgba(248,113,113,0.16)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "rgba(248,113,113,0.08)")
+            }
           >
-            <Trash2 size={15} />
-            Delete Account
+            Delete My Account
           </button>
-        </div>
+        ) : (
+          <div
+            className="max-w-md p-4 rounded-xl space-y-3"
+            style={{
+              background: "rgba(248,113,113,0.06)",
+              border: "1px solid rgba(248,113,113,0.2)",
+            }}
+          >
+            <p className="text-sm font-medium" style={{ color: "#F87171" }}>
+              This cannot be undone. Enter your password to confirm.
+            </p>
+            <PasswordField
+              value={deletePass}
+              onChange={(e) => setDeletePass(e.target.value)}
+              placeholder="Your password"
+            />
+            {delMsg && <Toast msg={delMsg.text} type={delMsg.type} />}
+            <div className="flex gap-2">
+              <button
+                onClick={handleDeleteAccount}
+                disabled={delLoading || !deletePass}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium disabled:opacity-40"
+                style={{ background: "#DC2626", color: "#fff" }}
+              >
+                {delLoading && <Loader2 size={13} className="animate-spin" />}
+                {delLoading ? "Deleting..." : "Confirm Delete"}
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteBox(false);
+                  setDeletePass("");
+                  setDelMsg(null);
+                }}
+                className="px-4 py-2 rounded-xl text-sm"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid var(--rm-border)",
+                  color: "var(--rm-text-muted)",
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
-};
-
-export default SecuritySection;
+}

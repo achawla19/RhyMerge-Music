@@ -3,14 +3,9 @@ import Message from "../models/message.js";
 import User from "../models/user.js";
 import { encrypt, decrypt } from "../utils/encryption.js";
 
-// GET /api/messages/conversations
-// Returns every conversation the current user is part of, with the other
-// participant's info and a decrypted preview of the last message.
 export const getConversations = async (req, res) => {
   try {
-    const conversations = await Conversation.find({
-      participants: req.user.id,
-    })
+    const conversations = await Conversation.find({ participants: req.user.id })
       .sort({ lastMessageAt: -1 })
       .populate("participants", "username name avatar")
       .populate("lastMessage");
@@ -19,7 +14,6 @@ export const getConversations = async (req, res) => {
       const other = c.participants.find(
         (p) => p._id.toString() !== req.user.id,
       );
-
       return {
         _id: c._id,
         user: other,
@@ -29,6 +23,8 @@ export const getConversations = async (req, res) => {
               sender: c.lastMessage.sender,
               isRead: c.lastMessage.isRead,
               createdAt: c.lastMessage.createdAt,
+              // Show "📎 Attachment" in preview if message is attachment-only
+              hasAttachment: !!c.lastMessage.attachment?.url,
             }
           : null,
         updatedAt: c.lastMessageAt,
@@ -37,16 +33,11 @@ export const getConversations = async (req, res) => {
 
     res.json(result);
   } catch (err) {
-    console.error("getConversations error:", err);
+    console.error("getConversations:", err);
     res.status(500).json({ msg: "Failed to load conversations" });
   }
 };
 
-// GET /api/messages/:userId
-// Gets (or implicitly prepares to create) the conversation with a specific
-// user and returns full decrypted message history. The conversation
-// itself is only actually created in the DB once a message is sent
-// (see socket handler) — viewing an empty chat shouldn't write anything.
 export const getMessagesWithUser = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -58,9 +49,7 @@ export const getMessagesWithUser = async (req, res) => {
     const otherUser = await User.findById(userId).select(
       "username name avatar",
     );
-    if (!otherUser) {
-      return res.status(404).json({ msg: "User not found" });
-    }
+    if (!otherUser) return res.status(404).json({ msg: "User not found" });
 
     const participantsKey = buildParticipantsKey(req.user.id, userId);
     const conversation = await Conversation.findOne({ participantsKey });
@@ -75,11 +64,20 @@ export const getMessagesWithUser = async (req, res) => {
 
     const decrypted = messages.map((m) => ({
       _id: m._id,
-      text: decrypt(m.content) ?? "[message could not be decrypted]",
+      text: decrypt(m.content) ?? "",
       sender: m.sender._id,
       isRead: m.isRead,
       readAt: m.readAt,
       createdAt: m.createdAt,
+      // Include attachment metadata if present
+      attachment: m.attachment?.url
+        ? {
+            url: m.attachment.url,
+            name: m.attachment.name,
+            type: m.attachment.type,
+            size: m.attachment.size,
+          }
+        : null,
     }));
 
     res.json({
@@ -88,18 +86,21 @@ export const getMessagesWithUser = async (req, res) => {
       messages: decrypted,
     });
   } catch (err) {
-    console.error("getMessagesWithUser error:", err);
+    console.error("getMessagesWithUser:", err);
     res.status(500).json({ msg: "Failed to load messages" });
   }
 };
 
 /**
- * Shared helper used by the socket layer too — finds-or-creates the
- * conversation between two users and persists one encrypted message.
- * Exported so socket/index.js can reuse the exact same write path
- * instead of duplicating this logic.
+ * Shared helper used by the socket layer.
+ * Now also accepts and persists attachment metadata.
  */
-export const persistMessage = async ({ senderId, recipientId, text }) => {
+export const persistMessage = async ({
+  senderId,
+  recipientId,
+  text,
+  attachment,
+}) => {
   const participantsKey = buildParticipantsKey(senderId, recipientId);
 
   let conversation = await Conversation.findOne({ participantsKey });
@@ -113,7 +114,15 @@ export const persistMessage = async ({ senderId, recipientId, text }) => {
   const message = await Message.create({
     conversation: conversation._id,
     sender: senderId,
-    content: encrypt(text),
+    content: encrypt(text || ""), // empty string for attachment-only messages
+    attachment: attachment?.url
+      ? {
+          url: attachment.url,
+          name: attachment.name || "",
+          type: attachment.type || "",
+          size: attachment.size || 0,
+        }
+      : undefined,
   });
 
   conversation.lastMessage = message._id;

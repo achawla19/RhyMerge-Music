@@ -1,56 +1,79 @@
 /**
- * Minimal in-memory rate limiter — no extra dependency required.
+ * Tiered rate limiter — three tiers based on sensitivity.
  *
- * Protects auth endpoints (login/register) from brute-force and
- * credential-stuffing attacks by capping how many attempts a single IP
- * can make in a rolling time window.
+ * In-memory (no Redis dep) — fine for a single instance.
+ * If you scale to multiple instances behind a load balancer,
+ * swap the store for ioredis + rate-limiter-flexible.
  *
- * Note: this is in-memory, so it resets on server restart and isn't
- * shared across multiple server instances. That's fine for a single-
- * instance deployment. If you ever scale to multiple backend instances
- * behind a load balancer, swap this for a Redis-backed limiter
- * (e.g. rate-limiter-flexible or express-rate-limit + a Redis store)
- * so all instances share the same counters.
+ * Tiers:
+ *   auth    — 10 attempts / 15 min   (brute force / credential stuffing)
+ *   upload  — 20 requests / hour     (bandwidth protection)
+ *   general — 200 requests / 15 min  (baseline DDoS protection)
  */
 
-const attempts = new Map(); // key -> { count, windowStart }
+const createStore = () => {
+  const map = new Map();
 
-export const authRateLimiter = ({
-  windowMs = 15 * 60 * 1000,
-  max = 20,
-} = {}) => {
-  return (req, res, next) => {
+  // Prune stale entries every 30 min so memory stays bounded
+  setInterval(
+    () => {
+      const now = Date.now();
+      for (const [k, v] of map.entries()) {
+        if (now - v.windowStart > 60 * 60 * 1000) map.delete(k);
+      }
+    },
+    30 * 60 * 1000,
+  ).unref();
+
+  return map;
+};
+
+const createLimiter =
+  (store, { windowMs, max, message }) =>
+  (req, res, next) => {
     const key = req.ip;
     const now = Date.now();
-    const entry = attempts.get(key);
+    const entry = store.get(key);
 
     if (!entry || now - entry.windowStart > windowMs) {
-      attempts.set(key, { count: 1, windowStart: now });
+      store.set(key, { count: 1, windowStart: now });
       return next();
     }
 
     if (entry.count >= max) {
-      const retryAfterSec = Math.ceil(
+      const retryAfter = Math.ceil(
         (windowMs - (now - entry.windowStart)) / 1000,
       );
-      res.set("Retry-After", String(retryAfterSec));
-      return res.status(429).json({
-        msg: "Too many attempts. Please try again later.",
-      });
+      res.set("Retry-After", String(retryAfter));
+      return res
+        .status(429)
+        .json({ msg: message || "Too many requests. Please try again later." });
     }
 
     entry.count += 1;
     next();
   };
-};
 
-// Periodic cleanup so the Map doesn't grow unbounded over a long-running process
-setInterval(
-  () => {
-    const now = Date.now();
-    for (const [key, entry] of attempts.entries()) {
-      if (now - entry.windowStart > 60 * 60 * 1000) attempts.delete(key);
-    }
-  },
-  60 * 60 * 1000,
-).unref();
+const authStore = createStore();
+const uploadStore = createStore();
+const generalStore = createStore();
+
+export const authRateLimiter = (opts = {}) =>
+  createLimiter(authStore, {
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: "Too many login attempts. Please wait 15 minutes.",
+    ...opts,
+  });
+
+export const uploadRateLimiter = createLimiter(uploadStore, {
+  windowMs: 60 * 60 * 1000,
+  max: 20,
+  message: "Upload limit reached. Please wait before uploading more files.",
+});
+
+export const generalRateLimiter = createLimiter(generalStore, {
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: "Too many requests. Please slow down.",
+});

@@ -5,22 +5,23 @@ import {
   deleteProjectFile,
 } from "../controllers/projectFileController.js";
 import { protect } from "../middleware/authMiddleware.js";
-import { createUploader } from "../middleware/upload.js";
+import { audioUploader } from "../middleware/upload.js";
+import { uploadRateLimiter } from "../middleware/rateLimiter.js";
 
 const router = express.Router();
-const upload = createUploader("stems");
 
 router.get("/:projectId", getProjectFiles);
 
 router.post(
   "/:projectId",
   protect,
+  uploadRateLimiter,
   (req, res, next) => {
-    upload.single("file")(req, res, (err) => {
+    audioUploader.single("file")(req, res, (err) => {
       if (err) {
         const msg =
           err.code === "LIMIT_FILE_SIZE"
-            ? "File is too large — max 25MB"
+            ? "File too large — max 50MB"
             : err.message || "Upload failed";
         return res.status(400).json({ msg });
       }
