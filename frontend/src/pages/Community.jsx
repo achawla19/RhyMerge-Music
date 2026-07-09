@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Radio } from "lucide-react";
+import { Radio, X } from "lucide-react";
 
 import Feed from "../components/community/Feed";
 import RightPanel from "../components/community/RightPanel";
@@ -11,6 +11,7 @@ const Community = () => {
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
   const [posting, setPosting] = useState(false);
+  const [activeTag, setActiveTag] = useState(null);
 
   useEffect(() => {
     fetchPosts();
@@ -45,6 +46,14 @@ const Community = () => {
       setPosting(false);
     }
   };
+
+  // Clicking a trending tag filters the feed — clicking it again clears the filter
+  const handleTagClick = (tag) =>
+    setActiveTag((prev) => (prev === tag ? null : tag));
+
+  const visiblePosts = activeTag
+    ? posts.filter((p) => p.tags?.includes(activeTag))
+    : posts;
 
   return (
     <div>
@@ -103,7 +112,6 @@ const Community = () => {
           >
             {content.length}/500
           </span>
-
           <button
             disabled={posting || !content.trim()}
             onClick={handleCreatePost}
@@ -123,10 +131,31 @@ const Community = () => {
         </div>
       </div>
 
+      {/* Active tag filter banner */}
+      {activeTag && (
+        <div
+          className="flex items-center gap-2 mb-4 px-4 py-2.5 rounded-xl w-fit"
+          style={{
+            background: "var(--rm-purple-dim)",
+            border: "1px solid var(--rm-purple-border)",
+          }}
+        >
+          <span className="text-sm" style={{ color: "var(--rm-purple-light)" }}>
+            filtering by #{activeTag}
+          </span>
+          <button
+            onClick={() => setActiveTag(null)}
+            style={{ color: "var(--rm-purple-light)" }}
+          >
+            <X size={13} />
+          </button>
+        </div>
+      )}
+
       {/* ── Feed + sidebar ── */}
       <div className="grid lg:grid-cols-[1fr_340px] gap-6">
-        <Feed posts={posts} />
-        <RightPanel />
+        <Feed posts={visiblePosts} />
+        <RightPanel onTagClick={handleTagClick} />
       </div>
     </div>
   );

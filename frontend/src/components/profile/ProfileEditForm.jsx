@@ -92,56 +92,6 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
 
   return (
     <form onSubmit={handleSave} className="space-y-5">
-      {/* Avatar */}
-      <div className="flex items-center gap-4">
-        <div
-          className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-bold text-white flex-shrink-0 overflow-hidden"
-          style={{ background: "linear-gradient(135deg, #7C3AED, #C084FC)" }}
-        >
-          {form.avatar ? (
-            <img
-              src={form.avatar}
-              alt=""
-              className="w-full h-full object-cover"
-              onError={(e) => (e.currentTarget.style.display = "none")}
-            />
-          ) : (
-            (form.name || "U")
-              .split(" ")
-              .map((n) => n[0])
-              .join("")
-              .slice(0, 2)
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <label
-            className="text-xs mb-1.5 block"
-            style={{
-              fontFamily: "var(--rm-font-mono)",
-              color: "var(--rm-text-muted)",
-            }}
-          >
-            Avatar URL
-          </label>
-          <div className="flex items-center gap-2">
-            <Camera
-              size={14}
-              color="var(--rm-text-muted)"
-              className="flex-shrink-0"
-            />
-            <input
-              value={form.avatar}
-              onChange={set("avatar")}
-              placeholder="https://..."
-              className="flex-1 min-w-0 rounded-xl px-3 py-2 outline-none text-sm"
-              style={inputStyle}
-              onFocus={focus}
-              onBlur={blur}
-            />
-          </div>
-        </div>
-      </div>
-
       {/* Name + Username */}
       <div className={compact ? "grid sm:grid-cols-2 gap-4" : "space-y-4"}>
         <div>

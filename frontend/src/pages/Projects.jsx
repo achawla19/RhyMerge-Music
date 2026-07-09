@@ -15,6 +15,7 @@ import CreateProjectModal from "../components/projects/CreateProjectModal";
 import PageHeader from "../components/ui/PageHeader";
 
 import { getProjects, searchProjects, createProject } from "../api/projects";
+import { useProjectPanel } from "../context/ProjectPanelContext";
 
 const GENRES = [
   "Hip-Hop",
@@ -66,6 +67,15 @@ export default function Projects() {
   const [total, setTotal] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [toast, setToast] = useState("");
+
+  const { openPanel, consumePendingId } = useProjectPanel();
+
+  // On mount: if we were redirected from /projects/:id, open that panel
+  useEffect(() => {
+    const pendingId = consumePendingId();
+    if (pendingId) openPanel(pendingId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const isFiltering = search.trim() || filters.genre || filters.status;
 

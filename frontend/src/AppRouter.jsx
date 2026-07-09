@@ -1,5 +1,13 @@
-import React from "react";
-import { Routes, Route } from "react-router-dom";
+import React, { useEffect } from "react";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigationType,
+  useParams,
+  useNavigate,
+} from "react-router-dom";
 
 import Home from "./pages/Home";
 import Community from "./pages/Community";
@@ -9,136 +17,141 @@ import Search from "./pages/Search";
 import Settings from "./pages/Settings";
 import Messages from "./pages/Messages";
 import Projects from "./pages/Projects";
+import Library from "./pages/Library";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ProtectedRoute from "./components/ProtectedRoute";
-import SavedProjects from "./pages/SavedProjects";
-import ProjectDetails from "./pages/ProjectDetails";
 import MainLayout from "./layouts/MainLayout";
-import { Navigate } from "react-router-dom";
+import PageTransition, { trackNavigation } from "./components/PageTransition";
+import { useProjectPanel } from "./context/ProjectPanelContext";
 
-const Placeholder = ({ title }) => (
-  <div className="min-h-screen bg-[#0B2540] flex items-center justify-center">
-    <div className="text-center">
-      <h1 className="text-5xl font-bold text-white mb-4">{title}</h1>
-      <p className="text-xl text-gray-400">Coming soon...</p>
-    </div>
-  </div>
+const NavigationTracker = () => {
+  const location = useLocation();
+  const navigationType = useNavigationType();
+  useEffect(() => {
+    trackNavigation(location, navigationType);
+  }, [location, navigationType]);
+  return null;
+};
+
+/**
+ * When someone visits /projects/:id directly (or clicks a link),
+ * store the ID in the panel context ref, navigate to /projects,
+ * and the Projects page will consume + open it on mount.
+ */
+const ProjectRedirect = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { setPendingId } = useProjectPanel();
+
+  useEffect(() => {
+    setPendingId(id);
+    navigate("/projects", { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  return null;
+};
+
+const Wrap = ({ children }) => (
+  <ProtectedRoute>
+    <MainLayout>
+      <PageTransition>{children}</PageTransition>
+    </MainLayout>
+  </ProtectedRoute>
 );
 
-const AppRouter = () => {
-  return (
+const AppRouter = () => (
+  <>
+    <NavigationTracker />
     <Routes>
-      {/* Auth Routes (No Sidebar) */}
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
-      {/* Protected Routes (With Sidebar) */}
       <Route
         path="/"
         element={
-          <ProtectedRoute>
-            <MainLayout>
-              <Home />
-            </MainLayout>
-          </ProtectedRoute>
+          <Wrap>
+            <Home />
+          </Wrap>
         }
       />
       <Route
         path="/community"
         element={
-          <ProtectedRoute>
-            <MainLayout>
-              <Community />
-            </MainLayout>
-          </ProtectedRoute>
+          <Wrap>
+            <Community />
+          </Wrap>
         }
       />
       <Route
         path="/network"
         element={
-          <ProtectedRoute>
-            <MainLayout>
-              <Network />
-            </MainLayout>
-          </ProtectedRoute>
+          <Wrap>
+            <Network />
+          </Wrap>
         }
       />
       <Route
         path="/profile/:username"
         element={
-          <ProtectedRoute>
-            <MainLayout>
-              <Profile />
-            </MainLayout>
-          </ProtectedRoute>
+          <Wrap>
+            <Profile />
+          </Wrap>
         }
       />
       <Route
         path="/search"
         element={
-          <ProtectedRoute>
-            <MainLayout>
-              <Search />
-            </MainLayout>
-          </ProtectedRoute>
+          <Wrap>
+            <Search />
+          </Wrap>
         }
       />
       <Route
         path="/settings"
         element={
-          <ProtectedRoute>
-            <MainLayout>
-              <Settings />
-            </MainLayout>
-          </ProtectedRoute>
+          <Wrap>
+            <Settings />
+          </Wrap>
         }
       />
       <Route
         path="/projects"
         element={
-          <ProtectedRoute>
-            <MainLayout>
-              <Projects />
-            </MainLayout>
-          </ProtectedRoute>
+          <Wrap>
+            <Projects />
+          </Wrap>
         }
       />
       <Route
         path="/projects/:id"
         element={
-          <ProtectedRoute>
-            <MainLayout>
-              <ProjectDetails />
-            </MainLayout>
-          </ProtectedRoute>
+          <Wrap>
+            <ProjectRedirect />
+          </Wrap>
         }
       />
       <Route
         path="/messages"
         element={
-          <ProtectedRoute>
-            <MainLayout>
-              <Messages />
-            </MainLayout>
-          </ProtectedRoute>
+          <Wrap>
+            <Messages />
+          </Wrap>
         }
       />
       <Route
-        path="/saved-projects"
+        path="/library"
         element={
-          <ProtectedRoute>
-            <MainLayout>
-              <SavedProjects />
-            </MainLayout>
-          </ProtectedRoute>
+          <Wrap>
+            <Library />
+          </Wrap>
         }
       />
 
-      {/* Default Redirect */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
-  );
-};
+  </>
+);
 
 export default AppRouter;

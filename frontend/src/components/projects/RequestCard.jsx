@@ -1,6 +1,6 @@
 import { Music, Users, Gauge, Hash } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useEffect, useRef } from "react";
+import { useProjectPanel } from "../../context/ProjectPanelContext";
 
 const statusStyle = {
   Planning: {
@@ -58,7 +58,7 @@ const MiniWave = ({ active }) => {
             background: "var(--rm-purple-light)",
             transition: "height 0.26s ease",
             flexShrink: 0,
-            opacity: active ? 1 : 0.4,
+            opacity: active ? 1 : 0.35,
           }}
         />
       ))}
@@ -67,25 +67,30 @@ const MiniWave = ({ active }) => {
 };
 
 export default function ProjectCard({ project }) {
-  const navigate = useNavigate();
+  const { openPanel, openProjectId } = useProjectPanel();
+  const isActive = openProjectId === project._id;
   const s = statusStyle[project.status] || statusStyle.Planning;
 
   return (
     <div
-      onClick={() => navigate(`/projects/${project._id}`)}
-      className="rm-float-up cursor-pointer rounded-2xl overflow-hidden transition-all"
+      onClick={() => openPanel(project._id)}
+      className="cursor-pointer rounded-2xl overflow-hidden transition-all"
       style={{
         background: "var(--rm-bg-card)",
-        border: "1px solid var(--rm-border)",
+        border: isActive
+          ? "1px solid rgba(124,58,237,0.6)"
+          : "1px solid var(--rm-border)",
+        boxShadow: isActive ? "0 0 0 1px rgba(124,58,237,0.3)" : "none",
       }}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.borderColor = "rgba(124,58,237,0.45)")
-      }
-      onMouseLeave={(e) =>
-        (e.currentTarget.style.borderColor = "var(--rm-border)")
-      }
+      onMouseEnter={(e) => {
+        if (!isActive)
+          e.currentTarget.style.borderColor = "rgba(124,58,237,0.45)";
+      }}
+      onMouseLeave={(e) => {
+        if (!isActive) e.currentTarget.style.borderColor = "var(--rm-border)";
+      }}
     >
-      {/* Cover image strip */}
+      {/* Cover strip */}
       {project.coverImage ? (
         <div
           className="h-28 w-full overflow-hidden"
@@ -138,7 +143,6 @@ export default function ProjectCard({ project }) {
           {project.description || "No description yet."}
         </p>
 
-        {/* BPM + Key row */}
         {(project.bpm || project.musicalKey) && (
           <div className="flex gap-3 mb-3">
             {project.bpm && (
@@ -201,8 +205,7 @@ export default function ProjectCard({ project }) {
               </span>
             )}
           </div>
-
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <div
               className="flex items-center gap-1 text-xs"
               style={{
@@ -211,9 +214,8 @@ export default function ProjectCard({ project }) {
               }}
             >
               <Users size={12} />
-              <span>{(project.collaborators?.length || 0) + 1}</span>
+              {(project.collaborators?.length || 0) + 1}
             </div>
-            {/* Owner avatar */}
             {project.owner?.avatar && (
               <img
                 src={project.owner.avatar}

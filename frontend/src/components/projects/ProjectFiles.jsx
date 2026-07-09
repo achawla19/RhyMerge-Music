@@ -6,6 +6,7 @@ import {
   deleteProjectFile,
 } from "../../api/projectFiles";
 import { useAuth } from "../../context/AuthContext";
+import { usePlayer } from "../../layouts/PlayerContext";
 
 const STEM_TYPES = [
   { value: "vocals", label: "Vocals", color: "#C084FC" },
@@ -33,107 +34,6 @@ const fmtDuration = (secs) => {
   const m = Math.floor(secs / 60);
   const s = Math.floor(secs % 60);
   return `${m}:${s.toString().padStart(2, "0")}`;
-};
-
-// ── Mini Audio Player ─────────────────────────────────────────────────────────
-const AudioPlayer = ({ file, isPlaying, onToggle }) => {
-  const audioRef = useRef(null);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(file.duration || 0);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (isPlaying) {
-      audio.play().catch(() => {});
-    } else {
-      audio.pause();
-    }
-  }, [isPlaying]);
-
-  const handleTimeUpdate = () => {
-    const audio = audioRef.current;
-    if (!audio || !audio.duration) return;
-    setProgress((audio.currentTime / audio.duration) * 100);
-  };
-
-  const handleLoadedMetadata = () => {
-    const audio = audioRef.current;
-    if (audio?.duration && !isNaN(audio.duration)) {
-      setDuration(audio.duration);
-    }
-  };
-
-  const handleSeek = (e) => {
-    const audio = audioRef.current;
-    if (!audio?.duration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const pct = (e.clientX - rect.left) / rect.width;
-    audio.currentTime = pct * audio.duration;
-  };
-
-  const handleEnded = () => {
-    setProgress(0);
-    onToggle(file._id); // toggle off
-  };
-
-  return (
-    <div className="flex items-center gap-3 mt-3">
-      <audio
-        ref={audioRef}
-        src={file.url}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-        onEnded={handleEnded}
-        preload="metadata"
-      />
-
-      {/* Play / Pause button */}
-      <button
-        onClick={() => onToggle(file._id)}
-        className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
-        style={{
-          background: isPlaying
-            ? stemColor(file.stemType)
-            : "rgba(255,255,255,0.08)",
-          border: `1px solid ${isPlaying ? stemColor(file.stemType) : "rgba(255,255,255,0.12)"}`,
-          color: isPlaying ? "#000" : "#fff",
-        }}
-      >
-        {isPlaying ? <Pause size={12} /> : <Play size={12} />}
-      </button>
-
-      {/* Progress bar */}
-      <div
-        className="flex-1 h-1.5 rounded-full cursor-pointer relative overflow-hidden"
-        style={{ background: "rgba(255,255,255,0.08)" }}
-        onClick={handleSeek}
-      >
-        <div
-          className="absolute inset-y-0 left-0 rounded-full transition-all"
-          style={{
-            width: `${progress}%`,
-            background: stemColor(file.stemType),
-          }}
-        />
-      </div>
-
-      {/* Duration */}
-      {duration > 0 && (
-        <span
-          style={{
-            fontSize: 11,
-            fontFamily: "var(--rm-font-mono)",
-            color: "var(--rm-text-muted)",
-            flexShrink: 0,
-          }}
-        >
-          {fmtDuration(duration)}
-        </span>
-      )}
-    </div>
-  );
 };
 
 // ── Upload Modal ───────────────────────────────────────────────────────────────
@@ -330,13 +230,25 @@ const UploadModal = ({ projectId, onClose, onUploaded }) => {
 // ── Main Component ─────────────────────────────────────────────────────────────
 const ProjectFiles = ({ project, canUpload }) => {
   const { user } = useAuth();
+  const { playTrack, track, isPlaying } = usePlayer();
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showUpload, setShowUpload] = useState(false);
-  const [playingId, setPlayingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
 
   const isOwner = project?.owner?._id?.toString() === user?._id?.toString();
+
+  const handlePlay = (file) => {
+    playTrack({
+      url: file.url,
+      title: file.filename,
+      subtitle: project?.title,
+      artwork: project?.coverImage || "",
+      stemType: file.stemType,
+    });
+  };
+
+  const isFilePlaying = (file) => track?.url === file.url && isPlaying;
 
   useEffect(() => {
     if (!project?._id) return;
@@ -352,17 +264,12 @@ const ProjectFiles = ({ project, canUpload }) => {
     })();
   }, [project?._id]);
 
-  const togglePlay = (fileId) => {
-    setPlayingId((prev) => (prev === fileId ? null : fileId));
-  };
-
   const handleDelete = async (fileId) => {
     if (!window.confirm("Delete this stem? This cannot be undone.")) return;
     setDeletingId(fileId);
     try {
       await deleteProjectFile(fileId);
       setFiles((prev) => prev.filter((f) => f._id !== fileId));
-      if (playingId === fileId) setPlayingId(null);
     } catch (err) {
       alert(err.message || "Failed to delete");
     } finally {
@@ -469,9 +376,10 @@ const ProjectFiles = ({ project, canUpload }) => {
                   className="rounded-xl p-4 transition-all"
                   style={{
                     background: "var(--rm-bg-card)",
-                    border: `1px solid ${playingId === file._id ? color + "44" : "var(--rm-border)"}`,
-                    boxShadow:
-                      playingId === file._id ? `0 0 20px ${color}18` : "none",
+                    border: `1px solid ${isFilePlaying(file) ? color + "44" : "var(--rm-border)"}`,
+                    boxShadow: isFilePlaying(file)
+                      ? `0 0 20px ${color}18`
+                      : "none",
                   }}
                 >
                   <div className="flex items-start gap-3">
@@ -552,12 +460,24 @@ const ProjectFiles = ({ project, canUpload }) => {
                     )}
                   </div>
 
-                  {/* Audio player */}
-                  <AudioPlayer
-                    file={file}
-                    isPlaying={playingId === file._id}
-                    onToggle={togglePlay}
-                  />
+                  {/* Global player button — sends to bottom bar */}
+                  <button
+                    onClick={() => handlePlay(file)}
+                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
+                    style={{
+                      background: isFilePlaying(file)
+                        ? color
+                        : "rgba(255,255,255,0.08)",
+                      border: `1px solid ${isFilePlaying(file) ? color : "rgba(255,255,255,0.12)"}`,
+                      color: isFilePlaying(file) ? "#000" : "#fff",
+                    }}
+                  >
+                    {isFilePlaying(file) ? (
+                      <Pause size={12} />
+                    ) : (
+                      <Play size={12} />
+                    )}
+                  </button>
                 </div>
               );
             })}

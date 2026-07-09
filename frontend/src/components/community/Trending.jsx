@@ -2,7 +2,7 @@ import { TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getPosts } from "../../api/post";
 
-const Trending = () => {
+const Trending = ({ onTagClick }) => {
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -16,11 +16,12 @@ const Trending = () => {
             counts[tag] = (counts[tag] || 0) + 1;
           });
         });
-        const sorted = Object.entries(counts)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 6)
-          .map(([tag, count]) => ({ tag, count }));
-        setTags(sorted);
+        setTags(
+          Object.entries(counts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 6)
+            .map(([tag, count]) => ({ tag, count })),
+        );
       } catch (err) {
         console.error(err);
       } finally {
@@ -28,8 +29,6 @@ const Trending = () => {
       }
     })();
   }, []);
-
-  const maxCount = tags[0]?.count || 1;
 
   return (
     <div
@@ -75,9 +74,10 @@ const Trending = () => {
       ) : (
         <div className="space-y-2">
           {tags.map((t, i) => (
-            <div
+            <button
               key={t.tag}
-              className="flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer transition-all"
+              onClick={() => onTagClick?.(t.tag)}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all"
               style={{ background: "rgba(255,255,255,0.02)" }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.background = "var(--rm-purple-dim)")
@@ -112,7 +112,7 @@ const Trending = () => {
               >
                 {t.count}
               </span>
-            </div>
+            </button>
           ))}
         </div>
       )}

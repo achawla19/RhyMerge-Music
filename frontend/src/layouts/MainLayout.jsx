@@ -1,47 +1,95 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import Sidebar from "../components/Sidebar";
-import Navbar from "../components/Navbar";
+import TopBar from "../layouts/TopBar";
 import MobileSidebar from "../components/MobileSidebar";
+import PlayerBar from "../layouts/PlayerBar";
+import { PlayerProvider, usePlayer } from "../layouts/PlayerContext";
+import ProjectRightPanel from "../components/projects/ProjectRightPanel";
+import { useProjectPanel } from "../context/ProjectPanelContext";
 import useNotifications from "../hooks/useNotifications";
-import PulseBar from "../components/pulse/PulseBar";
 
-// ─── Live scrolling ticker ─────────────────────────────────────
-// These are fallback strings. As your platform grows you can
-// replace this with real-time data from your notifications API.
+const AmbientMesh = () => (
+  <div
+    className="fixed inset-0 pointer-events-none overflow-hidden"
+    style={{ zIndex: 0 }}
+  >
+    <style>{`
+      @keyframes rmDrift1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,40px) scale(1.08)}66%{transform:translate(-30px,70px) scale(0.96)}}
+      @keyframes rmDrift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-70px,-50px) scale(1.1)}}
+      @keyframes rmDrift3{0%,100%{transform:translate(0,0) scale(1);opacity:0.6}50%{transform:translate(40px,-60px) scale(1.15);opacity:0.9}}
+    `}</style>
+    <div
+      className="absolute"
+      style={{
+        top: -280,
+        left: -220,
+        width: 700,
+        height: 700,
+        borderRadius: "50%",
+        background: "rgba(124,58,237,0.22)",
+        filter: "blur(180px)",
+        animation: "rmDrift1 28s ease-in-out infinite",
+      }}
+    />
+    <div
+      className="absolute"
+      style={{
+        bottom: -240,
+        right: -200,
+        width: 620,
+        height: 620,
+        borderRadius: "50%",
+        background: "rgba(192,132,252,0.18)",
+        filter: "blur(170px)",
+        animation: "rmDrift2 34s ease-in-out infinite",
+      }}
+    />
+    <div
+      className="absolute"
+      style={{
+        top: "38%",
+        left: "42%",
+        width: 420,
+        height: 420,
+        borderRadius: "50%",
+        background: "rgba(244,114,182,0.12)",
+        filter: "blur(160px)",
+        animation: "rmDrift3 40s ease-in-out infinite",
+      }}
+    />
+  </div>
+);
+
 const TICKER_ITEMS = [
   "🎛️  New producer joined from Chennai",
   "🔀  Merge accepted — 2 stems are now one",
   "🎤  Zara K. dropped a vocal hook in D minor",
   '🔥  "Raag × Trap" is trending this week',
   "🎸  12 open mixes need a guitarist right now",
-  "🤝  You have 3 new sync suggestions waiting",
+  "🤝  3 new sync suggestions waiting for you",
   "🚀  Midnight Protocol EP crossed 10k plays",
-  "🎹  New Lo-Fi Desi collab is looking for a pianist",
+  "🎹  New Lo-Fi collab looking for a pianist",
 ];
 
 const LiveTicker = () => {
-  // Duplicate array so the marquee loops seamlessly
   const items = [...TICKER_ITEMS, ...TICKER_ITEMS];
-
   return (
     <div
-      className="overflow-hidden flex items-center"
+      className="overflow-hidden flex items-center flex-shrink-0"
       style={{
-        height: 34,
-        background: "rgba(124, 58, 237, 0.06)",
-        borderBottom: "1px solid rgba(124, 58, 237, 0.14)",
+        height: 30,
+        background: "rgba(124,58,237,0.06)",
+        borderBottom: "1px solid rgba(124,58,237,0.12)",
       }}
     >
-      {/* LIVE badge */}
       <div
-        className="flex items-center gap-1.5 px-4 flex-shrink-0 h-full"
+        className="flex items-center gap-1.5 px-3 flex-shrink-0 h-full"
         style={{
-          borderRight: "1px solid rgba(124, 58, 237, 0.2)",
-          background: "rgba(124, 58, 237, 0.1)",
+          borderRight: "1px solid rgba(124,58,237,0.2)",
+          background: "rgba(124,58,237,0.1)",
         }}
       >
         <span
-          className="rm-pulse"
           style={{
             width: 6,
             height: 6,
@@ -64,8 +112,6 @@ const LiveTicker = () => {
           live
         </span>
       </div>
-
-      {/* Scrolling track */}
       <div className="flex-1 overflow-hidden">
         <div
           style={{
@@ -90,122 +136,86 @@ const LiveTicker = () => {
           ))}
         </div>
       </div>
-
-      {/* Fade edges */}
-      <div
-        className="absolute"
-        style={{
-          pointerEvents: "none",
-          left: 80,
-          top: 0,
-          width: 40,
-          height: "100%",
-          background:
-            "linear-gradient(to right, rgba(11,8,20,0.8), transparent)",
-        }}
-      />
     </div>
   );
 };
 
-// ─── Ambient orb — single reusable blob ───────────────────────
-const Orb = ({ style }) => (
-  <div className="absolute pointer-events-none" style={style} />
-);
-
-// ─── Main layout ──────────────────────────────────────────────
-const MainLayout = ({ children }) => {
+const LayoutInner = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { notifications } = useNotifications();
+  const { track } = usePlayer();
+  const { openProjectId, closePanel } = useProjectPanel();
+  useNotifications();
+
+  console.log("MainLayout render — openProjectId:", openProjectId);
 
   return (
-    <>
-      {/* Ticker keyframe injected once */}
-      <style>{`
-        @keyframes rmTicker {
-          from { transform: translateX(0); }
-          to   { transform: translateX(-50%); }
-        }
-      `}</style>
+    <div
+      className="h-screen overflow-hidden relative flex flex-col"
+      style={{ background: "var(--rm-bg)" }}
+    >
+      <AmbientMesh />
 
-      <div
-        className="min-h-screen overflow-x-hidden relative"
-        style={{ background: "var(--rm-bg)" }}
-      >
-        {/* ── Ambient background orbs ── */}
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <Orb
-            style={{
-              top: -280,
-              left: -220,
-              width: 640,
-              height: 640,
-              background: "rgba(124,58,237,0.09)",
-              filter: "blur(200px)",
-              borderRadius: "50%",
-            }}
-          />
-          <Orb
-            style={{
-              bottom: -240,
-              right: -200,
-              width: 560,
-              height: 560,
-              background: "rgba(139,92,246,0.07)",
-              filter: "blur(180px)",
-              borderRadius: "50%",
-            }}
-          />
-          <Orb
-            style={{
-              top: "40%",
-              left: "38%",
-              width: 360,
-              height: 360,
-              background: "rgba(245,158,11,0.03)",
-              filter: "blur(160px)",
-              borderRadius: "50%",
-            }}
-          />
+      {/* TOP BAR */}
+      <div className="relative z-30 flex-shrink-0">
+        <style>{`@keyframes rmTicker{from{transform:translateX(0)}to{transform:translateX(-50%)}}`}</style>
+        <TopBar onMenuClick={() => setSidebarOpen(true)} />
+        <LiveTicker />
+      </div>
+
+      {/* BODY — sidebar | main | right panel */}
+      <div className="flex flex-1 overflow-hidden relative z-10 gap-2 p-2 pt-0">
+        {/* Sidebar */}
+        <div className="hidden lg:block flex-shrink-0 h-full">
+          <Sidebar />
         </div>
 
-        {/* ── Desktop sidebar ── */}
-        <Sidebar />
-
-        {/* ── Mobile sidebar ── */}
         <MobileSidebar
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
 
-        {/* ── Main content column ── */}
-        <div className="relative z-10 lg:ml-[260px]">
-          {/* Sticky top bar stack */}
-          <div className="sticky top-0 z-40">
-            <Navbar onMenuClick={() => setSidebarOpen(true)} />
-            <LiveTicker />
-            {/* <PulseBar notifications={notifications} /> */}
-          </div>
+        {/* Main content */}
+        <main
+          className="flex-1 overflow-y-auto rounded-[18px]"
+          style={{
+            background: "rgba(255,255,255,0.025)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            border: "1px solid rgba(255,255,255,0.05)",
+            paddingBottom: track ? 80 : 0,
+            transition: "all 0.35s cubic-bezier(0.22,1,0.36,1)",
+          }}
+        >
+          <div className="p-4 sm:p-6 lg:p-8 min-h-full">{children}</div>
+        </main>
 
-          {/* Page content */}
-          <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-            <div
-              className="min-h-[calc(100vh-160px)] rounded-2xl lg:rounded-[28px] p-4 sm:p-6 lg:p-8"
-              style={{
-                background: "rgba(255,255,255,0.028)",
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
-                border: "1px solid rgba(255,255,255,0.055)",
-                boxShadow: "0 20px 80px rgba(0,0,0,0.3)",
-              }}
-            >
-              {children}
-            </div>
-          </main>
-        </div>
+        {/* Right panel — slides in when project opened */}
+        {openProjectId && (
+          <div
+            className="hidden lg:block flex-shrink-0 h-full overflow-hidden rounded-[18px]"
+            style={{
+              width: 380,
+              background: "rgba(11,8,20,0.97)",
+              border: "1px solid rgba(124,58,237,0.2)",
+              backdropFilter: "blur(24px)",
+              animation: "rmSlideFromRight 0.32s cubic-bezier(0.22,1,0.36,1)",
+            }}
+          >
+            <style>{`@keyframes rmSlideFromRight{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}`}</style>
+            <ProjectRightPanel projectId={openProjectId} onClose={closePanel} />
+          </div>
+        )}
       </div>
-    </>
+
+      <PlayerBar />
+    </div>
   );
 };
+
+const MainLayout = ({ children }) => (
+  <PlayerProvider>
+    <LayoutInner>{children}</LayoutInner>
+  </PlayerProvider>
+);
 
 export default MainLayout;

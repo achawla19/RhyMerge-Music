@@ -4,6 +4,26 @@ import { useNavigate } from "react-router-dom";
 export default function ConnectionCard({ data }) {
   const navigate = useNavigate();
 
+  // Stats now route somewhere meaningful instead of being static numbers
+  const stats = [
+    {
+      label: "Followers",
+      value: data.followers?.length || 0,
+      onClick: () => navigate(`/profile/${data.username}`),
+    },
+    {
+      label: "Network",
+      value: data.connections?.length || 0,
+      onClick: () => navigate(`/profile/${data.username}`),
+    },
+    {
+      label: "Genres",
+      value: data.genres?.length || 0,
+      onClick: () =>
+        navigate(`/search?genre=${encodeURIComponent(data.genres?.[0] || "")}`),
+    },
+  ];
+
   return (
     <div
       className="rm-float-up relative overflow-hidden rounded-2xl p-6 transition-all"
@@ -26,11 +46,19 @@ export default function ConnectionCard({ data }) {
               `https://ui-avatars.com/api/?name=${data.username}&background=7c3aed&color=fff`
             }
             alt=""
-            className="w-16 h-16 rounded-2xl object-cover flex-shrink-0"
+            onClick={() => navigate(`/profile/${data.username}`)}
+            className="w-16 h-16 rounded-2xl object-cover flex-shrink-0 cursor-pointer"
             style={{ border: "1.5px solid var(--rm-purple-border)" }}
           />
           <div className="min-w-0">
-            <h3 className="text-lg font-semibold text-white truncate">
+            <h3
+              onClick={() => navigate(`/profile/${data.username}`)}
+              className="text-lg font-semibold text-white truncate cursor-pointer transition-colors"
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = "var(--rm-purple-light)")
+              }
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#fff")}
+            >
               {data.name || data.username}
             </h3>
             <p
@@ -71,16 +99,20 @@ export default function ConnectionCard({ data }) {
         {data.bio || "No bio yet."}
       </p>
 
+      {/* Stats — now clickable */}
       <div className="mt-5 grid grid-cols-3 gap-3">
-        {[
-          { label: "Followers", value: data.followers?.length || 0 },
-          { label: "Network", value: data.connections?.length || 0 },
-          { label: "Genres", value: data.genres?.length || 0 },
-        ].map((stat) => (
-          <div
+        {stats.map((stat) => (
+          <button
             key={stat.label}
-            className="rounded-xl p-3 text-center"
+            onClick={stat.onClick}
+            className="rounded-xl p-3 text-center transition-all"
             style={{ background: "var(--rm-bg)" }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = "var(--rm-purple-dim)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "var(--rm-bg)")
+            }
           >
             <p
               className="text-lg font-bold text-white"
@@ -94,25 +126,34 @@ export default function ConnectionCard({ data }) {
             >
               {stat.label}
             </p>
-          </div>
+          </button>
         ))}
       </div>
 
       {data.genres?.length > 0 && (
         <div className="mt-5 flex flex-wrap gap-2">
           {data.genres.slice(0, 3).map((genre) => (
-            <span
+            <button
               key={genre}
-              className="px-2.5 py-1 rounded-full text-[10px]"
+              onClick={() =>
+                navigate(`/search?genre=${encodeURIComponent(genre)}`)
+              }
+              className="px-2.5 py-1 rounded-full text-[10px] transition-all"
               style={{
                 background: "var(--rm-purple-dim)",
                 color: "var(--rm-purple-light)",
                 border: "1px solid var(--rm-purple-border)",
                 fontFamily: "var(--rm-font-mono)",
               }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "rgba(124,58,237,0.25)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "var(--rm-purple-dim)")
+              }
             >
               {genre}
-            </span>
+            </button>
           ))}
         </div>
       )}
@@ -132,8 +173,7 @@ export default function ConnectionCard({ data }) {
             (e.currentTarget.style.background = "rgba(255,255,255,0.04)")
           }
         >
-          <User size={15} />
-          Profile
+          <User size={15} /> Profile
         </button>
         <button
           onClick={() =>
@@ -156,8 +196,7 @@ export default function ConnectionCard({ data }) {
             (e.currentTarget.style.background = "var(--rm-purple)")
           }
         >
-          <MessageCircle size={15} />
-          Message
+          <MessageCircle size={15} /> Message
         </button>
       </div>
     </div>

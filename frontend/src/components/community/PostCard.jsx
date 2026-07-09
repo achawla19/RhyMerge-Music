@@ -1,10 +1,9 @@
-import { Heart, MessageCircle, Share2, Waves } from "lucide-react";
+import { Heart, MessageCircle, Share2, Waves, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { toggleLike } from "../../api/post";
 import { addComment } from "../../api/comment";
 
-// ─── Animated waveform (pure CSS, no deps) ───────────────────
 const Waveform = ({ bars = 36 }) => {
   const refs = useRef([]);
   useEffect(() => {
@@ -39,7 +38,6 @@ const Waveform = ({ bars = 36 }) => {
   );
 };
 
-// ─── Signal Card ─────────────────────────────────────────────
 const PostCard = ({ post }) => {
   const navigate = useNavigate();
   const currentUser = JSON.parse(localStorage.getItem("user"));
@@ -48,23 +46,21 @@ const PostCard = ({ post }) => {
   const [comments, setComments] = useState(post.comments || []);
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
+  const [shared, setShared] = useState(false);
 
-  const isLiked = likes.some((id) => {
-    const likeId = id?._id || id;
-    return String(likeId) === String(currentUser?._id);
-  });
+  const isLiked = likes.some(
+    (id) => String(id?._id || id) === String(currentUser?._id),
+  );
 
   const handleLike = async () => {
     try {
-      if (isLiked) {
-        setLikes(
-          likes.filter(
-            (id) => String(id?._id || id) !== String(currentUser?._id),
-          ),
-        );
-      } else {
-        setLikes([...likes, currentUser._id]);
-      }
+      setLikes(
+        isLiked
+          ? likes.filter(
+              (id) => String(id?._id || id) !== String(currentUser?._id),
+            )
+          : [...likes, currentUser._id],
+      );
       const updatedLikes = await toggleLike(post._id);
       setLikes(updatedLikes);
     } catch (err) {
@@ -83,8 +79,31 @@ const PostCard = ({ post }) => {
     }
   };
 
+  // Share — copies a direct link to this signal. No dedicated permalink
+  // route exists yet, so we link to the community feed with a hash anchor;
+  // upgrade to /community/post/:id once that route exists.
+  const handleShare = async () => {
+    const url = `${window.location.origin}/community#post-${post._id}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "RhyMerge Signal",
+          text: post.content?.slice(0, 80),
+          url,
+        });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setShared(true);
+        setTimeout(() => setShared(false), 2000);
+      }
+    } catch {
+      // user cancelled native share — no-op
+    }
+  };
+
   return (
     <article
+      id={`post-${post._id}`}
       className="rm-float-up"
       style={{
         background: "var(--rm-bg-card)",
@@ -100,7 +119,6 @@ const PostCard = ({ post }) => {
         (e.currentTarget.style.borderColor = "var(--rm-border)")
       }
     >
-      {/* ── Header ── */}
       <div className="flex items-start gap-3 mb-3">
         <img
           src={
@@ -108,7 +126,8 @@ const PostCard = ({ post }) => {
             `https://ui-avatars.com/api/?name=${post.author?.username}&background=7c3aed&color=fff`
           }
           alt=""
-          className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+          onClick={() => navigate(`/profile/${post.author?.username}`)}
+          className="w-9 h-9 rounded-full object-cover flex-shrink-0 cursor-pointer"
           style={{ border: "1.5px solid var(--rm-purple-border)" }}
         />
         <div className="flex-1 min-w-0">
@@ -152,12 +171,10 @@ const PostCard = ({ post }) => {
         </div>
       </div>
 
-      {/* ── Content ── */}
       <p className="text-sm leading-relaxed mb-3" style={{ color: "#D1D5DB" }}>
         {post.content}
       </p>
 
-      {/* ── Waveform player strip ── */}
       <div
         className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-3"
         style={{
@@ -174,7 +191,6 @@ const PostCard = ({ post }) => {
         <Waveform bars={40} />
       </div>
 
-      {/* ── Tags ── */}
       {post.tags?.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-3">
           {post.tags.map((tag) => (
@@ -194,12 +210,10 @@ const PostCard = ({ post }) => {
         </div>
       )}
 
-      {/* ── Actions ── */}
       <div
         className="flex items-center gap-5 pt-3"
         style={{ borderTop: "1px solid rgba(124,58,237,0.1)" }}
       >
-        {/* Vibe (like) */}
         <button
           onClick={handleLike}
           className="flex items-center gap-1.5 text-xs transition-all"
@@ -212,7 +226,6 @@ const PostCard = ({ post }) => {
           <span>{likes.length} vibes</span>
         </button>
 
-        {/* Comments */}
         <button
           onClick={() => setShowComments(!showComments)}
           className="flex items-center gap-1.5 text-xs transition-all"
@@ -231,26 +244,25 @@ const PostCard = ({ post }) => {
           <span>{comments.length} replies</span>
         </button>
 
-        {/* Broadcast */}
         <button
+          onClick={handleShare}
           className="flex items-center gap-1.5 text-xs transition-all ml-auto"
           style={{
             fontFamily: "var(--rm-font-mono)",
-            color: "var(--rm-text-muted)",
+            color: shared ? "#34D399" : "var(--rm-text-muted)",
           }}
           onMouseEnter={(e) =>
-            (e.currentTarget.style.color = "var(--rm-purple-light)")
+            !shared && (e.currentTarget.style.color = "var(--rm-purple-light)")
           }
           onMouseLeave={(e) =>
-            (e.currentTarget.style.color = "var(--rm-text-muted)")
+            !shared && (e.currentTarget.style.color = "var(--rm-text-muted)")
           }
         >
-          <Share2 size={15} />
-          <span>broadcast</span>
+          {shared ? <Check size={15} /> : <Share2 size={15} />}
+          <span>{shared ? "copied" : "broadcast"}</span>
         </button>
       </div>
 
-      {/* ── Comments section ── */}
       {showComments && (
         <div
           className="mt-3 pt-3 space-y-2"

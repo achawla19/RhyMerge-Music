@@ -16,40 +16,29 @@ const Login = () => {
   const [success, setSuccess] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
-  // If a valid session already exists, skip the login form entirely
   useEffect(() => {
-    const checkAuth = async () => {
+    (async () => {
       try {
         const res = await fetch(`${API}/api/auth/refresh`, {
           method: "POST",
           credentials: "include",
         });
-
         if (res.ok) {
           const data = await res.json();
           login(data.user, data.token);
           navigate("/");
           return;
         }
-      } catch (err) {
-        console.error(err);
-      }
+      } catch {}
       setCheckingAuth(false);
-    };
-
-    checkAuth();
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-
     try {
       const res = await fetch(`${API}/api/auth/login`, {
         method: "POST",
@@ -57,35 +46,27 @@ const Login = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
         setError(data.msg || "Invalid credentials");
         setLoading(false);
         return;
       }
-
-      // login() already persists to localStorage — no need to duplicate it here
-      login(data.user, data.token);
+      login(data.user, data.token); // pass token for memory store
       setSuccess(true);
       setLoading(false);
-
-      // Let the success state actually be visible before navigating,
-      // instead of navigating immediately and again a second later.
       setTimeout(() => navigate("/"), 700);
     } catch (err) {
-      console.error(err);
       setError(
         err instanceof TypeError
-          ? "Can't reach the server. Is the backend running?"
-          : "Something went wrong. Please try again.",
+          ? "Can't reach the server."
+          : "Something went wrong.",
       );
       setLoading(false);
     }
   };
 
-  if (checkingAuth) {
+  if (checkingAuth)
     return (
       <div
         className="h-screen flex items-center justify-center"
@@ -94,7 +75,14 @@ const Login = () => {
         <Loader2 className="animate-spin w-6 h-6" color="#C084FC" />
       </div>
     );
-  }
+
+  const inputStyle = {
+    border: "1px solid rgba(124,58,237,0.3)",
+    color: "white",
+  };
+  const focus = (e) => (e.currentTarget.style.borderColor = "#7C3AED");
+  const blur = (e) =>
+    (e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)");
 
   return (
     <div
@@ -130,11 +118,11 @@ const Login = () => {
       <div className="flex w-full lg:w-1/2 items-center justify-center p-6">
         <form
           onSubmit={handleLogin}
-          className="relative w-full max-w-md p-8 rounded-3xl"
+          className="w-full max-w-md p-8 rounded-3xl"
           style={{
             background: "rgba(124,58,237,0.04)",
             backdropFilter: "blur(20px)",
-            border: "1px solid var(--rm-purple-border, rgba(124,58,237,0.25))",
+            border: "1px solid rgba(124,58,237,0.25)",
             boxShadow: "0 0 60px rgba(139,92,246,0.15)",
           }}
         >
@@ -150,33 +138,23 @@ const Login = () => {
               type="email"
               name="email"
               placeholder="Email Address"
-              onChange={handleChange}
               required
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
               className="w-full px-4 py-3 rounded-xl bg-transparent outline-none transition-all"
-              style={{
-                border: "1px solid rgba(124,58,237,0.3)",
-                color: "white",
-              }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#7C3AED")}
-              onBlur={(e) =>
-                (e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)")
-              }
+              style={inputStyle}
+              onFocus={focus}
+              onBlur={blur}
             />
             <input
               type="password"
               name="password"
               placeholder="Password"
-              onChange={handleChange}
               required
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
               className="w-full px-4 py-3 rounded-xl bg-transparent outline-none transition-all"
-              style={{
-                border: "1px solid rgba(124,58,237,0.3)",
-                color: "white",
-              }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#7C3AED")}
-              onBlur={(e) =>
-                (e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)")
-              }
+              style={inputStyle}
+              onFocus={focus}
+              onBlur={blur}
             />
           </div>
 

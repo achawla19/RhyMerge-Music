@@ -5,34 +5,26 @@ import {
   Search,
   Users,
   Settings,
-  User,
-  Bookmark,
-  Home,
+  Library,
   Radio,
   LogOut,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
-// ─── Animated logo waveform ───────────────────────────────────
 const LogoWave = () => {
   const bars = [6, 14, 20, 11, 18, 8, 16, 22, 10, 17];
   const refs = useRef([]);
-
   useEffect(() => {
     const intervals = refs.current.map((bar, i) =>
       setInterval(
         () => {
-          if (bar) {
-            const h = Math.round(4 + Math.random() * 18);
-            bar.style.height = `${h}px`;
-          }
+          if (bar) bar.style.height = `${Math.round(4 + Math.random() * 18)}px`;
         },
         380 + i * 70,
       ),
     );
     return () => intervals.forEach(clearInterval);
   }, []);
-
   return (
     <div className="flex items-center gap-[2.5px]" style={{ height: 24 }}>
       {bars.map((h, i) => (
@@ -53,7 +45,6 @@ const LogoWave = () => {
   );
 };
 
-// ─── Mini waveform shown on active nav item ───────────────────
 const MiniWave = () => {
   const refs = useRef([]);
   useEffect(() => {
@@ -67,7 +58,6 @@ const MiniWave = () => {
     );
     return () => intervals.forEach(clearInterval);
   }, []);
-
   return (
     <div className="flex items-center gap-[2px] ml-auto" style={{ height: 14 }}>
       {[8, 12, 6, 10, 7].map((h, i) => (
@@ -88,9 +78,8 @@ const MiniWave = () => {
   );
 };
 
-// ─── Nav items — paths are UNCHANGED ─────────────────────────
-const NAV_ITEMS = (username) => [
-  { label: "Home", sublabel: "dashboard", icon: Home, path: "/" },
+// Removed: Home (logo handles it), Profile (avatar handles it), Saved (now Library)
+const NAV_ITEMS = [
   {
     label: "Mixes",
     sublabel: "open projects",
@@ -98,20 +87,19 @@ const NAV_ITEMS = (username) => [
     path: "/projects",
   },
   {
-    label: "Saved",
-    sublabel: "bookmarked",
-    icon: Bookmark,
-    path: "/saved-projects",
+    label: "Library",
+    sublabel: "your collection",
+    icon: Library,
+    path: "/library",
   },
-  { label: "Find Stems", sublabel: "search", icon: Search, path: "/search" },
+  {
+    label: "Discover",
+    sublabel: "search & explore",
+    icon: Search,
+    path: "/search",
+  },
   { label: "Syncs", sublabel: "network", icon: Users, path: "/network" },
   { label: "Signals", sublabel: "community", icon: Radio, path: "/community" },
-  {
-    label: "My Stem",
-    sublabel: "profile",
-    icon: User,
-    path: `/profile/${username || ""}`,
-  },
   {
     label: "Settings",
     sublabel: "preferences",
@@ -120,37 +108,29 @@ const NAV_ITEMS = (username) => [
   },
 ];
 
-// ─── Component ────────────────────────────────────────────────
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
 
-  const navItems = NAV_ITEMS(user?.username);
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
-
   return (
     <aside
-      className="hidden lg:flex fixed left-0 top-0 w-[260px] h-screen z-50 flex-col"
+      className="flex w-[240px] h-full flex-col rounded-[20px] overflow-hidden"
       style={{
         background: "rgba(11, 8, 20, 0.97)",
         backdropFilter: "blur(24px)",
         WebkitBackdropFilter: "blur(24px)",
-        borderRight: "1px solid rgba(124, 58, 237, 0.15)",
+        border: "1px solid rgba(124, 58, 237, 0.15)",
       }}
     >
-      {/* ── LOGO ── */}
+      {/* LOGO — navigates home */}
       <div
-        className="px-6 py-7 flex items-center gap-3 cursor-pointer group"
+        className="px-5 py-5 flex items-center gap-3 cursor-pointer group flex-shrink-0"
         style={{ borderBottom: "1px solid rgba(124, 58, 237, 0.12)" }}
         onClick={() => navigate("/")}
       >
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
           style={{
             background: "var(--rm-bg-raised)",
             border: "1px solid var(--rm-border)",
@@ -158,18 +138,18 @@ const Sidebar = () => {
         >
           <LogoWave />
         </div>
-        <div className="text-left">
+        <div>
           <div className="flex items-baseline gap-0.5 leading-none">
             <span
-              className="text-[17px] font-bold"
+              className="text-[16px] font-bold"
               style={{ color: "var(--rm-purple-light)" }}
             >
               Rhy
             </span>
-            <span className="text-[17px] font-bold text-white">Merge</span>
+            <span className="text-[16px] font-bold text-white">Merge</span>
           </div>
           <p
-            className="text-[10px] mt-0.5 tracking-widest uppercase"
+            className="text-[9px] mt-0.5 tracking-widest uppercase"
             style={{
               fontFamily: "var(--rm-font-mono)",
               color: "var(--rm-text-muted)",
@@ -180,9 +160,8 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* ── NAVIGATION ── */}
-      <nav className="flex-1 px-3 py-5 overflow-y-auto space-y-1">
-        {/* Section label */}
+      {/* NAV */}
+      <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-0.5">
         <p
           className="px-3 mb-3 text-[9px] uppercase tracking-[2px]"
           style={{
@@ -192,23 +171,21 @@ const Sidebar = () => {
         >
           navigate
         </p>
-
-        {navItems.map((item) => {
+        {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const active =
             location.pathname === item.path ||
             (item.path !== "/" && location.pathname.startsWith(item.path));
-
           return (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className="relative flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-all duration-200 group"
+              className="relative flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-all duration-200"
               style={
                 active
                   ? {
-                      background: "rgba(124, 58, 237, 0.14)",
-                      border: "1px solid rgba(124, 58, 237, 0.3)",
+                      background: "rgba(124,58,237,0.14)",
+                      border: "1px solid rgba(124,58,237,0.3)",
                     }
                   : {
                       background: "transparent",
@@ -217,23 +194,20 @@ const Sidebar = () => {
               }
               onMouseEnter={(e) => {
                 if (!active)
-                  e.currentTarget.style.background = "rgba(124, 58, 237, 0.07)";
+                  e.currentTarget.style.background = "rgba(124,58,237,0.07)";
               }}
               onMouseLeave={(e) => {
                 if (!active) e.currentTarget.style.background = "transparent";
               }}
             >
-              {/* Active left bar */}
               {active && (
                 <div
                   className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full"
                   style={{ background: "var(--rm-purple-light)" }}
                 />
               )}
-
-              {/* Icon */}
               <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200"
+                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                 style={
                   active
                     ? {
@@ -245,8 +219,6 @@ const Sidebar = () => {
               >
                 <Icon size={15} />
               </div>
-
-              {/* Label */}
               <div className="flex-1 text-left min-w-0">
                 <p
                   className="text-sm font-medium leading-none"
@@ -269,57 +241,42 @@ const Sidebar = () => {
                   {item.sublabel}
                 </p>
               </div>
-
-              {/* Active waveform */}
               {active && <MiniWave />}
             </button>
           );
         })}
       </nav>
 
-      {/* ── USER STEM ── */}
+      {/* USER — bottom, logout only (no profile nav here — use avatar in topbar) */}
       <div
-        className="p-4 space-y-2"
-        style={{ borderTop: "1px solid rgba(124, 58, 237, 0.12)" }}
+        className="p-3 flex-shrink-0"
+        style={{ borderTop: "1px solid rgba(124,58,237,0.12)" }}
       >
-        {/* Profile row */}
-        <button
-          onClick={() => navigate(`/profile/${user?.username || ""}`)}
-          className="w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200"
+        <div
+          className="flex items-center gap-3 px-3 py-2 rounded-xl mb-1"
           style={{
-            background: "rgba(124, 58, 237, 0.07)",
+            background: "rgba(124,58,237,0.07)",
             border: "1px solid var(--rm-border)",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.borderColor = "rgba(124,58,237,0.4)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.borderColor = "var(--rm-border)")
-          }
         >
-          {/* Avatar with live dot */}
           <div className="relative flex-shrink-0">
             <img
               src={
                 user?.avatar ||
                 `https://ui-avatars.com/api/?name=${user?.username || "U"}&background=7c3aed&color=fff`
               }
-              alt="avatar"
-              className="w-9 h-9 rounded-full object-cover"
+              alt=""
+              className="w-8 h-8 rounded-full object-cover"
               style={{ border: "1.5px solid var(--rm-purple)" }}
             />
             <span
-              className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full"
-              style={{
-                background: "var(--rm-green)",
-                border: "1.5px solid #0B0814",
-              }}
+              className="absolute bottom-0 right-0 w-2 h-2 rounded-full"
+              style={{ background: "#22C55E", border: "1.5px solid #0B0814" }}
             />
           </div>
-
-          <div className="flex-1 text-left min-w-0">
-            <p className="text-sm font-medium text-white truncate">
-              {user?.username || "Your stem"}
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium text-white truncate">
+              {user?.name || user?.username}
             </p>
             <p
               className="text-[10px] truncate"
@@ -331,12 +288,13 @@ const Sidebar = () => {
               {user?.role || "music creator"}
             </p>
           </div>
-        </button>
-
-        {/* Logout */}
+        </div>
         <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 text-left"
+          onClick={() => {
+            logout();
+            window.location.href = "/login";
+          }}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-all text-left"
           style={{ color: "var(--rm-text-muted)" }}
           onMouseEnter={(e) => {
             e.currentTarget.style.color = "#F87171";
@@ -347,7 +305,7 @@ const Sidebar = () => {
             e.currentTarget.style.background = "transparent";
           }}
         >
-          <LogOut size={14} />
+          <LogOut size={13} />
           <span
             className="text-xs"
             style={{ fontFamily: "var(--rm-font-mono)" }}
