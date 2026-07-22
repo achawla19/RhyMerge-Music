@@ -1,42 +1,16 @@
-import { Heart, MessageCircle, Share2, Waves, Check } from "lucide-react";
+import {
+  Heart,
+  MessageCircle,
+  Share2,
+  Check,
+  Music2,
+  Handshake,
+  ArrowRight,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { toggleLike } from "../../api/post";
 import { addComment } from "../../api/comment";
-
-const Waveform = ({ bars = 36 }) => {
-  const refs = useRef([]);
-  useEffect(() => {
-    const ids = refs.current.map((bar, i) =>
-      setInterval(
-        () => {
-          if (bar) bar.style.height = `${Math.round(3 + Math.random() * 16)}px`;
-        },
-        280 + i * 55,
-      ),
-    );
-    return () => ids.forEach(clearInterval);
-  }, []);
-  return (
-    <div className="flex items-center gap-[2px]" style={{ height: 20 }}>
-      {Array.from({ length: bars }).map((_, i) => (
-        <div
-          key={i}
-          ref={(el) => (refs.current[i] = el)}
-          style={{
-            width: 2.5,
-            height: Math.round(3 + Math.random() * 14),
-            borderRadius: 2,
-            background: "var(--rm-purple)",
-            opacity: 0.7,
-            transition: "height 0.28s ease",
-            flexShrink: 0,
-          }}
-        />
-      ))}
-    </div>
-  );
-};
 
 const PostCard = ({ post }) => {
   const navigate = useNavigate();
@@ -175,21 +149,101 @@ const PostCard = ({ post }) => {
         {post.content}
       </p>
 
-      <div
-        className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-3"
-        style={{
-          background: "var(--rm-bg)",
-          border: "1px solid var(--rm-purple-border)",
-        }}
-      >
+      {post.linkedProject && (
         <div
-          className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
-          style={{ background: "var(--rm-purple)" }}
+          onClick={() => navigate(`/projects/${post.linkedProject._id}`)}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-3 cursor-pointer transition-all"
+          style={{
+            background: "var(--rm-bg)",
+            border: "1px solid var(--rm-purple-border)",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.borderColor = "var(--rm-purple)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.borderColor = "var(--rm-purple-border)")
+          }
         >
-          <Waves size={12} color="#fff" />
+          {post.linkedProject.coverImage ? (
+            <img
+              src={post.linkedProject.coverImage}
+              alt=""
+              className="w-9 h-9 rounded-lg object-cover flex-shrink-0"
+            />
+          ) : (
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+              style={{ background: "var(--rm-purple)" }}
+            >
+              <Music2 size={15} color="#fff" />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-white truncate">
+              {post.linkedProject.title}
+            </p>
+            {post.linkedProject.genre && (
+              <p
+                className="text-[11px]"
+                style={{
+                  color: "var(--rm-text-muted)",
+                  fontFamily: "var(--rm-font-mono)",
+                }}
+              >
+                {post.linkedProject.genre}
+              </p>
+            )}
+          </div>
+          <ArrowRight
+            size={14}
+            color="var(--rm-purple-light)"
+            className="flex-shrink-0"
+          />
         </div>
-        <Waveform bars={40} />
-      </div>
+      )}
+
+      {post.linkedCollabPost && (
+        <div
+          onClick={() => navigate(`/collab/${post.linkedCollabPost._id}`)}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-3 cursor-pointer transition-all"
+          style={{
+            background: "var(--rm-bg)",
+            border: "1px solid var(--rm-purple-border)",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.borderColor = "var(--rm-purple)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.borderColor = "var(--rm-purple-border)")
+          }
+        >
+          <div
+            className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+            style={{ background: "var(--rm-purple)" }}
+          >
+            <Handshake size={15} color="#fff" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-white truncate">
+              {post.linkedCollabPost.title}
+            </p>
+            <p
+              className="text-[11px]"
+              style={{
+                color: "var(--rm-text-muted)",
+                fontFamily: "var(--rm-font-mono)",
+              }}
+            >
+              looking for {post.linkedCollabPost.lookingFor}
+            </p>
+          </div>
+          <ArrowRight
+            size={14}
+            color="var(--rm-purple-light)"
+            className="flex-shrink-0"
+          />
+        </div>
+      )}
 
       {post.tags?.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-3">

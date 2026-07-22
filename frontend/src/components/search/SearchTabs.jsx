@@ -23,7 +23,7 @@ const SearchTabs = ({ activeTab, setActiveTab }) => {
                 : { color: "var(--rm-text-muted)" }
             }
           >
-            {tab === "Creators" ? "Stems" : "Mixes"}
+            {tab}
           </button>
         );
       })}

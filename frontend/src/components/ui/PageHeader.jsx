@@ -2,7 +2,13 @@ const PageHeader = ({ title, subtitle, action }) => {
   return (
     <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
       <div>
-        <h1 className="text-2xl lg:text-3xl font-bold text-white tracking-tight">
+        <h1
+          className="text-3xl lg:text-4xl text-white"
+          style={{
+            fontFamily: "var(--rm-font-script)",
+            letterSpacing: "0.01em",
+          }}
+        >
           {title}
         </h1>
         {subtitle && (

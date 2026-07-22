@@ -119,6 +119,9 @@ export default function NavbarSearch({ width = "lg:w-[360px]" }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search creators, projects..."
+            type="search"
+            autoComplete="off"
+            name="rhymerge-global-search"
             className="
               flex-1
               bg-transparent
@@ -195,6 +198,9 @@ export default function NavbarSearch({ width = "lg:w-[360px]" }) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search creators, projects..."
+                type="search"
+                autoComplete="off"
+                name="rhymerge-global-search-mobile"
                 className="
                   flex-1
                   bg-transparent

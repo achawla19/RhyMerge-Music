@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from "react";
+import { logoutUser } from "../api/auth";
 
 const AuthContext = createContext();
 
@@ -39,7 +40,21 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  const logout = () => {
+  const logout = async () => {
+    // Await the server-side cookie clear BEFORE navigating anywhere. This
+    // matters a lot: if a caller does `logout(); window.location.href =
+    // "/login"` without awaiting, the hard navigation can abort the
+    // in-flight fetch before it ever reaches the server — the browser is
+    // free to cancel pending requests on unload. That was the actual bug:
+    // the API call would fire, the page would already be navigating away,
+    // and the cookie would never actually get cleared server-side.
+    try {
+      await logoutUser();
+    } catch {
+      // Even if this fails (server down, network blip), still clear
+      // everything client-side below — better than leaving the UI stuck
+      // in a logged-in state the user explicitly asked to leave.
+    }
     setUser(null);
     localStorage.removeItem("user");
     setMemoryToken(null);

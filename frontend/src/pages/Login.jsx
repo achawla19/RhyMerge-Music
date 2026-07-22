@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, Check } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import hero from "../assets/hero.png";
+import hero from "../assets/hero.jpg";
+import logo from "../assets/logo.png";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -105,9 +106,7 @@ const Login = () => {
           }}
         />
         <div className="relative z-10 text-center px-10">
-          <h1 className="text-5xl font-bold">
-            <span style={{ color: "#C084FC" }}>Rhy</span>Merge
-          </h1>
+          <img src={logo} alt="RhyMerge" className="h-16 w-auto mx-auto" />
           <p className="mt-4 text-sm" style={{ color: "#C4B5FD" }}>
             Elevate Your Sound. Collaborate. Create. Conquer.
           </p>

@@ -1,11 +1,62 @@
 import ProjectFile from "../models/projectFile.js";
 import Project from "../models/project.js";
+import User from "../models/user.js";
 import { deleteFromCloudinary } from "../middleware/upload.js";
 import { createNotification } from "../utils/createNotification.js";
 
 const isProjectMember = (project, userId) =>
   project.owner.toString() === userId ||
   project.collaborators.some((c) => c.toString() === userId);
+
+// ── GET A USER'S AUDIO REEL ───────────────────────────────────────────────────
+// Powers the "Portfolio" tab on a profile — the real audio files attached
+// across all of someone's projects, most recent first. Public data only:
+// no private/deleted projects, no member-only files.
+export const getUserAudioReel = async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username }).select(
+      "_id preferences.privacy",
+    );
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    const viewerId = req.user?.id;
+    const isOwner = viewerId && viewerId === user._id.toString();
+    if (!user.preferences?.privacy?.profileVisible && !isOwner) {
+      return res.status(403).json({ msg: "This profile is private" });
+    }
+
+    const projects = await Project.find({
+      $or: [{ owner: user._id }, { collaborators: user._id }],
+    }).select("_id title");
+
+    if (projects.length === 0) return res.json([]);
+
+    const projectMap = new Map(
+      projects.map((p) => [p._id.toString(), p.title]),
+    );
+
+    const files = await ProjectFile.find({
+      project: { $in: projects.map((p) => p._id) },
+      fileType: { $regex: "^audio/" },
+    })
+      .sort({ createdAt: -1 })
+      .limit(8);
+
+    const reel = files.map((f) => ({
+      _id: f._id,
+      name: f.filename,
+      url: f.url,
+      duration: f.duration,
+      projectId: f.project,
+      projectTitle: projectMap.get(f.project.toString()) || "Untitled",
+    }));
+
+    res.json(reel);
+  } catch (err) {
+    console.error("getUserAudioReel:", err);
+    res.status(500).json({ msg: "Failed to load audio reel" });
+  }
+};
 
 // ── GET PROJECT FILES ─────────────────────────────────────────────────────────
 export const getProjectFiles = async (req, res) => {
@@ -21,7 +72,7 @@ export const getProjectFiles = async (req, res) => {
   }
 };
 
-// ── UPLOAD STEM ───────────────────────────────────────────────────────────────
+// ── UPLOAD PROJECT FILE ──────────────────────────────────────────────────────
 export const uploadProjectFile = async (req, res) => {
   try {
     const project = await Project.findById(req.params.projectId);
@@ -33,7 +84,7 @@ export const uploadProjectFile = async (req, res) => {
     if (!isProjectMember(project, req.user.id)) {
       return res
         .status(403)
-        .json({ msg: "Only project members can upload stems" });
+        .json({ msg: "Only project members can add files" });
     }
 
     if (!req.file) {

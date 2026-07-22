@@ -66,9 +66,21 @@ export const deleteAccount = async (req, res) => {
     user.email = `deleted_${user._id}@rhymerge.deleted`;
     await user.save({ validateModifiedOnly: true });
 
-    // Clear auth cookies
-    res.clearCookie("accessToken");
-    res.clearCookie("refreshToken");
+    // Clear auth cookies. NOTE: this previously cleared a cookie named
+    // "accessToken" — that cookie has never existed; the real one set at
+    // login is called "token" (see authController.js). Clearing the wrong
+    // name is a silent no-op: no error, no effect, and the real session
+    // cookie stays valid. Also matching the sameSite/secure options used
+    // when the cookie was set — mismatched options are the other common
+    // way a clearCookie call silently fails to actually clear anything.
+    res.clearCookie("token", {
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+    res.clearCookie("refreshToken", {
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
 
     res.json({ msg: "Account deleted" });
   } catch (err) {

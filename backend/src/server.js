@@ -27,6 +27,7 @@ import authSecurityRoutes from "./routes/authSecurityRoutes.js";
 import aiInsightRoutes from "./routes/aiInsightRoutes.js";
 import messageAttachmentRoutes from "./routes/messageAttachmentRoutes.js";
 import trendingRoutes from "./routes/trendingRoutes.js";
+import collabRoutes from "./routes/collabRoutes.js";
 
 import { initSocket } from "./socket/index.js";
 
@@ -86,6 +87,7 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/project-files", projectFileRoutes);
 app.use("/api/ai-insights", aiInsightRoutes);
 app.use("/api/trending", trendingRoutes);
+app.use("/api/collab", collabRoutes);
 // ── 9. 404 ────────────────────────────────────────────────────────────────────
 app.use((req, res) => res.status(404).json({ msg: "Route not found" }));
 

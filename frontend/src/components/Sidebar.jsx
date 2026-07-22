@@ -7,43 +7,11 @@ import {
   Settings,
   Library,
   Radio,
+  Handshake,
   LogOut,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-
-const LogoWave = () => {
-  const bars = [6, 14, 20, 11, 18, 8, 16, 22, 10, 17];
-  const refs = useRef([]);
-  useEffect(() => {
-    const intervals = refs.current.map((bar, i) =>
-      setInterval(
-        () => {
-          if (bar) bar.style.height = `${Math.round(4 + Math.random() * 18)}px`;
-        },
-        380 + i * 70,
-      ),
-    );
-    return () => intervals.forEach(clearInterval);
-  }, []);
-  return (
-    <div className="flex items-center gap-[2.5px]" style={{ height: 24 }}>
-      {bars.map((h, i) => (
-        <div
-          key={i}
-          ref={(el) => (refs.current[i] = el)}
-          style={{
-            width: 2.5,
-            height: h,
-            borderRadius: 2,
-            background: "var(--rm-purple-light)",
-            transition: "height 0.35s ease",
-            flexShrink: 0,
-          }}
-        />
-      ))}
-    </div>
-  );
-};
+import logo from "../assets/logo.png";
 
 const MiniWave = () => {
   const refs = useRef([]);
@@ -81,7 +49,7 @@ const MiniWave = () => {
 // Removed: Home (logo handles it), Profile (avatar handles it), Saved (now Library)
 const NAV_ITEMS = [
   {
-    label: "Mixes",
+    label: "Projects",
     sublabel: "open projects",
     icon: LayoutGrid,
     path: "/projects",
@@ -98,8 +66,14 @@ const NAV_ITEMS = [
     icon: Search,
     path: "/search",
   },
+  {
+    label: "Collab",
+    sublabel: "find your people",
+    icon: Handshake,
+    path: "/collab",
+  },
   { label: "Syncs", sublabel: "network", icon: Users, path: "/network" },
-  { label: "Signals", sublabel: "community", icon: Radio, path: "/community" },
+  { label: "Community", sublabel: "feed", icon: Radio, path: "/community" },
   {
     label: "Settings",
     sublabel: "preferences",
@@ -129,25 +103,8 @@ const Sidebar = () => {
         style={{ borderBottom: "1px solid rgba(124, 58, 237, 0.12)" }}
         onClick={() => navigate("/")}
       >
-        <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{
-            background: "var(--rm-bg-raised)",
-            border: "1px solid var(--rm-border)",
-          }}
-        >
-          <LogoWave />
-        </div>
+        <img src={logo} alt="RhyMerge" className="h-8 w-auto flex-shrink-0" />
         <div>
-          <div className="flex items-baseline gap-0.5 leading-none">
-            <span
-              className="text-[16px] font-bold"
-              style={{ color: "var(--rm-purple-light)" }}
-            >
-              Rhy
-            </span>
-            <span className="text-[16px] font-bold text-white">Merge</span>
-          </div>
           <p
             className="text-[9px] mt-0.5 tracking-widest uppercase"
             style={{
@@ -290,8 +247,8 @@ const Sidebar = () => {
           </div>
         </div>
         <button
-          onClick={() => {
-            logout();
+          onClick={async () => {
+            await logout();
             window.location.href = "/login";
           }}
           className="w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-all text-left"

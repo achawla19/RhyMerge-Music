@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&family=Alex+Brush&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -31,6 +31,14 @@
   /* Typography */
   --rm-font-sans: "Space Grotesk", system-ui, sans-serif;
   --rm-font-mono: "Space Mono", ui-monospace, monospace;
+  /* Matches the logo's flowing calligraphic style. Scoped to headline/
+     brand moments ONLY (page titles, hero copy) — never body text, forms,
+     nav, or lists. Script faces measurably slow down reading at small
+     sizes and in dense text; using it everywhere "to match the logo"
+     would trade the whole app's usability for a vibe. This gets the
+     personality where it actually reads well and costs nothing where it
+     wouldn't. */
+  --rm-font-script: "Alex Brush", cursive;
 
   /* Transitions */
   --rm-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -90,6 +98,11 @@ code,
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rm-purple-border) transparent;
+}
+
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -109,6 +122,42 @@ code,
 ::selection {
   background: var(--rm-purple-dim);
   color: var(--rm-text-primary);
+}
+
+/* ─── Focus rings (keyboard navigation only — no flash on mouse click) ─── */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--rm-purple-light);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Inputs/textareas/selects get a softer glow instead of an outline —
+   an offset outline looks wrong against a filled, already-rounded field. */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="combobox"]:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--rm-purple-dim),
+    0 0 0 1px var(--rm-purple);
+  border-radius: inherit;
+}
+
+/* ─── Motion preference ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ─── Utility Classes ────────────────────────────────────────── */

@@ -8,11 +8,13 @@ import {
   User,
   Bookmark,
   Radio,
+  Handshake,
   X,
   LogOut,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import logo from "../assets/logo.png";
 
 // ─── Mini waveform (same as desktop sidebar) ──────────────────
 const MiniWave = () => {
@@ -52,7 +54,7 @@ const MiniWave = () => {
 const NAV_ITEMS = (username) => [
   { label: "Home", sublabel: "dashboard", icon: Home, path: "/" },
   {
-    label: "Mixes",
+    label: "Projects",
     sublabel: "open projects",
     icon: LayoutGrid,
     path: "/projects",
@@ -61,11 +63,17 @@ const NAV_ITEMS = (username) => [
     label: "Saved",
     sublabel: "bookmarked",
     icon: Bookmark,
-    path: "/saved-projects",
+    path: "/library",
   },
-  { label: "Find Stems", sublabel: "search", icon: Search, path: "/search" },
+  { label: "Discover", sublabel: "search", icon: Search, path: "/search" },
+  {
+    label: "Collab",
+    sublabel: "find your people",
+    icon: Handshake,
+    path: "/collab",
+  },
   { label: "Syncs", sublabel: "network", icon: Users, path: "/network" },
-  { label: "Signals", sublabel: "community", icon: Radio, path: "/community" },
+  { label: "Community", sublabel: "feed", icon: Radio, path: "/community" },
   {
     label: "My Stem",
     sublabel: "profile",
@@ -107,8 +115,8 @@ const MobileSidebar = ({ open, onClose }) => {
     onClose();
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
     onClose();
   };
@@ -152,42 +160,12 @@ const MobileSidebar = ({ open, onClose }) => {
             onClick={() => handleNavigate("/")}
             className="flex items-center gap-3"
           >
-            {/* Waveform logo mark */}
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{
-                background: "var(--rm-bg-raised)",
-                border: "1px solid var(--rm-border)",
-              }}
-            >
-              <div
-                className="flex items-center gap-[2px]"
-                style={{ height: 18 }}
-              >
-                {[6, 12, 18, 10, 16, 8, 14].map((h, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      width: 2,
-                      height: h,
-                      borderRadius: 1,
-                      background: "var(--rm-purple-light)",
-                      flexShrink: 0,
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
+            <img
+              src={logo}
+              alt="RhyMerge"
+              className="h-7 w-auto flex-shrink-0"
+            />
             <div className="text-left">
-              <div className="flex items-baseline gap-0.5 leading-none">
-                <span
-                  className="text-base font-bold"
-                  style={{ color: "var(--rm-purple-light)" }}
-                >
-                  Rhy
-                </span>
-                <span className="text-base font-bold text-white">Merge</span>
-              </div>
               <p
                 className="text-[9px] mt-0.5 uppercase tracking-widest"
                 style={{

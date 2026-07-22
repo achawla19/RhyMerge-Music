@@ -10,7 +10,7 @@ import {
   getProjectsByUsername,
   searchProjects,
 } from "../controllers/projectController.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect, optionalAuth } from "../middleware/authMiddleware.js";
 import { imageUploader } from "../middleware/upload.js";
 import { uploadRateLimiter } from "../middleware/rateLimiter.js";
 
@@ -18,7 +18,7 @@ const router = express.Router();
 
 router.get("/", getProjects);
 router.get("/search", searchProjects);
-router.get("/user/:username", getProjectsByUsername);
+router.get("/user/:username", optionalAuth, getProjectsByUsername);
 router.get("/:id", getProjectById);
 
 router.post("/", protect, createProject);

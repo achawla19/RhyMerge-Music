@@ -23,3 +23,23 @@ export const protect = async (req, res, next) => {
     });
   }
 };
+
+/**
+ * For routes that are viewable by anyone (profiles, a user's projects) but
+ * need to know WHO's asking when they're logged in — e.g. to check "is the
+ * viewer a connection" for a privacy setting, or to let an owner see their
+ * own private content. Never rejects: sets req.user if there's a valid
+ * cookie, otherwise leaves it undefined and moves on.
+ */
+export const optionalAuth = async (req, res, next) => {
+  try {
+    const token = req.cookies.token;
+    if (token) {
+      req.user = jwt.verify(token, process.env.JWT_SECRET);
+    }
+  } catch {
+    // Invalid/expired token on an optional route — treat as logged-out
+    // rather than failing the request.
+  }
+  next();
+};

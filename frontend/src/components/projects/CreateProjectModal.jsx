@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, Music2, Loader2, Hash, Gauge } from "lucide-react";
 import { uploadProjectCover } from "../../api/projects";
+import { createPost } from "../../api/post";
 import Select from "../ui/Select";
 
 const GENRES = [
@@ -76,6 +77,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate }) {
   const [tagInput, setTagInput] = useState("");
   const [coverFile, setCoverFile] = useState(null);
   const [coverPreview, setCoverPreview] = useState("");
+  const [shareToFeed, setShareToFeed] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -133,6 +135,19 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate }) {
         } catch {}
       }
 
+      // Optionally announce it on the feed — best effort, never blocks
+      // the project itself from being created successfully.
+      if (shareToFeed && project?._id) {
+        try {
+          await createPost({
+            content: `Just started working on "${project.title}" 🎵${
+              form.lookingForCollaborators ? " — open to collaborators!" : ""
+            }`,
+            linkedProject: project._id,
+          });
+        } catch {}
+      }
+
       setForm(EMPTY);
       setCoverFile(null);
       setCoverPreview("");
@@ -171,7 +186,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate }) {
               <Music2 size={16} color="#C084FC" />
             </div>
             <div>
-              <h2 className="text-white font-bold text-xl">Start a Mix</h2>
+              <h2 className="text-white font-bold text-xl">Post a Project</h2>
               <p
                 className="text-xs"
                 style={{
@@ -512,6 +527,31 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate }) {
               {error}
             </p>
           )}
+
+          <label className="flex items-center gap-2 cursor-pointer w-fit">
+            <div
+              className="w-10 h-5 rounded-full relative transition-colors"
+              style={{
+                background: shareToFeed
+                  ? "var(--rm-purple)"
+                  : "rgba(255,255,255,0.1)",
+              }}
+              onClick={() => setShareToFeed((v) => !v)}
+            >
+              <span
+                className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform"
+                style={{
+                  transform: shareToFeed ? "translateX(20px)" : "none",
+                }}
+              />
+            </div>
+            <span
+              className="text-sm"
+              style={{ color: "var(--rm-text-secondary)" }}
+            >
+              Share to your feed
+            </span>
+          </label>
 
           <div className="flex gap-3 pt-2">
             <button

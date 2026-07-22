@@ -26,6 +26,13 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
     certificates: [],
     experienceLevel: "Beginner",
     availability: "Available",
+    socials: {
+      instagram: "",
+      soundcloud: "",
+      spotify: "",
+      youtube: "",
+      website: "",
+    },
   });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -45,11 +52,23 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
       certificates: user.certificates || [],
       experienceLevel: user.experienceLevel || "Beginner",
       availability: user.availability || "Available",
+      socials: {
+        instagram: user.socials?.instagram || "",
+        soundcloud: user.socials?.soundcloud || "",
+        spotify: user.socials?.spotify || "",
+        youtube: user.socials?.youtube || "",
+        website: user.socials?.website || "",
+      },
     });
   }, [user]);
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
   const setVal = (key) => (val) => setForm((f) => ({ ...f, [key]: val }));
+  const setSocial = (key) => (e) =>
+    setForm((f) => ({
+      ...f,
+      socials: { ...f.socials, [key]: e.target.value },
+    }));
 
   const toggleGenre = (genre) =>
     setForm((f) => ({
@@ -311,6 +330,39 @@ const ProfileEditForm = ({ onSaved, onCancel, compact = false }) => {
         onChange={(certificates) => setForm((f) => ({ ...f, certificates }))}
         placeholder="e.g. Berklee Online — Music Production"
       />
+
+      {/* Social links */}
+      <div>
+        <label
+          className="text-xs mb-2 block"
+          style={{
+            fontFamily: "var(--rm-font-mono)",
+            color: "var(--rm-text-muted)",
+          }}
+        >
+          Social Links
+        </label>
+        <div className={compact ? "grid sm:grid-cols-2 gap-3" : "space-y-3"}>
+          {[
+            { key: "instagram", placeholder: "instagram.com/yourhandle" },
+            { key: "soundcloud", placeholder: "soundcloud.com/yourprofile" },
+            { key: "spotify", placeholder: "open.spotify.com/artist/..." },
+            { key: "youtube", placeholder: "youtube.com/@yourchannel" },
+            { key: "website", placeholder: "yoursite.com" },
+          ].map(({ key, placeholder }) => (
+            <input
+              key={key}
+              value={form.socials[key]}
+              onChange={setSocial(key)}
+              placeholder={placeholder}
+              className="w-full rounded-xl px-4 py-2.5 outline-none text-sm"
+              style={inputStyle}
+              onFocus={focus}
+              onBlur={blur}
+            />
+          ))}
+        </div>
+      </div>
 
       {error && (
         <p className="text-xs" style={{ color: "#F87171" }}>

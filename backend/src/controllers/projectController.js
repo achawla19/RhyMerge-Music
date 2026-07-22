@@ -1,7 +1,7 @@
 import Project from "../models/project.js";
 import User from "../models/user.js";
 import ProjectFile from "../models/projectFile.js";
-import { escapeRegex } from "../utils/sanitize.js";
+import { escapeRegex, stripHtml } from "../utils/sanitize.js";
 import { deleteFromCloudinary } from "../middleware/upload.js";
 
 // ── CREATE ───────────────────────────────────────────────────────────────────
@@ -24,8 +24,8 @@ export const createProject = async (req, res) => {
     }
 
     const project = await Project.create({
-      title: title.trim(),
-      description: description?.trim() || "",
+      title: stripHtml(title).trim(),
+      description: stripHtml(description?.trim() || ""),
       genre: genre?.trim() || "",
       bpm: bpm ? Number(bpm) : null,
       musicalKey: musicalKey?.trim() || "",
@@ -81,8 +81,9 @@ export const updateProject = async (req, res) => {
       "Completed",
     ];
 
-    if (title !== undefined) project.title = title.trim();
-    if (description !== undefined) project.description = description.trim();
+    if (title !== undefined) project.title = stripHtml(title).trim();
+    if (description !== undefined)
+      project.description = stripHtml(description.trim());
     if (genre !== undefined) project.genre = genre.trim();
     if (bpm !== undefined) project.bpm = bpm ? Number(bpm) : null;
     if (musicalKey !== undefined) project.musicalKey = musicalKey.trim();
@@ -234,12 +235,37 @@ export const getProjectsByUsername = async (req, res) => {
     const user = await User.findOne({ username: req.params.username });
     if (!user) return res.status(404).json({ msg: "User not found" });
 
-    const projects = await Project.find({ owner: user._id })
+    const viewerId = req.user?.id;
+    const isOwner = viewerId && viewerId === user._id.toString();
+    const visibility =
+      user.preferences?.privacy?.projectVisibility || "everyone";
+
+    const allProjects = await Project.find({ owner: user._id })
       .populate("owner", "username name avatar")
       .populate("collaborators", "username name avatar")
       .sort({ createdAt: -1 });
 
-    res.json(projects);
+    if (isOwner || visibility === "everyone") {
+      return res.json(allProjects);
+    }
+
+    const isConnection =
+      viewerId && user.connections.some((c) => c.toString() === viewerId);
+    const canSeeAll = visibility === "connections" && isConnection;
+
+    if (canSeeAll) return res.json(allProjects);
+
+    // Even when the owner's default is restrictive, someone who's an
+    // actual collaborator on a specific project can still see that one —
+    // they're already part of it, hiding it from them on this view would
+    // just be confusing, not more private.
+    const visibleToCollaborators = viewerId
+      ? allProjects.filter((p) =>
+          p.collaborators.some((c) => c._id.toString() === viewerId),
+        )
+      : [];
+
+    return res.json(visibleToCollaborators);
   } catch (err) {
     console.error("getProjectsByUsername:", err);
     res.status(500).json({ msg: "Failed to fetch projects" });

@@ -6,18 +6,22 @@ import {
   updateMyProfile,
   uploadAvatar,
   unsyncConnection,
+  updatePreferences,
 } from "../controllers/userController.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect, optionalAuth } from "../middleware/authMiddleware.js";
 import { imageUploader } from "../middleware/upload.js";
 import { uploadRateLimiter } from "../middleware/rateLimiter.js";
+import { getUserAudioReel } from "../controllers/projectFileController.js";
 
 const router = express.Router();
 
 router.get("/search", searchUsers);
 router.get("/all", getAllUsers);
-router.get("/:username", getUserByUsername);
+router.get("/:username", optionalAuth, getUserByUsername);
+router.get("/:username/audio-reel", optionalAuth, getUserAudioReel);
 
 router.put("/profile", protect, updateMyProfile);
+router.put("/preferences", protect, updatePreferences);
 
 router.post(
   "/avatar",

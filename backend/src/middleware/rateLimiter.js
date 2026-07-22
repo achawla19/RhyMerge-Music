@@ -31,6 +31,15 @@ const createStore = () => {
 const createLimiter =
   (store, { windowMs, max, message }) =>
   (req, res, next) => {
+    // Only enforce in production. These limits are correctly tuned against
+    // real abuse (credential stuffing, scraping, DDoS) — but in local dev,
+    // React StrictMode double-invokes every effect, several contexts fetch
+    // on mount simultaneously, notifications poll every 60s, and a single
+    // developer testing a flow repeatedly (e.g. login/logout cycles) can
+    // burn through a shared 200-request/15-minute budget in a couple of
+    // minutes. That's not abuse, it's just development.
+    if (process.env.NODE_ENV !== "production") return next();
+
     const key = req.ip;
     const now = Date.now();
     const entry = store.get(key);

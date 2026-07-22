@@ -31,6 +31,9 @@ import JoinProjectModal from "../components/projects/JoinProjectModal";
 import ProjectRequests from "../components/projects/ProjectRequests";
 import ProjectFiles from "../components/projects/ProjectFiles";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../components/ui/Toast";
+import { useConfirm } from "../components/ui/ConfirmDialog";
+import Select from "../components/ui/Select";
 
 const STATUS_OPTS = [
   "Planning",
@@ -202,17 +205,11 @@ const EditProjectModal = ({ project, onClose, onSaved }) => {
             </div>
             <div>
               <label style={labelStyle}>status</label>
-              <select
+              <Select
                 value={form.status}
-                onChange={set("status")}
-                style={inputStyle}
-              >
-                {STATUS_OPTS.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
+                onChange={(v) => setForm((f) => ({ ...f, status: v }))}
+                options={STATUS_OPTS}
+              />
             </div>
           </div>
 
@@ -364,6 +361,8 @@ const ProjectDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const toast = useToast();
+  const confirm = useConfirm();
 
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -453,14 +452,21 @@ const ProjectDetails = () => {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm(`Delete "${project.title}"? This cannot be undone.`))
-      return;
+    const ok = await confirm({
+      title: `Delete "${project.title}"?`,
+      message:
+        "This will remove the project for all collaborators. This cannot be undone.",
+      confirmText: "Delete",
+      tone: "danger",
+    });
+    if (!ok) return;
     setDeleting(true);
     try {
       await deleteProject(project._id);
+      toast.success("Project deleted");
       navigate("/projects", { replace: true });
     } catch (err) {
-      alert(err.message || "Failed to delete");
+      toast.error(err.message || "Failed to delete project");
       setDeleting(false);
     }
   };
@@ -956,16 +962,25 @@ const ProjectDetails = () => {
                   {isOwner && (
                     <button
                       onClick={async () => {
-                        if (
-                          !window.confirm(
-                            `Remove ${member.username} from this project?`,
-                          )
-                        )
-                          return;
-                        const { removeCollaborator } =
-                          await import("../api/projects");
-                        await removeCollaborator(project._id, member._id);
-                        loadProject();
+                        const ok = await confirm({
+                          title: `Remove ${member.username} from this project?`,
+                          message:
+                            "They'll lose access to this project's files and chat.",
+                          confirmText: "Remove",
+                          tone: "danger",
+                        });
+                        if (!ok) return;
+                        try {
+                          const { removeCollaborator } =
+                            await import("../api/projects");
+                          await removeCollaborator(project._id, member._id);
+                          toast.success(
+                            `${member.username} removed from project`,
+                          );
+                          loadProject();
+                        } catch (err) {
+                          toast.error(err.message || "Failed to remove member");
+                        }
                       }}
                       className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
                       style={{

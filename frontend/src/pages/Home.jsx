@@ -12,10 +12,13 @@ import {
   UserPlus,
   Check,
   Loader2,
+  Handshake,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getProjects, searchProjects } from "../api/projects";
+import { getCollabPosts } from "../api/collab";
 import { sendConnectionRequest, getSentRequests } from "../api/connection";
+import CollabCard from "../components/collab/CollabCard";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -238,6 +241,8 @@ export default function Home() {
   const [activeGenre, setActiveGenre] = useState("All");
   const [projects, setProjects] = useState([]);
   const [creators, setCreators] = useState([]);
+  const [collabPosts, setCollabPosts] = useState([]);
+  const [collabLoading, setCollabLoading] = useState(true);
   const [pendingIds, setPendingIds] = useState([]);
   const [stats, setStats] = useState({ projects: 0, connections: 0 });
   const [loading, setLoading] = useState(true);
@@ -255,6 +260,12 @@ export default function Home() {
       setProjects(res.projects || []);
       setStats((s) => ({ ...s, projects: res.total || 0 }));
       setLoading(false);
+    });
+
+    safe(getCollabPosts({ status: "Open" }), { posts: [] }).then((res) => {
+      if (cancelled) return;
+      setCollabPosts((res.posts || []).slice(0, 3));
+      setCollabLoading(false);
     });
 
     Promise.all([
@@ -305,7 +316,10 @@ export default function Home() {
       {/* GREETING */}
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">
+          <h1
+            className="text-4xl text-white"
+            style={{ fontFamily: "var(--rm-font-script)" }}
+          >
             Good{" "}
             {new Date().getHours() < 12
               ? "morning"
@@ -324,7 +338,7 @@ export default function Home() {
               fontFamily: "var(--rm-font-mono)",
             }}
           >
-            your studio is open — what are you building today?
+            who are you making something with today?
           </p>
         </div>
         <button
@@ -336,7 +350,7 @@ export default function Home() {
             (e.currentTarget.style.background = "var(--rm-purple)")
           }
         >
-          <Zap size={14} /> Start a Mix
+          <Zap size={14} /> Post a Project
         </button>
       </div>
 
@@ -344,7 +358,7 @@ export default function Home() {
       <div className="flex gap-3 flex-wrap">
         {[
           {
-            label: "mixes on platform",
+            label: "projects on platform",
             value: stats.projects,
             icon: <Music2 size={13} color="#C084FC" />,
             onClick: () => navigate("/projects"),
@@ -436,7 +450,7 @@ export default function Home() {
 
       {/* TWO COLUMN DISCOVERY */}
       <div className="grid lg:grid-cols-2 gap-4">
-        {/* LEFT — Mixes */}
+        {/* LEFT — Projects */}
         <div
           className="rounded-2xl overflow-hidden"
           style={{
@@ -448,7 +462,9 @@ export default function Home() {
             <div className="flex items-center gap-2">
               <Music2 size={15} color="#C084FC" />
               <h2 className="font-semibold text-white text-sm">
-                {activeGenre === "All" ? "Open Mixes" : `${activeGenre} Mixes`}
+                {activeGenre === "All"
+                  ? "Open Projects"
+                  : `${activeGenre} Projects`}
               </h2>
             </div>
             <button
@@ -480,7 +496,7 @@ export default function Home() {
                   className="text-sm"
                   style={{ color: "var(--rm-text-muted)" }}
                 >
-                  No {activeGenre} mixes yet
+                  No {activeGenre} projects yet
                 </p>
                 <button
                   onClick={() => navigate("/projects")}
@@ -608,6 +624,71 @@ export default function Home() {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* COLLAB TEASER — surfaces open collaboration posts on the home feed */}
+      <div
+        className="rounded-2xl overflow-hidden"
+        style={{
+          background: "var(--rm-bg-card)",
+          border: "1px solid var(--rm-border)",
+        }}
+      >
+        <div className="flex items-center justify-between px-5 pt-5 pb-3">
+          <div className="flex items-center gap-2">
+            <Handshake size={15} color="var(--rm-purple-light)" />
+            <h2 className="font-semibold text-white text-sm">
+              People looking to collaborate
+            </h2>
+          </div>
+          <button
+            onClick={() => navigate("/collab")}
+            className="flex items-center gap-1 text-xs transition-colors"
+            style={{
+              color: "var(--rm-purple-light)",
+              fontFamily: "var(--rm-font-mono)",
+            }}
+          >
+            all <ArrowRight size={11} />
+          </button>
+        </div>
+
+        <div className="px-5 pb-5">
+          {collabLoading ? (
+            <div className="grid md:grid-cols-3 gap-3">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="h-48 rounded-xl animate-pulse"
+                  style={{ background: "rgba(255,255,255,0.03)" }}
+                />
+              ))}
+            </div>
+          ) : collabPosts.length === 0 ? (
+            <div className="py-10 text-center">
+              <p className="text-sm" style={{ color: "var(--rm-text-muted)" }}>
+                No open collab posts right now
+              </p>
+              <button
+                onClick={() => navigate("/collab")}
+                className="mt-2 text-xs"
+                style={{ color: "var(--rm-purple-light)" }}
+              >
+                post what you're looking for →
+              </button>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-3">
+              {collabPosts.map((post) => (
+                <CollabCard
+                  key={post._id}
+                  post={post}
+                  onOpen={(p) => navigate(`/collab/${p._id}`)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

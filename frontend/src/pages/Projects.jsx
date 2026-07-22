@@ -130,8 +130,8 @@ export default function Projects() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Open Mixes"
-        subtitle={`${total} mix${total === 1 ? "" : "es"} on the platform`}
+        title="Projects"
+        subtitle={`${total} project${total === 1 ? "" : "s"} on the platform`}
         action={
           <button
             onClick={() => setIsModalOpen(true)}
@@ -143,7 +143,7 @@ export default function Projects() {
             }
           >
             <Plus size={18} />
-            Start a Mix
+            Post a Project
           </button>
         }
       />
@@ -162,7 +162,7 @@ export default function Projects() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            placeholder="search mixes, genres, ideas..."
+            placeholder="search projects, genres, ideas..."
             className="w-full pl-11 pr-4 py-3 rounded-2xl outline-none"
             style={{
               background: "var(--rm-bg-card)",
@@ -361,7 +361,9 @@ export default function Projects() {
           }}
         >
           <p className="text-sm" style={{ color: "var(--rm-text-primary)" }}>
-            {isFiltering ? "No mixes match those filters" : "No mixes yet"}
+            {isFiltering
+              ? "No projects match those filters"
+              : "No projects yet"}
           </p>
           <p
             className="text-xs mt-1"

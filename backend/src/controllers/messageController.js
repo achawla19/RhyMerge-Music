@@ -105,6 +105,29 @@ export const persistMessage = async ({
 
   let conversation = await Conversation.findOne({ participantsKey });
   if (!conversation) {
+    // Only gate the START of a new conversation — someone who already has
+    // an existing thread with you (from back when you were open to it, or
+    // from before you tightened this setting) can still reply. "Who can
+    // message you" is about fielding new contact, not retroactively
+    // cutting off conversations you were already part of.
+    const recipient = await User.findById(recipientId).select(
+      "preferences.privacy connections",
+    );
+    const permission =
+      recipient?.preferences?.privacy?.messagePermission || "everyone";
+
+    if (permission === "nobody") {
+      throw new Error("This person isn't accepting new messages right now");
+    }
+    if (permission === "connections") {
+      const isConnection = recipient.connections.some(
+        (c) => c.toString() === senderId,
+      );
+      if (!isConnection) {
+        throw new Error("This person only accepts messages from connections");
+      }
+    }
+
     conversation = await Conversation.create({
       participants: [senderId, recipientId],
       participantsKey,

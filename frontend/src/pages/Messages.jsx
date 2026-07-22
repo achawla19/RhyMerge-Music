@@ -11,10 +11,12 @@ import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import { useMessages } from "../context/MessagesContext";
 import { getMessagesWithUser } from "../api/messages";
+import { useToast } from "../components/ui/Toast";
 
 const Messages = () => {
   const { user } = useAuth();
   const { socket, isOnline } = useSocket();
+  const toast = useToast();
   const {
     conversations,
     loaded: loadingListDone,
@@ -151,12 +153,12 @@ const Messages = () => {
         "send_message",
         { recipientId: activeUser._id, text, attachment },
         (res) => {
-          if (res?.error) console.error(res.error);
+          if (res?.error) toast.error(res.error);
         },
       );
       socket.emit("stop_typing", { recipientId: activeUser._id });
     },
-    [socket, activeUser],
+    [socket, activeUser, toast],
   );
 
   const handleTypingChange = useCallback(

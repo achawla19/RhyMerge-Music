@@ -57,96 +57,27 @@ const AmbientMesh = () => (
         animation: "rmDrift3 40s ease-in-out infinite",
       }}
     />
+    <div
+      className="absolute"
+      style={{
+        top: "68%",
+        left: "8%",
+        width: 500,
+        height: 500,
+        borderRadius: "50%",
+        background: "rgba(240,180,41,0.09)",
+        filter: "blur(170px)",
+        animation: "rmDrift2 32s ease-in-out infinite reverse",
+      }}
+    />
   </div>
 );
-
-const TICKER_ITEMS = [
-  "🎛️  New producer joined from Chennai",
-  "🔀  Merge accepted — 2 stems are now one",
-  "🎤  Zara K. dropped a vocal hook in D minor",
-  '🔥  "Raag × Trap" is trending this week',
-  "🎸  12 open mixes need a guitarist right now",
-  "🤝  3 new sync suggestions waiting for you",
-  "🚀  Midnight Protocol EP crossed 10k plays",
-  "🎹  New Lo-Fi collab looking for a pianist",
-];
-
-const LiveTicker = () => {
-  const items = [...TICKER_ITEMS, ...TICKER_ITEMS];
-  return (
-    <div
-      className="overflow-hidden flex items-center flex-shrink-0"
-      style={{
-        height: 30,
-        background: "rgba(124,58,237,0.06)",
-        borderBottom: "1px solid rgba(124,58,237,0.12)",
-      }}
-    >
-      <div
-        className="flex items-center gap-1.5 px-3 flex-shrink-0 h-full"
-        style={{
-          borderRight: "1px solid rgba(124,58,237,0.2)",
-          background: "rgba(124,58,237,0.1)",
-        }}
-      >
-        <span
-          style={{
-            width: 6,
-            height: 6,
-            borderRadius: "50%",
-            background: "var(--rm-purple-light)",
-            display: "inline-block",
-            animation: "rmPulse 1.4s ease-in-out infinite",
-          }}
-        />
-        <span
-          style={{
-            fontFamily: "var(--rm-font-mono)",
-            fontSize: 9,
-            fontWeight: 600,
-            letterSpacing: "0.2em",
-            color: "var(--rm-purple-light)",
-            textTransform: "uppercase",
-          }}
-        >
-          live
-        </span>
-      </div>
-      <div className="flex-1 overflow-hidden">
-        <div
-          style={{
-            display: "flex",
-            whiteSpace: "nowrap",
-            animation: "rmTicker 36s linear infinite",
-          }}
-        >
-          {items.map((item, i) => (
-            <span
-              key={i}
-              style={{
-                fontFamily: "var(--rm-font-mono)",
-                fontSize: 11,
-                color: "#A78BFA",
-                padding: "0 32px",
-                flexShrink: 0,
-              }}
-            >
-              {item}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const LayoutInner = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { track } = usePlayer();
   const { openProjectId, closePanel } = useProjectPanel();
   useNotifications();
-
-  console.log("MainLayout render — openProjectId:", openProjectId);
 
   return (
     <div
@@ -157,9 +88,7 @@ const LayoutInner = ({ children }) => {
 
       {/* TOP BAR */}
       <div className="relative z-30 flex-shrink-0">
-        <style>{`@keyframes rmTicker{from{transform:translateX(0)}to{transform:translateX(-50%)}}`}</style>
         <TopBar onMenuClick={() => setSidebarOpen(true)} />
-        <LiveTicker />
       </div>
 
       {/* BODY — sidebar | main | right panel */}

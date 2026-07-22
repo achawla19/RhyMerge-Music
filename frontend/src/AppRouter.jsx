@@ -18,12 +18,16 @@ import Settings from "./pages/Settings";
 import Messages from "./pages/Messages";
 import Projects from "./pages/Projects";
 import Library from "./pages/Library";
+import Collab from "./pages/Collab";
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ProjectDetails from "./pages/ProjectDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./layouts/MainLayout";
 import PageTransition, { trackNavigation } from "./components/PageTransition";
 import { useProjectPanel } from "./context/ProjectPanelContext";
+import { useAuth } from "./context/AuthContext";
 
 const NavigationTracker = () => {
   const location = useLocation();
@@ -35,22 +39,31 @@ const NavigationTracker = () => {
 };
 
 /**
- * When someone visits /projects/:id directly (or clicks a link),
- * store the ID in the panel context ref, navigate to /projects,
- * and the Projects page will consume + open it on mount.
+ * When someone visits /projects/:id directly (or clicks a link):
+ *  - Desktop (>=1280px, where the slide-in panel fits): store the ID in
+ *    the panel context ref, navigate to /projects, and the Projects page
+ *    consumes + opens it as a panel on mount.
+ *  - Tablet/phone: render the full ProjectDetails page directly. Redirecting
+ *    to /projects here would just bounce straight back to /projects/:id via
+ *    openPanel()'s own mobile fallback — an infinite loop between the two
+ *    routes. Rendering in place avoids that entirely.
  */
 const ProjectRedirect = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { setPendingId } = useProjectPanel();
+  const isDesktop = window.innerWidth >= 1280;
 
   useEffect(() => {
-    setPendingId(id);
-    navigate("/projects", { replace: true });
+    if (isDesktop) {
+      setPendingId(id);
+      navigate("/projects", { replace: true });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, isDesktop]);
 
-  return null;
+  if (isDesktop) return null;
+  return <ProjectDetails />;
 };
 
 const Wrap = ({ children }) => (
@@ -61,6 +74,26 @@ const Wrap = ({ children }) => (
   </ProtectedRoute>
 );
 
+/**
+ * "/" is public — logged-out visitors need a real marketing page to land
+ * on instead of getting bounced straight to /login. `user` hydrates
+ * synchronously from localStorage in AuthProvider, so this reads instantly
+ * with no loading flicker; ProtectedRoute (inside Wrap) still does the
+ * real server-side session check for anyone who does have a cached user,
+ * so a stale/expired cookie still correctly redirects to /login.
+ */
+const RootRoute = () => {
+  const { user } = useAuth();
+  if (user) {
+    return (
+      <Wrap>
+        <Home />
+      </Wrap>
+    );
+  }
+  return <Landing />;
+};
+
 const AppRouter = () => (
   <>
     <NavigationTracker />
@@ -68,14 +101,7 @@ const AppRouter = () => (
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
-      <Route
-        path="/"
-        element={
-          <Wrap>
-            <Home />
-          </Wrap>
-        }
-      />
+      <Route path="/" element={<RootRoute />} />
       <Route
         path="/community"
         element={
@@ -145,6 +171,22 @@ const AppRouter = () => (
         element={
           <Wrap>
             <Library />
+          </Wrap>
+        }
+      />
+      <Route
+        path="/collab"
+        element={
+          <Wrap>
+            <Collab />
+          </Wrap>
+        }
+      />
+      <Route
+        path="/collab/:id"
+        element={
+          <Wrap>
+            <Collab />
           </Wrap>
         }
       />

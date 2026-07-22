@@ -1,6 +1,6 @@
 import User from "../models/user.js";
 import Post from "../models/post.js";
-import { escapeRegex } from "../utils/sanitize.js";
+import { escapeRegex, stripHtml } from "../utils/sanitize.js";
 import { deleteFromCloudinary } from "../middleware/upload.js";
 
 // ── GET ALL (paginated) ───────────────────────────────────────────────────────
@@ -57,11 +57,25 @@ export const getUserByUsername = async (req, res) => {
 
     if (!user) return res.status(404).json({ msg: "User not found" });
 
+    const viewerId = req.user?.id;
+    const isOwner = viewerId && viewerId === user._id.toString();
+
+    if (!user.preferences?.privacy?.profileVisible && !isOwner) {
+      return res
+        .status(403)
+        .json({ msg: "This profile is private", private: true });
+    }
+
+    const userObj = user.toObject();
+    if (!isOwner && !user.preferences?.privacy?.showEmail) {
+      delete userObj.email;
+    }
+
     const postsCount = await Post.countDocuments({ author: user._id });
 
     return res.json({
       user: {
-        ...user.toObject(),
+        ...userObj,
         connectionsCount: user.connections.length,
         postsCount,
         projectsCount: 0, // filled in by separate /projects/user/:username query
@@ -86,6 +100,7 @@ export const updateMyProfile = async (req, res) => {
       certificates,
       experienceLevel,
       availability,
+      socials,
     } = req.body;
 
     const user = await User.findById(req.user.id);
@@ -98,15 +113,30 @@ export const updateMyProfile = async (req, res) => {
       user.username = username.trim();
     }
 
-    if (name !== undefined) user.name = name.trim();
+    if (name !== undefined) user.name = stripHtml(name).trim();
     if (role !== undefined) user.role = role;
-    if (bio !== undefined) user.bio = bio.slice(0, 500);
+    if (bio !== undefined) user.bio = stripHtml(bio).slice(0, 500);
     if (Array.isArray(genres)) user.genres = genres;
     if (location !== undefined) user.location = location;
     if (Array.isArray(instruments)) user.instruments = instruments;
     if (Array.isArray(certificates)) user.certificates = certificates;
     if (experienceLevel !== undefined) user.experienceLevel = experienceLevel;
     if (availability !== undefined) user.availability = availability;
+
+    if (socials !== undefined && typeof socials === "object") {
+      const SOCIAL_KEYS = [
+        "instagram",
+        "soundcloud",
+        "spotify",
+        "youtube",
+        "website",
+      ];
+      for (const key of SOCIAL_KEYS) {
+        if (typeof socials[key] === "string") {
+          user.socials[key] = stripHtml(socials[key]).trim().slice(0, 200);
+        }
+      }
+    }
 
     await user.save({ validateModifiedOnly: true });
 
@@ -142,6 +172,65 @@ export const uploadAvatar = async (req, res) => {
   } catch (err) {
     console.error("uploadAvatar:", err);
     res.status(500).json({ msg: "Failed to update avatar" });
+  }
+};
+
+// ── UPDATE PREFERENCES (appearance + notifications) ───────────────────────────
+export const updatePreferences = async (req, res) => {
+  try {
+    const { accentColor, notifications, privacy } = req.body;
+
+    const ALLOWED_COLORS = [
+      "#7C3AED",
+      "#EC4899",
+      "#3B82F6",
+      "#10B981",
+      "#F59E0B",
+    ];
+    const NOTIF_KEYS = ["email", "push", "connectionRequests", "messages"];
+    const MSG_PERMS = ["everyone", "connections", "nobody"];
+    const PROJECT_VIS = ["everyone", "connections", "nobody"];
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    if (accentColor !== undefined) {
+      if (!ALLOWED_COLORS.includes(accentColor)) {
+        return res.status(400).json({ msg: "Invalid accent color" });
+      }
+      user.preferences.accentColor = accentColor;
+    }
+
+    if (notifications !== undefined && typeof notifications === "object") {
+      for (const key of NOTIF_KEYS) {
+        if (typeof notifications[key] === "boolean") {
+          user.preferences.notifications[key] = notifications[key];
+        }
+      }
+    }
+
+    if (privacy !== undefined && typeof privacy === "object") {
+      if (typeof privacy.profileVisible === "boolean") {
+        user.preferences.privacy.profileVisible = privacy.profileVisible;
+      }
+      if (typeof privacy.showEmail === "boolean") {
+        user.preferences.privacy.showEmail = privacy.showEmail;
+      }
+      if (MSG_PERMS.includes(privacy.messagePermission)) {
+        user.preferences.privacy.messagePermission = privacy.messagePermission;
+      }
+      if (PROJECT_VIS.includes(privacy.projectVisibility)) {
+        user.preferences.privacy.projectVisibility = privacy.projectVisibility;
+      }
+    }
+
+    await user.save({ validateModifiedOnly: true });
+
+    const updated = await User.findById(user._id).select("-password");
+    return res.json({ user: updated });
+  } catch (err) {
+    console.error("updatePreferences:", err);
+    return res.status(500).json({ msg: "Failed to save preferences" });
   }
 };
 

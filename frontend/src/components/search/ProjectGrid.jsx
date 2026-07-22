@@ -20,7 +20,7 @@ const ProjectGrid = ({ projects }) => {
           border: "1px dashed var(--rm-purple-border)",
         }}
       >
-        <h3 className="text-lg font-semibold text-white">No mixes found</h3>
+        <h3 className="text-lg font-semibold text-white">No projects found</h3>
         <p
           className="mt-2 text-sm"
           style={{

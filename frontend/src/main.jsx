@@ -8,26 +8,31 @@ import { SocketProvider } from "./context/SocketContext.jsx";
 import { NotificationsProvider } from "./context/NotificationsContext.jsx";
 import { MessagesProvider } from "./context/MessagesContext.jsx";
 import { ProjectPanelProvider } from "./context/ProjectPanelContext.jsx";
-import "@fontsource/plus-jakarta-sans/400.css";
-import "@fontsource/plus-jakarta-sans/500.css";
-import "@fontsource/plus-jakarta-sans/600.css";
-import "@fontsource/plus-jakarta-sans/700.css";
+import { ToastProvider } from "./components/ui/Toast.jsx";
+import { ConfirmProvider } from "./components/ui/ConfirmDialog.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <SocketProvider>
-          <NotificationsProvider>
-            <MessagesProvider>
-              {/* ProjectPanelProvider needs BrowserRouter for useNavigate inside it */}
-              <ProjectPanelProvider>
-                <App />
-              </ProjectPanelProvider>
-            </MessagesProvider>
-          </NotificationsProvider>
-        </SocketProvider>
-      </AuthProvider>
+      {/* Toast + Confirm sit outermost — they have no dependency on auth/
+          socket state and every provider below them may need to surface
+          a toast or confirmation (e.g. auth errors, socket disconnects). */}
+      <ToastProvider>
+        <ConfirmProvider>
+          <AuthProvider>
+            <SocketProvider>
+              <NotificationsProvider>
+                <MessagesProvider>
+                  {/* ProjectPanelProvider needs BrowserRouter for useNavigate inside it */}
+                  <ProjectPanelProvider>
+                    <App />
+                  </ProjectPanelProvider>
+                </MessagesProvider>
+              </NotificationsProvider>
+            </SocketProvider>
+          </AuthProvider>
+        </ConfirmProvider>
+      </ToastProvider>
     </BrowserRouter>
   </StrictMode>,
 );

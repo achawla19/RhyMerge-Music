@@ -27,7 +27,12 @@ const inputStyle = {
   fontSize: 14,
 };
 
-const PasswordField = ({ value, onChange, placeholder }) => {
+const PasswordField = ({
+  value,
+  onChange,
+  placeholder,
+  autoComplete = "new-password",
+}) => {
   const [show, setShow] = useState(false);
   return (
     <div className="relative">
@@ -36,6 +41,8 @@ const PasswordField = ({ value, onChange, placeholder }) => {
         value={value}
         onChange={onChange}
         placeholder={placeholder}
+        autoComplete={autoComplete}
+        name={`rhymerge-${placeholder?.toLowerCase().replace(/\s+/g, "-")}`}
         style={inputStyle}
         onFocus={(e) =>
           (e.currentTarget.style.borderColor = "var(--rm-purple)")
@@ -122,7 +129,8 @@ export default function SecuritySection() {
     }
   };
 
-  const handleDeleteAccount = async () => {
+  const handleDeleteAccount = async (e) => {
+    e?.preventDefault();
     if (!deletePass) {
       setDelMsg({ type: "error", text: "Enter your password" });
       return;
@@ -176,7 +184,11 @@ export default function SecuritySection() {
         <p className="text-sm mb-4" style={{ color: "var(--rm-text-muted)" }}>
           Use a strong password of at least 8 characters.
         </p>
-        <form onSubmit={handleChangePassword} className="space-y-3 max-w-md">
+        <form
+          onSubmit={handleChangePassword}
+          className="space-y-3 max-w-md"
+          autoComplete="off"
+        >
           <PasswordField
             value={current}
             onChange={(e) => setCurrent(e.target.value)}
@@ -225,6 +237,7 @@ export default function SecuritySection() {
         </p>
         {!showDeleteBox ? (
           <button
+            type="button"
             onClick={() => setShowDeleteBox(true)}
             className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all"
             style={{
@@ -242,7 +255,9 @@ export default function SecuritySection() {
             Delete My Account
           </button>
         ) : (
-          <div
+          <form
+            onSubmit={handleDeleteAccount}
+            autoComplete="off"
             className="max-w-md p-4 rounded-xl space-y-3"
             style={{
               background: "rgba(248,113,113,0.06)",
@@ -256,11 +271,12 @@ export default function SecuritySection() {
               value={deletePass}
               onChange={(e) => setDeletePass(e.target.value)}
               placeholder="Your password"
+              autoComplete="off"
             />
             {delMsg && <Toast msg={delMsg.text} type={delMsg.type} />}
             <div className="flex gap-2">
               <button
-                onClick={handleDeleteAccount}
+                type="submit"
                 disabled={delLoading || !deletePass}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium disabled:opacity-40"
                 style={{ background: "#DC2626", color: "#fff" }}
@@ -269,6 +285,7 @@ export default function SecuritySection() {
                 {delLoading ? "Deleting..." : "Confirm Delete"}
               </button>
               <button
+                type="button"
                 onClick={() => {
                   setShowDeleteBox(false);
                   setDeletePass("");
@@ -284,7 +301,7 @@ export default function SecuritySection() {
                 Cancel
               </button>
             </div>
-          </div>
+          </form>
         )}
       </div>
     </div>

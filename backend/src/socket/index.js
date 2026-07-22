@@ -132,8 +132,8 @@ export const initSocket = (httpServer) => {
           io.to(`user:${userId}`).emit("receive_message", payload);
           callback?.({ success: true, message: payload });
         } catch (err) {
-          console.error("send_message error:", err);
-          callback?.({ error: "Failed to send message" });
+          console.error("send_message error:", err.message);
+          callback?.({ error: err.message || "Failed to send message" });
         }
       },
     );

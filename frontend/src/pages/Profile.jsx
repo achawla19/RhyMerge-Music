@@ -8,13 +8,14 @@ import {
   Check,
   ArrowUpDown,
   FolderOpen,
+  Lock,
 } from "lucide-react";
 
 import AvailabilityBadge from "../components/profile/AvailabilityBadge";
 import SocialLinks from "../components/profile/SocialLinks";
 import ConnectButton from "../components/profile/ConnectButton";
 import AboutTab from "../components/profile/AboutTab";
-import PortfolioTab from "../components/profile/PortfolioTab";
+import AudioReelTab from "../components/profile/AudioReelTab";
 import ProjectCard from "../components/projects/ProjectCard";
 import EditProfileModal from "../components/profile/EditProfileModal";
 
@@ -23,7 +24,7 @@ import { getUserByUsername } from "../api/profile";
 import { getProjectsByUsername } from "../api/projects";
 import { uploadAvatar } from "../api/user";
 
-const TABS = ["About", "Mixes", "Portfolio"];
+const TABS = ["About", "Projects", "Audio Reel"];
 
 export default function Profile() {
   const { username } = useParams();
@@ -69,20 +70,23 @@ export default function Profile() {
       </div>
     );
 
-  if (error || !profileData)
+  if (error || !profileData) {
+    const isPrivate = error?.toLowerCase().includes("private");
     return (
-      <div className="flex items-center justify-center py-32">
+      <div className="flex flex-col items-center justify-center py-32 gap-3">
+        {isPrivate && <Lock size={22} color="var(--rm-text-muted)" />}
         <span
           style={{
             fontFamily: "var(--rm-font-mono)",
             fontSize: 13,
-            color: "#F87171",
+            color: isPrivate ? "var(--rm-text-muted)" : "#F87171",
           }}
         >
           {error || "Profile not found"}
         </span>
       </div>
     );
+  }
 
   const isOwnProfile = user?.username === profileData.username;
   const sortedProjects = [...projects].sort((a, b) => {
@@ -315,7 +319,7 @@ export default function Profile() {
           >
             {[
               { label: "syncs", val: profileData.connectionsCount || 0 },
-              { label: "mixes", val: projects.length },
+              { label: "projects", val: projects.length },
               { label: "experience", val: profileData.experienceLevel || "—" },
             ].map(({ label, val }) => (
               <div key={label}>
@@ -371,7 +375,7 @@ export default function Profile() {
       {/* ── TAB CONTENT ── */}
       {activeTab === "About" && <AboutTab profileData={profileData} />}
 
-      {activeTab === "Mixes" && (
+      {activeTab === "Projects" && (
         <div
           className="rounded-2xl p-6"
           style={{
@@ -380,7 +384,7 @@ export default function Profile() {
           }}
         >
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-white font-semibold">Mixes</h2>
+            <h2 className="text-white font-semibold">Projects</h2>
             <button
               onClick={() =>
                 setSortOrder((s) => (s === "newest" ? "oldest" : "newest"))
@@ -398,7 +402,7 @@ export default function Profile() {
           {sortedProjects.length === 0 ? (
             <div className="py-16 text-center">
               <FolderOpen size={32} color="#6B7280" className="mx-auto mb-3" />
-              <p className="text-sm text-white">No mixes yet</p>
+              <p className="text-sm text-white">No projects yet</p>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 gap-4">
@@ -410,8 +414,8 @@ export default function Profile() {
         </div>
       )}
 
-      {activeTab === "Portfolio" && (
-        <PortfolioTab projects={projects} isOwnProfile={isOwnProfile} />
+      {activeTab === "Audio Reel" && (
+        <AudioReelTab username={username} isOwnProfile={isOwnProfile} />
       )}
 
       {isOwnProfile && (

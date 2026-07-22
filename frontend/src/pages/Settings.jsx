@@ -44,9 +44,9 @@ export default function Settings() {
       {/*
         NOTE: the original page had a global "Save Changes" button here that
         only ran a fake setTimeout — it never called any API. Each section
-        below manages its own real save action instead (Account + Profile
-        actually persist to the backend; the rest are clearly labeled as
-        not-yet-supported rather than faking success).
+        below manages its own save action against the backend instead
+        (Account, Profile, Appearance, and Notifications all persist for
+        real now; Privacy/Security have their own dedicated flows).
       */}
       <PageHeader
         title="Settings"

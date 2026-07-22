@@ -324,7 +324,7 @@ export default function Search() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="search creators, mixes, genres..."
+            placeholder="search creators, projects, genres..."
             className="w-full pl-11 pr-10 py-3 rounded-2xl outline-none"
             style={{
               background: "var(--rm-bg-card)",
@@ -520,7 +520,7 @@ export default function Search() {
               border: "1px solid var(--rm-border)",
             }}
           >
-            {["Creators", "Mixes"].map((t) => (
+            {["Creators", "Projects"].map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -581,7 +581,7 @@ export default function Search() {
             </>
           ) : (
             <>
-              <SectionHead title="Mixes" count={projects.length} />
+              <SectionHead title="Projects" count={projects.length} />
               {projects.length === 0 ? (
                 <p
                   className="text-sm py-12 text-center"
@@ -590,7 +590,7 @@ export default function Search() {
                     fontFamily: "var(--rm-font-mono)",
                   }}
                 >
-                  no mixes found
+                  no projects found
                 </p>
               ) : (
                 <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -674,7 +674,7 @@ export default function Search() {
                     fontFamily: "var(--rm-font-mono)",
                   }}
                 >
-                  no {activeGenre} mixes yet
+                  no {activeGenre} projects yet
                 </p>
               ) : (
                 <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -685,10 +685,10 @@ export default function Search() {
               ))}
           </div>
 
-          {/* Featured mixes */}
+          {/* Featured projects */}
           {!exploreLoading && featured.length > 0 && (
             <div>
-              <SectionHead title="Featured Mixes" />
+              <SectionHead title="Featured Projects" />
               <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
                 {featured.map((p) => (
                   <ProjectCard key={p._id} project={p} />

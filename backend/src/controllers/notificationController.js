@@ -8,6 +8,7 @@ export const getNotifications = async (req, res) => {
     const notifications = await Notification.find({ recipient: req.user.id })
       .populate("sender", "username avatar")
       .populate("project", "title")
+      .populate("collabPost", "title")
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);

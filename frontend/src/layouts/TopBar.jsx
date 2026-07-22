@@ -24,6 +24,9 @@ const TYPE_STYLE = {
   request_rejected: { bg: "rgba(248,113,113,0.10)", dot: "#F87171" },
   connection_request: { bg: "rgba(124,58,237,0.12)", dot: "#C084FC" },
   connection_accepted: { bg: "rgba(16,185,129,0.10)", dot: "#34D399" },
+  collab_interest: { bg: "rgba(124,58,237,0.12)", dot: "#C084FC" },
+  collab_accepted: { bg: "rgba(16,185,129,0.10)", dot: "#34D399" },
+  collab_declined: { bg: "rgba(248,113,113,0.10)", dot: "#F87171" },
   system: { bg: "rgba(96,165,250,0.10)", dot: "#60A5FA" },
 };
 
@@ -68,6 +71,35 @@ const notifText = (n) => {
             {n.sender?.username}
           </span>{" "}
           accepted your sync
+        </>
+      );
+    case "collab_interest":
+      return (
+        <>
+          <span className="font-semibold">{n.sender?.username}</span> wants to
+          collaborate on{" "}
+          <span className="font-semibold" style={{ color: "#C084FC" }}>
+            {n.collabPost?.title}
+          </span>
+        </>
+      );
+    case "collab_accepted":
+      return (
+        <>
+          <span className="font-semibold" style={{ color: "#34D399" }}>
+            {n.sender?.username}
+          </span>{" "}
+          accepted your collab request
+        </>
+      );
+    case "collab_declined":
+      return (
+        <>
+          Your collab request on{" "}
+          <span className="font-semibold" style={{ color: "#F87171" }}>
+            {n.collabPost?.title}
+          </span>{" "}
+          wasn't a fit this time
         </>
       );
     case "system":
@@ -368,8 +400,8 @@ export default function TopBar({ onMenuClick }) {
 
           <div style={{ borderTop: "1px solid rgba(124,58,237,0.15)" }}>
             <button
-              onClick={() => {
-                logout();
+              onClick={async () => {
+                await logout();
                 window.location.href = "/login";
               }}
               className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-all"

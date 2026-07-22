@@ -34,8 +34,8 @@ const RightPanel = ({ onTagClick }) => {
             className="text-xs mb-4"
             style={{ color: "var(--rm-text-secondary)", lineHeight: 1.6 }}
           >
-            Unlock unlimited mixes, priority sync requests, and advanced stem
-            analytics.
+            Unlock unlimited projects, priority sync requests, and advanced
+            portfolio analytics.
           </p>
           <button
             onClick={() => setShowProModal(true)}

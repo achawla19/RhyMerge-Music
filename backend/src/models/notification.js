@@ -23,6 +23,10 @@ const notificationSchema = new mongoose.Schema(
         "connection_request",
         "connection_accepted",
 
+        "collab_interest",
+        "collab_accepted",
+        "collab_declined",
+
         "message",
 
         "recommendation",
@@ -56,6 +60,11 @@ const notificationSchema = new mongoose.Schema(
     project: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
+    },
+
+    collabPost: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CollabPost",
     },
 
     isRead: {

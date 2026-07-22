@@ -77,6 +77,35 @@ const userSchema = new mongoose.Schema(
 
     savedProjects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Project" }],
 
+    // User preferences — Appearance + Notifications settings
+    preferences: {
+      accentColor: {
+        type: String,
+        enum: ["#7C3AED", "#EC4899", "#3B82F6", "#10B981", "#F59E0B"],
+        default: "#7C3AED",
+      },
+      notifications: {
+        email: { type: Boolean, default: true },
+        push: { type: Boolean, default: false },
+        connectionRequests: { type: Boolean, default: true },
+        messages: { type: Boolean, default: true },
+      },
+      privacy: {
+        profileVisible: { type: Boolean, default: true },
+        showEmail: { type: Boolean, default: false },
+        messagePermission: {
+          type: String,
+          enum: ["everyone", "connections", "nobody"],
+          default: "everyone",
+        },
+        projectVisibility: {
+          type: String,
+          enum: ["everyone", "connections", "nobody"],
+          default: "everyone",
+        },
+      },
+    },
+
     // Soft-delete
     deletedAt: { type: Date, default: null },
   },
@@ -85,5 +114,11 @@ const userSchema = new mongoose.Schema(
 
 userSchema.index({ role: 1 });
 userSchema.index({ genres: 1 });
+
+userSchema.pre(/^find/, function () {
+  if (!this.getFilter().deletedAt) {
+    this.where({ deletedAt: null });
+  }
+});
 
 export default mongoose.model("User", userSchema);

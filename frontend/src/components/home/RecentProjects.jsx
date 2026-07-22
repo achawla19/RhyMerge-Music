@@ -61,7 +61,7 @@ export default function RecentProjects() {
       }}
     >
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-base font-semibold text-white">Recent Mixes</h2>
+        <h2 className="text-base font-semibold text-white">Recent Projects</h2>
         <button
           onClick={() => navigate("/projects")}
           className="flex items-center gap-1 text-xs transition-colors"
@@ -92,7 +92,7 @@ export default function RecentProjects() {
             fontFamily: "var(--rm-font-mono)",
           }}
         >
-          no mixes yet — start one
+          no projects yet — post one
         </p>
       ) : (
         <div className="space-y-3">

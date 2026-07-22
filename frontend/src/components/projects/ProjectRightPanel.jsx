@@ -34,6 +34,8 @@ import { getProjectFiles } from "../../api/projectFiles";
 import ProjectFiles from "./ProjectFiles";
 import ProjectRequests from "./ProjectRequests";
 import Select from "../ui/Select";
+import { useToast } from "../ui/Toast";
+import { useConfirm } from "../ui/ConfirmDialog";
 
 const STATUS_OPTS = [
   "Planning",
@@ -70,7 +72,7 @@ const statusStyle = {
   },
 };
 
-const TABS = ["Overview", "Stems", "Team"];
+const TABS = ["Overview", "Files", "Team"];
 
 // ── Edit Modal ────────────────────────────────────────────────────────────────
 const EditModal = ({ project, onClose, onSaved }) => {
@@ -336,6 +338,8 @@ const EditModal = ({ project, onClose, onSaved }) => {
 export default function ProjectRightPanel({ projectId, onClose }) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const toast = useToast();
+  const confirm = useConfirm();
 
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -438,13 +442,21 @@ export default function ProjectRightPanel({ projectId, onClose }) {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm(`Delete "${project.title}"?`)) return;
+    const ok = await confirm({
+      title: `Delete "${project.title}"?`,
+      message:
+        "This will remove the project for all collaborators. This cannot be undone.",
+      confirmText: "Delete",
+      tone: "danger",
+    });
+    if (!ok) return;
     setDeleting(true);
     try {
       await deleteProject(projectId);
+      toast.success("Project deleted");
       onClose();
     } catch (err) {
-      alert(err.message || "Failed to delete");
+      toast.error(err.message || "Failed to delete project");
       setDeleting(false);
     }
   };
@@ -697,10 +709,10 @@ export default function ProjectRightPanel({ projectId, onClose }) {
                   }
             }
           >
-            {tab === "Stems" && <Layers size={11} />}
+            {tab === "Files" && <Layers size={11} />}
             {tab === "Team" && <Users size={11} />}
             {tab}
-            {tab === "Stems" && isMember && (
+            {tab === "Files" && isMember && (
               <span
                 className="text-[8px] px-1 py-0.5 rounded"
                 style={{
@@ -834,7 +846,7 @@ export default function ProjectRightPanel({ projectId, onClose }) {
         )}
 
         {/* ── STEMS ── */}
-        {activeTab === "Stems" && (
+        {activeTab === "Files" && (
           <div className="px-4 pb-4">
             <ProjectFiles project={project} canUpload={isMember} compact />
           </div>
@@ -935,11 +947,25 @@ export default function ProjectRightPanel({ projectId, onClose }) {
                   <button
                     onClick={async (e) => {
                       e.stopPropagation();
-                      if (!window.confirm(`Remove ${member.username}?`)) return;
-                      const { removeCollaborator } =
-                        await import("../../api/projects");
-                      await removeCollaborator(project._id, member._id);
-                      loadProject();
+                      const ok = await confirm({
+                        title: `Remove ${member.username}?`,
+                        message:
+                          "They'll lose access to this project's files and chat.",
+                        confirmText: "Remove",
+                        tone: "danger",
+                      });
+                      if (!ok) return;
+                      try {
+                        const { removeCollaborator } =
+                          await import("../../api/projects");
+                        await removeCollaborator(project._id, member._id);
+                        toast.success(
+                          `${member.username} removed from project`,
+                        );
+                        loadProject();
+                      } catch (err) {
+                        toast.error(err.message || "Failed to remove member");
+                      }
                     }}
                     className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all"
                     style={{

@@ -35,3 +35,16 @@ export const unsyncConnection = (userId) =>
     method: "DELETE",
     credentials: "include",
   }).then(handle);
+
+export const updatePreferences = (prefs) =>
+  fetch(`${API}/api/users/preferences`, {
+    method: "PUT",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(prefs),
+  }).then(handle);
+
+export const getUserAudioReel = (username) =>
+  fetch(`${API}/api/users/${username}/audio-reel`, {
+    credentials: "include",
+  }).then(handle);

@@ -12,14 +12,14 @@ import { getProjectsByUsername } from "../api/projects";
 import { useAuth } from "../context/AuthContext";
 import ProjectCard from "../components/projects/ProjectCard";
 
-const TABS = ["Saved Mixes", "My Mixes"];
+const TABS = ["Saved Projects", "My Projects"];
 
 export default function Library() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [tab, setTab] = useState("Saved Mixes");
+  const [tab, setTab] = useState("Saved Projects");
   const [saved, setSaved] = useState([]);
-  const [myMixes, setMyMixes] = useState([]);
+  const [myProjects, setMyProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [unsaving, setUnsaving] = useState(null);
 
@@ -31,7 +31,7 @@ export default function Library() {
     ])
       .then(([savedData, myData]) => {
         setSaved(Array.isArray(savedData) ? savedData : []);
-        setMyMixes(Array.isArray(myData) ? myData : myData?.projects || []);
+        setMyProjects(Array.isArray(myData) ? myData : myData?.projects || []);
       })
       .finally(() => setLoading(false));
   }, [user?.username]);
@@ -49,7 +49,7 @@ export default function Library() {
     }
   };
 
-  const projects = tab === "Saved Mixes" ? saved : myMixes;
+  const projects = tab === "Saved Projects" ? saved : myProjects;
 
   return (
     <div className="space-y-6">
@@ -66,7 +66,12 @@ export default function Library() {
             <LibraryIcon size={18} color="#C084FC" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">Your Library</h1>
+            <h1
+              className="text-3xl text-white"
+              style={{ fontFamily: "var(--rm-font-script)" }}
+            >
+              Your Library
+            </h1>
             <p
               className="text-xs mt-0.5"
               style={{
@@ -74,7 +79,7 @@ export default function Library() {
                 fontFamily: "var(--rm-font-mono)",
               }}
             >
-              {saved.length} saved · {myMixes.length} created
+              {saved.length} saved · {myProjects.length} created
             </p>
           </div>
         </div>
@@ -133,10 +138,10 @@ export default function Library() {
             border: "1px dashed var(--rm-purple-border)",
           }}
         >
-          {tab === "Saved Mixes" ? (
+          {tab === "Saved Projects" ? (
             <>
               <Bookmark size={28} color="#C084FC" className="mx-auto mb-3" />
-              <p className="text-sm text-white">No saved mixes yet</p>
+              <p className="text-sm text-white">No saved projects yet</p>
               <p
                 className="text-xs mt-1"
                 style={{
@@ -144,20 +149,20 @@ export default function Library() {
                   fontFamily: "var(--rm-font-mono)",
                 }}
               >
-                tap the bookmark on any mix to save it here
+                tap the bookmark on any project to save it here
               </p>
               <button
                 onClick={() => navigate("/projects")}
                 className="mt-4 px-5 py-2 rounded-xl text-sm font-medium text-white"
                 style={{ background: "var(--rm-purple)" }}
               >
-                Browse Mixes
+                Browse Projects
               </button>
             </>
           ) : (
             <>
               <Music2 size={28} color="#C084FC" className="mx-auto mb-3" />
-              <p className="text-sm text-white">No mixes created yet</p>
+              <p className="text-sm text-white">No projects created yet</p>
               <p
                 className="text-xs mt-1"
                 style={{
@@ -165,14 +170,14 @@ export default function Library() {
                   fontFamily: "var(--rm-font-mono)",
                 }}
               >
-                start your first mix and it'll appear here
+                post your first project and it'll appear here
               </p>
               <button
                 onClick={() => navigate("/projects")}
                 className="mt-4 px-5 py-2 rounded-xl text-sm font-medium text-white"
                 style={{ background: "var(--rm-purple)" }}
               >
-                Start a Mix
+                Post a Project
               </button>
             </>
           )}
@@ -182,7 +187,7 @@ export default function Library() {
           {projects.map((project) => (
             <div key={project._id} className="relative group">
               <ProjectCard project={project} />
-              {tab === "Saved Mixes" && (
+              {tab === "Saved Projects" && (
                 <button
                   onClick={(e) => handleUnsave(e, project._id)}
                   disabled={unsaving === project._id}
