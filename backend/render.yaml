@@ -1,0 +1,44 @@
+# Render Blueprint — lets you spin up the backend service with most
+# settings pre-filled instead of clicking through the dashboard manually.
+# In Render: New > Blueprint > point it at this repo, it'll read this file.
+#
+# Double-check `buildCommand`/`startCommand` against the actual "scripts"
+# in backend/package.json before deploying — these are the standard
+# convention but worth confirming against your own package.json.
+#
+# Every var below is marked sync: false, meaning Render will prompt you
+# to paste each value in during setup rather than storing secrets in this
+# file (which gets committed to git) — fill them in from your own .env,
+# using backend/.env.example as the checklist of what's needed.
+
+services:
+  - type: web
+    name: rhymerge-backend
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node src/server.js
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: MESSAGE_ENCRYPTION_KEY
+        sync: false
+      - key: CLOUDINARY_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: CLIENT_URL
+        sync: false
