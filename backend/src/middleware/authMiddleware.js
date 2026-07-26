@@ -2,7 +2,11 @@ import jwt from "jsonwebtoken";
 
 export const protect = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
+    const token =
+      req.cookies.token ||
+      (req.headers.authorization?.startsWith("Bearer ")
+        ? req.headers.authorization.slice(7)
+        : null);
 
     if (!token) {
       return res.status(401).json({
@@ -33,7 +37,11 @@ export const protect = async (req, res, next) => {
  */
 export const optionalAuth = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
+    const token =
+      req.cookies.token ||
+      (req.headers.authorization?.startsWith("Bearer ")
+        ? req.headers.authorization.slice(7)
+        : null);
     if (token) {
       req.user = jwt.verify(token, process.env.JWT_SECRET);
     }

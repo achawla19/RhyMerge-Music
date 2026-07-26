@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import { logoutUser } from "../api/auth";
+import { setAuthToken } from "../utils/authToken";
 
 const AuthContext = createContext();
 
@@ -30,6 +31,7 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
     if (token) setMemoryToken(token);
+    setAuthToken(token);
   };
 
   const updateUser = (userData) => {
@@ -58,6 +60,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem("user");
     setMemoryToken(null);
+    setAuthToken(null);
   };
 
   return (

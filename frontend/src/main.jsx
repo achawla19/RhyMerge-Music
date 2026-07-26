@@ -11,6 +11,28 @@ import { ProjectPanelProvider } from "./context/ProjectPanelContext.jsx";
 import { ToastProvider } from "./components/ui/Toast.jsx";
 import { ConfirmProvider } from "./components/ui/ConfirmDialog.jsx";
 
+import { getAuthToken } from "./utils/authToken";
+
+// Safari's Intelligent Tracking Prevention (ITP) restricts cross-domain
+// cookies on iOS — since this app runs on separate Vercel/Render domains,
+// that means the httpOnly session cookie can silently fail to be sent on
+// iPhone (Safari AND Chrome, since Apple requires every iOS browser to
+// use WebKit). Patching fetch here, once, to also send the token as an
+// Authorization header covers every API call in the app automatically —
+// the backend accepts either the cookie or this header, so nothing
+// breaks on browsers where the cookie works fine.
+const originalFetch = window.fetch;
+window.fetch = (input, init = {}) => {
+  const token = getAuthToken();
+  if (token) {
+    init.headers = {
+      ...(init.headers || {}),
+      Authorization: `Bearer ${token}`,
+    };
+  }
+  return originalFetch(input, init);
+};
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
