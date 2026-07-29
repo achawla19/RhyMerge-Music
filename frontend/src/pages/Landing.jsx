@@ -67,7 +67,7 @@ const ConstellationField = ({ opacity = 0.85 }) => {
           const b = nodes[j];
           const d = Math.hypot(a.x - b.x, a.y - b.y);
           if (d < LINK_DIST) {
-            ctx.strokeStyle = `rgba(216, 180, 254, ${(1 - d / LINK_DIST) * 0.4})`;
+            ctx.strokeStyle = `rgba(249, 87, 111, ${(1 - d / LINK_DIST) * 0.35})`;
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
@@ -77,7 +77,7 @@ const ConstellationField = ({ opacity = 0.85 }) => {
         }
       }
       for (const n of nodes) {
-        ctx.fillStyle = "rgba(226, 200, 255, 0.85)";
+        ctx.fillStyle = "rgba(255, 122, 142, 0.8)";
         ctx.beginPath();
         ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
         ctx.fill();
@@ -180,8 +180,8 @@ const CTAButton = ({ children, onClick, variant = "primary", size = "md" }) => {
   const styles =
     variant === "primary"
       ? {
-          background: "linear-gradient(135deg, #8B5CF6, #E879F9 55%, #F0B429)",
-          color: "#1a0a2e",
+          background: "linear-gradient(135deg, #F9576F, #FF7A8E 55%, #FFB84D)",
+          color: "#fff",
         }
       : {
           background: "rgba(255,255,255,0.04)",
@@ -196,9 +196,9 @@ const CTAButton = ({ children, onClick, variant = "primary", size = "md" }) => {
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = "translateY(-2px)";
         e.currentTarget.style.boxShadow =
-          variant === "primary" ? "0 12px 32px rgba(192,132,252,0.35)" : "none";
+          variant === "primary" ? "0 12px 32px rgba(249, 87, 111, 0.4)" : "none";
         if (variant !== "primary")
-          e.currentTarget.style.borderColor = "var(--rm-purple-light)";
+          e.currentTarget.style.borderColor = "var(--rm-coral-light)";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = "translateY(0)";
@@ -281,7 +281,7 @@ const Landing = () => {
             width: 800,
             height: 800,
             background:
-              "radial-gradient(circle, rgba(139,92,246,0.2), transparent 65%)",
+              "radial-gradient(circle, rgba(249, 87, 111, 0.18), transparent 65%)",
           }}
         />
         <AmbientGlow
@@ -291,7 +291,7 @@ const Landing = () => {
             width: 650,
             height: 650,
             background:
-              "radial-gradient(circle, rgba(240,180,41,0.11), transparent 65%)",
+              "radial-gradient(circle, rgba(255, 122, 142, 0.1), transparent 65%)",
           }}
         />
         <AmbientGlow
@@ -301,7 +301,7 @@ const Landing = () => {
             width: 700,
             height: 700,
             background:
-              "radial-gradient(circle, rgba(232,121,249,0.13), transparent 65%)",
+              "radial-gradient(circle, rgba(249, 87, 111, 0.12), transparent 65%)",
           }}
         />
         <AmbientGlow
@@ -311,7 +311,7 @@ const Landing = () => {
             width: 750,
             height: 750,
             background:
-              "radial-gradient(circle, rgba(139,92,246,0.15), transparent 65%)",
+              "radial-gradient(circle, rgba(255, 122, 142, 0.14), transparent 65%)",
           }}
         />
         <AmbientGlow
@@ -321,7 +321,7 @@ const Landing = () => {
             width: 600,
             height: 600,
             background:
-              "radial-gradient(circle, rgba(240,180,41,0.1), transparent 65%)",
+              "radial-gradient(circle, rgba(249, 87, 111, 0.1), transparent 65%)",
           }}
         />
       </div>
@@ -413,7 +413,7 @@ const Landing = () => {
                   fontFamily: "var(--rm-font-script)",
                   fontSize: "1.3em",
                   background:
-                    "linear-gradient(135deg, #D8B4FE, #F0ABFC 45%, #F0B429)",
+                    "linear-gradient(135deg, #F9576F, #FF7A8E 45%, #FFB84D)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -651,6 +651,214 @@ const Landing = () => {
             })}
           </div>
         </motion.div>
+      </section>
+
+      {/* ── SOCIAL PROOF — animated counter stats ── */}
+      <section className="relative w-full py-24 lg:py-32 pl-7 lg:pl-20 pr-6 lg:pr-14 border-t border-b" style={{ borderColor: "var(--rm-border-subtle)" }}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12"
+        >
+          {[
+            { label: "Active Musicians", value: "2.4K" },
+            { label: "Collabs This Month", value: "842" },
+            { label: "Countries Represented", value: "67" },
+            { label: "Tracks Released", value: "3.1K" },
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.5, delay: i * 0.08 }}
+            >
+              <p style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 700, color: "var(--rm-coral)", lineHeight: 1 }}>
+                {stat.value}
+              </p>
+              <p style={{ color: "var(--rm-text-muted)", fontSize: "0.875rem", marginTop: 8, fontFamily: "var(--rm-font-mono)" }}>
+                {stat.label}
+              </p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* ── WHY RHYMERGE — Comparison ── */}
+      <section className="relative w-full py-24 lg:py-32 pl-7 lg:pl-20 pr-6 lg:pr-14">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="mb-16"
+        >
+          <h2
+            className="font-semibold text-white"
+            style={{
+              fontSize: "clamp(1.8rem, 3.4vw, 2.6rem)",
+              letterSpacing: "-0.01em",
+              maxWidth: 600,
+            }}
+          >
+            Built for creators, by creators
+          </h2>
+          <p style={{ color: "var(--rm-text-secondary)", marginTop: 12, maxWidth: 500 }}>
+            Unlike hiring boards or generic platforms, RhyMerge speaks music.
+          </p>
+        </motion.div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {[
+            {
+              title: "Share real work",
+              desc: "Post stems, full tracks, snippets. Let your actual output do the talking.",
+              icon: "♪",
+            },
+            {
+              title: "Find your sound",
+              desc: "Search by genre, mood, role. Or browse what's playing right now.",
+              icon: "▶",
+            },
+            {
+              title: "Build public portfolios",
+              desc: "Every collab becomes proof. Credits, dates, playable links.",
+              icon: "⚡",
+            },
+            {
+              title: "Keep your network",
+              desc: "One collab doesn't end the conversation. Build for life.",
+              icon: "🔗",
+            },
+          ].map((item, i) => (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, x: i % 2 === 0 ? -12 : 12 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, delay: i * 0.1 }}
+              className="p-6 rounded-xl"
+              style={{
+                background: "rgba(249, 87, 111, 0.04)",
+                border: "1px solid var(--rm-border)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "var(--rm-coral)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "var(--rm-border)";
+              }}
+            >
+              <p style={{ fontSize: "1.5rem", marginBottom: 10 }}>{item.icon}</p>
+              <h3 style={{ fontWeight: 600, color: "var(--rm-text-primary)", marginBottom: 6 }}>
+                {item.title}
+              </h3>
+              <p style={{ color: "var(--rm-text-secondary)", fontSize: "0.95rem", lineHeight: 1.6 }}>
+                {item.desc}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── TESTIMONIALS — Masonry-style layout ── */}
+      <section className="relative w-full py-24 lg:py-32 pl-7 lg:pl-20 pr-6 lg:pr-14">
+        <motion.h2
+          initial={{ opacity: 0, y: 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="font-semibold text-white mb-12"
+          style={{
+            fontSize: "clamp(1.8rem, 3.4vw, 2.6rem)",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Real collabs. Real stories.
+        </motion.h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[
+            {
+              quote: "I posted a 4-bar loop at 2am. Got 3 DMs by morning. Two became real collabs.",
+              author: "Alex P., Producer",
+              role: "Lo-fi · Brooklyn",
+            },
+            {
+              quote: "Found my vocalist 20 minutes after posting. We finished the track in a week.",
+              author: "Jordan M., Beatmaker",
+              role: "Trap · Los Angeles",
+            },
+            {
+              quote: "The credits on every track are actual collaborations. Feels different here.",
+              author: "Casey T., Singer",
+              role: "R&B · Austin",
+            },
+            {
+              quote: "Built a three-person production group from RhyMerge collabs. None of us knew each other before.",
+              author: "Morgan K., Engineer",
+              role: "Electronic · Berlin",
+            },
+            {
+              quote: "Posted my stems. Got mixed by someone I'd never have found anywhere else.",
+              author: "Riley S., Vocalist",
+              role: "Indie · Toronto",
+            },
+            {
+              quote: "One collab led to five more. These are my people now.",
+              author: "Sam R., Multi-instrumentalist",
+              role: "Jazz Fusion · Tokyo",
+            },
+          ].map((testimonial, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, delay: i * 0.05 }}
+              className="p-7 rounded-xl"
+              style={{
+                background: "var(--rm-bg-card)",
+                border: "1px solid var(--rm-border)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "var(--rm-coral)";
+                e.currentTarget.style.transform = "translateY(-2px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "var(--rm-border)";
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
+            >
+              <p
+                style={{
+                  color: "var(--rm-text-secondary)",
+                  fontSize: "0.95rem",
+                  lineHeight: 1.7,
+                  marginBottom: 14,
+                  fontStyle: "italic",
+                }}
+              >
+                "{testimonial.quote}"
+              </p>
+              <p style={{ fontWeight: 600, color: "var(--rm-text-primary)", fontSize: "0.9rem" }}>
+                {testimonial.author}
+              </p>
+              <p
+                style={{
+                  fontSize: "0.8rem",
+                  color: "var(--rm-text-muted)",
+                  fontFamily: "var(--rm-font-mono)",
+                  marginTop: 4,
+                }}
+              >
+                {testimonial.role}
+              </p>
+            </motion.div>
+          ))}
+        </div>
       </section>
 
       {/* ── FINAL CTA — split, not centered ── */}

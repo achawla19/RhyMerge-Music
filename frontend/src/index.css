@@ -6,7 +6,13 @@
 
 /* ─── RhyMerge Design Tokens ─────────────────────────────────── */
 :root {
-  /* Brand */
+  /* Brand — Coral Primary + Warm Dark */
+  --rm-coral: #F9576F;
+  --rm-coral-light: #FF7A8E;
+  --rm-coral-dim: rgba(249, 87, 111, 0.15);
+  --rm-coral-border: rgba(249, 87, 111, 0.25);
+  
+  /* Legacy purple for accents */
   --rm-purple: #7c3aed;
   --rm-purple-light: #c084fc;
   --rm-purple-dim: rgba(124, 58, 237, 0.15);
@@ -16,12 +22,12 @@
   --rm-green: #10b981;
   --rm-green-dim: rgba(16, 185, 129, 0.12);
 
-  /* Surface */
-  --rm-bg: #0b0b12;
-  --rm-bg-card: #110820;
-  --rm-bg-raised: #1a0a2e;
-  --rm-border: rgba(124, 58, 237, 0.18);
-  --rm-border-subtle: rgba(255, 255, 255, 0.05);
+  /* Surface — Warm Dark Aesthetic */
+  --rm-bg: #0E0B0A;
+  --rm-bg-card: #171211;
+  --rm-bg-raised: #1F1817;
+  --rm-border: rgba(249, 87, 111, 0.16);
+  --rm-border-subtle: rgba(255, 255, 255, 0.06);
 
   /* Text */
   --rm-text-primary: #f3e8ff;
@@ -65,6 +71,20 @@ body {
   background: var(--rm-bg);
   color: var(--rm-text-primary);
   line-height: 1.6;
+  position: relative;
+}
+
+/* Ambient grain texture overlay */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' seed='2'/%3E%3C/filter%3E%3Crect width='400' height='400' fill='white' filter='url(%23noiseFilter)' opacity='0.018'/%3E%3C/svg%3E");
+  z-index: 1;
 }
 
 #root {
@@ -236,11 +256,12 @@ select:focus-visible,
   background: var(--rm-bg-card);
   border: 1px solid var(--rm-border);
   border-radius: 14px;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .rm-card:hover {
-  border-color: rgba(124, 58, 237, 0.4);
+  border-color: var(--rm-coral);
+  background: rgba(249, 87, 111, 0.04);
 }
 
 /* Badge — genre/role tag */
