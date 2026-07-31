@@ -2,255 +2,75 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
-  Handshake,
-  Radio,
-  LayoutGrid,
-  Users,
-  Mic2,
-  Music2,
-  Guitar,
-  Headphones,
   ArrowRight,
-  ArrowDown,
+  Handshake,
+  LayoutGrid,
+  MessageSquare,
+  Radio,
+  SlidersHorizontal,
+  ShieldCheck,
 } from "lucide-react";
 import logo from "../assets/logo.png";
+import ProductPreview from "../components/landing/ProductPreview";
+import TiltCard from "../components/landing/TiltCard";
 
-/* Constellation network — the thesis rendered as a picture. Nodes drift,
-   light a line between themselves when close. "Everyone here is looking
-   for someone" isn't a tagline, it's this canvas. */
-const ConstellationField = ({ opacity = 0.85 }) => {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    let raf;
-    let nodes = [];
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-
-    const resize = () => {
-      canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-      canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-      const w = canvas.offsetWidth;
-      const h = canvas.offsetHeight;
-      const count = Math.min(60, Math.floor((w * h) / 16000));
-      nodes = Array.from({ length: count }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.15,
-        vy: (Math.random() - 0.5) * 0.15,
-        r: Math.random() * 1.6 + 0.8,
-      }));
-    };
-
-    const LINK_DIST = 125;
-
-    const draw = () => {
-      const w = canvas.offsetWidth;
-      const h = canvas.offsetHeight;
-      ctx.clearRect(0, 0, w, h);
-      for (const n of nodes) {
-        if (!reduceMotion) {
-          n.x += n.vx;
-          n.y += n.vy;
-          if (n.x < 0 || n.x > w) n.vx *= -1;
-          if (n.y < 0 || n.y > h) n.vy *= -1;
-        }
-      }
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const a = nodes[i];
-          const b = nodes[j];
-          const d = Math.hypot(a.x - b.x, a.y - b.y);
-          if (d < LINK_DIST) {
-            ctx.strokeStyle = `rgba(216, 180, 254, ${(1 - d / LINK_DIST) * 0.4})`;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
-          }
-        }
-      }
-      for (const n of nodes) {
-        ctx.fillStyle = "rgba(226, 200, 255, 0.85)";
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      raf = requestAnimationFrame(draw);
-    };
-
-    resize();
-    draw();
-    window.addEventListener("resize", resize);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full"
-      style={{ opacity }}
-    />
-  );
-};
-
-const AmbientGlow = ({ style }) => (
-  <motion.div
-    className="absolute pointer-events-none"
-    style={style}
-    animate={{ opacity: [0.7, 1, 0.7] }}
-    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-  />
-);
-
-/* Fixed vertical spine running down the left edge — the one running
-   device that ties the whole scroll together, like a magazine's gutter
-   marginalia instead of everything living in a dead-centered column. */
-const Spine = () => (
-  <div className="hidden lg:flex fixed left-7 top-0 h-screen z-40 flex-col items-center justify-between py-10 pointer-events-none">
-    <div
-      className="w-px h-24"
-      style={{
-        background:
-          "linear-gradient(180deg, transparent, var(--rm-border-subtle))",
-      }}
-    />
-    <p
-      className="text-[10px] tracking-[0.3em] uppercase whitespace-nowrap"
-      style={{
-        writingMode: "vertical-rl",
-        fontFamily: "var(--rm-font-mono)",
-        color: "var(--rm-text-muted)",
-      }}
-    >
-      find your people
-    </p>
-    <div
-      className="w-px h-24"
-      style={{
-        background:
-          "linear-gradient(0deg, transparent, var(--rm-border-subtle))",
-      }}
-    />
-  </div>
-);
-
-const GhostNumber = ({ n, align = "left" }) => (
-  <span
-    className="absolute select-none pointer-events-none font-semibold"
-    style={{
-      [align]: "-2vw",
-      top: "-6%",
-      fontSize: "clamp(8rem, 18vw, 16rem)",
-      color: "rgba(139,92,246,0.06)",
-      lineHeight: 1,
-      letterSpacing: "-0.05em",
-    }}
-  >
-    {n}
-  </span>
-);
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 18 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
-  },
-};
-
-const CTAButton = ({ children, onClick, variant = "primary", size = "md" }) => {
-  const base =
-    "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all";
-  const sizes = {
-    sm: "px-5 py-2.5 text-sm",
-    md: "px-7 py-3.5 text-sm",
-    lg: "px-9 py-4 text-base",
-  };
-  const styles =
-    variant === "primary"
-      ? {
-          background: "linear-gradient(135deg, #8B5CF6, #E879F9 55%, #F0B429)",
-          color: "#1a0a2e",
-        }
-      : {
-          background: "rgba(255,255,255,0.04)",
-          color: "var(--rm-text-primary)",
-          border: "1px solid rgba(255,255,255,0.14)",
-        };
-  return (
-    <button
-      onClick={onClick}
-      className={`${base} ${sizes[size]}`}
-      style={styles}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-2px)";
-        e.currentTarget.style.boxShadow =
-          variant === "primary" ? "0 12px 32px rgba(192,132,252,0.35)" : "none";
-        if (variant !== "primary")
-          e.currentTarget.style.borderColor = "var(--rm-purple-light)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "none";
-        if (variant !== "primary")
-          e.currentTarget.style.borderColor = "rgba(255,255,255,0.14)";
-      }}
-    >
-      {children}
-    </button>
-  );
-};
-
-const roles = [
-  { title: "Producers", icon: Music2, blurb: "beats waiting for a voice" },
-  { title: "Singers", icon: Mic2, blurb: "voices waiting for a track" },
-  { title: "Guitarists", icon: Guitar, blurb: "riffs waiting for a room" },
+/* Every feature below maps to a real, shipped part of the product —
+   not aspirational marketing copy. Keep this list in sync with what's
+   actually in the app; if a feature gets cut, cut it here too. */
+const FEATURES = [
   {
-    title: "Engineers",
-    icon: Headphones,
-    blurb: "mixes waiting for a mission",
+    icon: Handshake,
+    title: "Collab requests",
+    body: "Post what you're working on and what you need — a role, a genre, and terms (paid, revenue split, credit, or just for fun). People who actually make that thing find you, instead of you cold-messaging strangers.",
+    accent: "var(--rm-coral)",
+  },
+  {
+    icon: LayoutGrid,
+    title: "Project rooms",
+    body: "Every collaboration gets a dedicated space: files, version history, and a request queue for who's asking to join, so a track doesn't end up scattered across three apps and a group chat.",
+    accent: "var(--rm-accent-teal)",
+  },
+  {
+    icon: MessageSquare,
+    title: "Real-time messaging",
+    body: "Private, encrypted conversations with the people you're working with — built for exchanging ideas and files quickly, not for building a following.",
+    accent: "var(--rm-accent-gold)",
+  },
+  {
+    icon: Radio,
+    title: "Signal",
+    body: "A live pulse of relevant activity — new collab posts, connection requests, project updates — so you know what's happening without scrolling a feed built to keep you scrolling.",
+    accent: "var(--rm-accent-violet)",
+  },
+  {
+    icon: SlidersHorizontal,
+    title: "Search by role & genre",
+    body: "Filter creators by what they actually do — vocalist, producer, mix engineer — and by genre, so you're browsing people relevant to what you're making, not everyone on the platform.",
+    accent: "var(--rm-coral)",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Availability status",
+    body: "Set yourself Available, Busy, or Not Looking. It's a small thing, but it means you're not sending a request into a profile nobody's checked in weeks.",
+    accent: "var(--rm-accent-teal)",
   },
 ];
 
-const features = [
+const STEPS = [
   {
     n: "01",
-    icon: Radio,
-    title: "Signals",
-    eyebrow: "the feed",
-    body: "Post the clip you're proud of, the loop stuck in your head, the thought at 2am. A feed that runs on what musicians actually make, not what an algorithm thinks will perform.",
+    title: "Post or browse",
+    body: "Put up a collab request with what you need, or search active ones by role and genre.",
   },
   {
     n: "02",
-    icon: Handshake,
-    title: "Collab",
-    eyebrow: "the whole point",
-    body: '"Need a vocalist for a lo-fi EP." Post what your project is missing, or answer someone else\'s call. No résumé, no interview — just two people who both want to make the same thing exist.',
+    title: "Connect",
+    body: "Message directly, share reference tracks, and agree on terms before anything's committed.",
   },
   {
     n: "03",
-    icon: LayoutGrid,
-    title: "Projects",
-    eyebrow: "the proof",
-    body: "A portfolio that's actually listenable. Stems, credits, the people who built it with you — the work that makes someone stop scrolling and reach out.",
-  },
-  {
-    n: "04",
-    icon: Users,
-    title: "Syncs",
-    eyebrow: "the network",
-    body: "Every collaborator you find becomes someone you can find again. Build the list of people you actually want a text from when a new idea shows up.",
+    title: "Build in a project room",
+    body: "Move into a shared space for files and versions once you're actually working together.",
   },
 ];
 
@@ -258,12 +78,11 @@ const Landing = () => {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({
+
+  const { scrollYProgress: heroProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
   });
-  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.25]);
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 60]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -271,459 +90,289 @@ const Landing = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const heroFade = useTransform(heroProgress, [0, 0.7], [1, 0]);
+
   return (
-    <div className="relative" style={{ background: "var(--rm-bg)" }}>
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <AmbientGlow
-          style={{
-            top: "-5%",
-            left: "-10%",
-            width: 800,
-            height: 800,
-            background:
-              "radial-gradient(circle, rgba(139,92,246,0.2), transparent 65%)",
-          }}
-        />
-        <AmbientGlow
-          style={{
-            top: "90%",
-            right: "-8%",
-            width: 650,
-            height: 650,
-            background:
-              "radial-gradient(circle, rgba(240,180,41,0.11), transparent 65%)",
-          }}
-        />
-        <AmbientGlow
-          style={{
-            top: "155%",
-            left: "-5%",
-            width: 700,
-            height: 700,
-            background:
-              "radial-gradient(circle, rgba(232,121,249,0.13), transparent 65%)",
-          }}
-        />
-        <AmbientGlow
-          style={{
-            top: "215%",
-            right: "0%",
-            width: 750,
-            height: 750,
-            background:
-              "radial-gradient(circle, rgba(139,92,246,0.15), transparent 65%)",
-          }}
-        />
-        <AmbientGlow
-          style={{
-            top: "280%",
-            left: "10%",
-            width: 600,
-            height: 600,
-            background:
-              "radial-gradient(circle, rgba(240,180,41,0.1), transparent 65%)",
-          }}
-        />
-      </div>
-
-      <Spine />
-
-      {/* ── Top bar — logo pinned left, not centered ── */}
-      <header
+    <div
+      style={{ background: "var(--rm-bg)", color: "var(--rm-text-primary)" }}
+    >
+      {/* ── NAV ─────────────────────────────────────────────── */}
+      <nav
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
         style={{
-          background: scrolled ? "rgba(11,11,18,0.8)" : "transparent",
-          backdropFilter: scrolled ? "blur(12px)" : "none",
+          background: scrolled ? "rgba(14,11,10,0.85)" : "transparent",
+          backdropFilter: scrolled ? "blur(16px)" : "none",
           borderBottom: scrolled
-            ? "1px solid var(--rm-border-subtle)"
+            ? "1px solid var(--rm-border)"
             : "1px solid transparent",
         }}
       >
-        <div className="flex items-center justify-between pl-7 lg:pl-20 pr-6 lg:pr-14 py-5">
-          <img src={logo} alt="RhyMerge" className="h-8 w-auto" />
+        <div className="max-w-6xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
+          <img src={logo} alt="RhyMerge" className="h-6 md:h-7 w-auto" />
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate("/login")}
-              className="hidden sm:block px-4 py-2 text-sm transition-colors"
+              className="hidden sm:block text-sm font-medium px-4 py-2 rounded-full transition-colors"
               style={{ color: "var(--rm-text-secondary)" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = "var(--rm-text-primary)")
+              }
               onMouseLeave={(e) =>
                 (e.currentTarget.style.color = "var(--rm-text-secondary)")
               }
             >
               Log in
             </button>
-            <CTAButton onClick={() => navigate("/signup")} size="sm">
+            <button
+              onClick={() => navigate("/signup")}
+              className="rm-btn rm-btn-primary text-sm"
+            >
               Join free <ArrowRight size={14} />
-            </CTAButton>
+            </button>
           </div>
         </div>
-      </header>
+      </nav>
 
-      {/* ── HERO — split screen, headline pinned left, canvas owns the right ── */}
+      {/* ── HERO — two column: copy left, WebGL vinyl right ──── */}
       <section
         ref={heroRef}
-        className="relative min-h-screen w-full flex items-center overflow-hidden"
+        className="relative min-h-[90svh] flex items-center pt-24 pb-16 md:pt-16 md:pb-0 overflow-hidden"
       >
-        <div className="absolute inset-y-0 right-0 w-full lg:w-[58%]">
-          <ConstellationField />
-        </div>
-        <div
-          className="absolute inset-0 lg:bg-none"
-          style={{
-            background:
-              "linear-gradient(90deg, var(--rm-bg) 0%, var(--rm-bg) 15%, transparent 55%)",
-          }}
-        />
-
-        <motion.div
-          style={{ opacity: heroOpacity, y: heroY }}
-          className="relative z-10 w-full pl-7 lg:pl-20 pr-6 pt-24"
-        >
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
-            className="max-w-xl"
-          >
-            <motion.p
-              variants={fadeUp}
-              className="text-[12px] tracking-[0.2em] uppercase mb-7"
+        <div className="max-w-6xl mx-auto px-6 md:px-10 grid md:grid-cols-2 gap-12 items-center w-full">
+          <motion.div style={{ opacity: heroFade }} className="relative z-10">
+            <p
+              className="text-xs mb-5 tracking-[0.18em]"
               style={{
                 fontFamily: "var(--rm-font-mono)",
-                color: "var(--rm-amber)",
+                color: "var(--rm-coral-light)",
               }}
             >
-              a producer, a lyricist, a singer — a room away
-            </motion.p>
-
-            <motion.h1
-              variants={fadeUp}
-              className="font-semibold text-white leading-[1.04] mb-8"
+              A COLLABORATION PLATFORM FOR MUSICIANS
+            </p>
+            <h1
+              className="font-semibold mb-6"
               style={{
-                fontSize: "clamp(2.6rem, 5.8vw, 4.75rem)",
+                fontFamily: "var(--rm-font-display)",
+                fontSize: "clamp(2.4rem, 4.6vw, 3.6rem)",
+                lineHeight: 1.08,
                 letterSpacing: "-0.015em",
               }}
             >
-              Somebody out there
-              <br />
-              is missing{" "}
-              <span
-                style={{
-                  fontFamily: "var(--rm-font-script)",
-                  fontSize: "1.3em",
-                  background:
-                    "linear-gradient(135deg, #D8B4FE, #F0ABFC 45%, #F0B429)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                what you make.
-              </span>
-            </motion.h1>
-
-            <motion.p
-              variants={fadeUp}
-              className="text-lg max-w-md mb-10"
-              style={{ color: "var(--rm-text-secondary)", lineHeight: 1.75 }}
-            >
-              RhyMerge is where musicians post the work, find the missing piece,
-              and build something neither of you could've made alone.
-            </motion.p>
-
-            <motion.div
-              variants={fadeUp}
-              className="flex flex-col sm:flex-row gap-4 mb-6"
-            >
-              <CTAButton onClick={() => navigate("/signup")} size="lg">
-                Find your collaborator <ArrowRight size={17} />
-              </CTAButton>
-              <CTAButton
-                onClick={() => navigate("/login")}
-                variant="ghost"
-                size="lg"
-              >
-                I already have an account
-              </CTAButton>
-            </motion.div>
-
-            <motion.p
-              variants={fadeUp}
-              className="text-xs"
-              style={{
-                fontFamily: "var(--rm-font-mono)",
-                color: "var(--rm-text-muted)",
-              }}
-            >
-              free to join · takes about a minute · not a hiring board, just
-              people
-            </motion.p>
-          </motion.div>
-        </motion.div>
-
-        <motion.div
-          className="absolute bottom-8 left-7 lg:left-20 z-10"
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <ArrowDown size={18} color="var(--rm-text-muted)" />
-        </motion.div>
-      </section>
-
-      {/* ── FEATURES — asymmetric split, alternating ratio + alignment, ghost numerals ── */}
-      <div className="relative w-full">
-        {features.map((f, i) => {
-          const Icon = f.icon;
-          const reverse = i % 2 === 1;
-          return (
-            <motion.section
-              key={f.title}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6 }}
-              className="relative w-full py-24 lg:py-32 pl-7 lg:pl-20 pr-6 lg:pr-14 overflow-hidden"
-            >
-              <GhostNumber n={f.n} align={reverse ? "left" : "right"} />
-              <div
-                className={`relative flex flex-col ${reverse ? "lg:flex-row-reverse" : "lg:flex-row"} items-center gap-14 lg:gap-24`}
-              >
-                <motion.div
-                  initial={{ opacity: 0, x: reverse ? 24 : -24 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.6, delay: 0.1 }}
-                  style={{ flex: "1 1 52%" }}
-                >
-                  <h3
-                    className="font-semibold text-white mb-3"
-                    style={{
-                      fontSize: "clamp(1.9rem, 3.6vw, 2.75rem)",
-                      letterSpacing: "-0.01em",
-                    }}
-                  >
-                    {f.title}
-                  </h3>
-                  <p
-                    className="text-[11px] tracking-[0.18em] uppercase mb-5"
-                    style={{
-                      fontFamily: "var(--rm-font-mono)",
-                      color: "var(--rm-amber)",
-                    }}
-                  >
-                    {f.eyebrow}
-                  </p>
-                  <p
-                    className="text-base max-w-md"
-                    style={{
-                      color: "var(--rm-text-secondary)",
-                      lineHeight: 1.8,
-                    }}
-                  >
-                    {f.body}
-                  </p>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.94 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  className="flex justify-center w-full"
-                  style={{ flex: "1 1 42%" }}
-                >
-                  <div
-                    className="relative w-full max-w-[280px] aspect-square rounded-[2.5rem] flex items-center justify-center"
-                    style={{
-                      background:
-                        "radial-gradient(circle at 30% 30%, rgba(139,92,246,0.2), transparent 60%)",
-                      border: "1px solid var(--rm-border)",
-                      transform: reverse ? "rotate(-2deg)" : "rotate(2deg)",
-                    }}
-                  >
-                    <div
-                      className="w-28 h-28 rounded-[1.75rem] flex items-center justify-center"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, rgba(139,92,246,0.22), rgba(240,180,41,0.12))",
-                        border: "1px solid var(--rm-purple-border)",
-                      }}
-                    >
-                      <Icon
-                        size={44}
-                        color="var(--rm-purple-light)"
-                        strokeWidth={1.5}
-                      />
-                    </div>
-                  </div>
-                </motion.div>
-              </div>
-            </motion.section>
-          );
-        })}
-      </div>
-
-      {/* ── Quiet positioning line — margin-aligned, not centered ── */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: "-60px" }}
-        transition={{ duration: 0.6 }}
-        className="relative w-full pl-7 lg:pl-20 pr-6 py-6"
-      >
-        <p
-          className="text-sm"
-          style={{
-            color: "var(--rm-text-muted)",
-            fontFamily: "var(--rm-font-mono)",
-          }}
-        >
-          not a hiring board, not another DAW — just the people
-        </p>
-      </motion.div>
-
-      {/* ── ROLE DISCOVERY — staggered offsets instead of a flat symmetric grid ── */}
-      <section className="relative w-full py-24 lg:py-32 pl-7 lg:pl-20 pr-6 lg:pr-14">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2
-            className="font-semibold text-white mb-14 max-w-lg"
-            style={{
-              fontSize: "clamp(1.7rem, 3.2vw, 2.5rem)",
-              letterSpacing: "-0.01em",
-              lineHeight: 1.3,
-            }}
-          >
-            Whoever your project is missing, they're probably already here.
-          </h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {roles.map((role, i) => {
-              const Icon = role.icon;
-              return (
-                <motion.div
-                  key={role.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.5, delay: i * 0.08 }}
-                  whileHover={{ y: -4 }}
-                  onClick={() => navigate("/signup")}
-                  className="cursor-pointer p-7 rounded-2xl transition-colors"
-                  style={{
-                    background: "rgba(255,255,255,0.025)",
-                    border: "1px solid var(--rm-border-subtle)",
-                    marginTop: i % 2 === 1 ? 28 : 0,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "rgba(139,92,246,0.06)";
-                    e.currentTarget.style.borderColor =
-                      "var(--rm-purple-border)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background =
-                      "rgba(255,255,255,0.025)";
-                    e.currentTarget.style.borderColor =
-                      "var(--rm-border-subtle)";
-                  }}
-                >
-                  <Icon
-                    size={26}
-                    color="var(--rm-purple-light)"
-                    strokeWidth={1.5}
-                    className="mb-5"
-                  />
-                  <h3 className="text-white font-medium text-lg mb-1.5">
-                    {role.title}
-                  </h3>
-                  <p
-                    className="text-sm"
-                    style={{ color: "var(--rm-text-muted)" }}
-                  >
-                    {role.blurb}
-                  </p>
-                </motion.div>
-              );
-            })}
-          </div>
-        </motion.div>
-      </section>
-
-      {/* ── FINAL CTA — split, not centered ── */}
-      <section className="relative w-full py-28 lg:py-36 pl-7 lg:pl-20 pr-6 lg:pr-14 overflow-hidden">
-        <div className="relative flex flex-col lg:flex-row lg:items-end justify-between gap-10">
-          <motion.h2
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7 }}
-            className="text-white"
-            style={{
-              fontFamily: "var(--rm-font-script)",
-              fontSize: "clamp(3rem, 6.5vw, 5rem)",
-              lineHeight: 1.1,
-              maxWidth: 520,
-            }}
-          >
-            Stop making it alone.
-          </motion.h2>
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="flex flex-col items-start lg:items-end gap-5"
-          >
+              Find the people who'll actually
+              <span style={{ fontStyle: "italic", fontWeight: 500 }}>
+                {" "}
+                finish the track
+              </span>{" "}
+              with you.
+            </h1>
             <p
-              className="text-base max-w-xs lg:text-right"
+              className="text-base md:text-lg mb-9 max-w-md"
               style={{ color: "var(--rm-text-secondary)" }}
             >
-              Your profile takes a minute. Finding the right person might take
-              less.
+              RhyMerge connects producers, vocalists, and writers through real
+              collaboration requests, shared project rooms, and direct messaging
+              — not another social feed to manage.
             </p>
-            <CTAButton onClick={() => navigate("/signup")} size="lg">
-              Create your profile <ArrowRight size={17} />
-            </CTAButton>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate("/signup")}
+                className="rm-btn rm-btn-primary text-sm px-6 py-3"
+                style={{ fontWeight: 600 }}
+              >
+                Get started <ArrowRight size={15} />
+              </button>
+              <button
+                onClick={() => navigate("/login")}
+                className="rm-btn rm-btn-ghost text-sm px-6 py-3"
+              >
+                I have an account
+              </button>
+            </div>
           </motion.div>
+
+          <div className="relative flex items-center justify-center md:justify-end">
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  "radial-gradient(55% 55% at 50% 45%, rgba(249,87,111,0.1), transparent 70%)",
+              }}
+            />
+            <ProductPreview />
+          </div>
         </div>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer
-        className="relative w-full pl-7 lg:pl-20 pr-6 lg:pr-14 py-10"
-        style={{ borderTop: "1px solid var(--rm-border-subtle)" }}
+      {/* ── FEATURES ─────────────────────────────────────────── */}
+      <section
+        className="max-w-6xl mx-auto px-6 md:px-10 py-20 md:py-28 border-t"
+        style={{ borderColor: "var(--rm-border)" }}
       >
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="mb-14 max-w-xl">
           <p
-            className="text-xs"
+            className="text-xs mb-3 tracking-[0.18em]"
             style={{
               fontFamily: "var(--rm-font-mono)",
               color: "var(--rm-text-muted)",
             }}
           >
-            © {new Date().getFullYear()} RhyMerge — where rhythms collide
+            WHAT'S ACTUALLY IN THE APP
           </p>
-          <div className="flex items-center gap-6">
-            <button
-              onClick={() => navigate("/login")}
-              className="text-xs"
-              style={{ color: "var(--rm-text-muted)" }}
-            >
-              Log in
-            </button>
-            <button
-              onClick={() => navigate("/signup")}
-              className="text-xs"
-              style={{ color: "var(--rm-purple-light)" }}
-            >
-              Sign up
-            </button>
+          <h2
+            className="font-semibold"
+            style={{
+              fontFamily: "var(--rm-font-display)",
+              fontSize: "clamp(1.7rem, 3.2vw, 2.4rem)",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            Every part of RhyMerge exists to get a project from idea to finished
+            track.
+          </h2>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {FEATURES.map((f, i) => (
+            <TiltCard key={f.title} max={5}>
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.4, delay: i * 0.05 }}
+                className="rm-card h-full p-6 flex flex-col"
+              >
+                <div
+                  className="w-10 h-10 rounded-lg flex items-center justify-center mb-5"
+                  style={{
+                    background: `${f.accent}1f`,
+                    border: `1px solid ${f.accent}44`,
+                  }}
+                >
+                  <f.icon size={18} color={f.accent} />
+                </div>
+                <h3 className="text-base font-semibold text-white mb-2">
+                  {f.title}
+                </h3>
+                <p
+                  className="text-sm leading-relaxed"
+                  style={{ color: "var(--rm-text-secondary)" }}
+                >
+                  {f.body}
+                </p>
+              </motion.div>
+            </TiltCard>
+          ))}
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS ─────────────────────────────────────── */}
+      <section
+        className="py-20 md:py-28 border-t"
+        style={{
+          borderColor: "var(--rm-border)",
+          background: "var(--rm-bg-card)",
+        }}
+      >
+        <div className="max-w-6xl mx-auto px-6 md:px-10">
+          <p
+            className="text-xs mb-3 tracking-[0.18em]"
+            style={{
+              fontFamily: "var(--rm-font-mono)",
+              color: "var(--rm-text-muted)",
+            }}
+          >
+            HOW IT WORKS
+          </p>
+          <h2
+            className="font-semibold mb-14 max-w-lg"
+            style={{
+              fontFamily: "var(--rm-font-display)",
+              fontSize: "clamp(1.7rem, 3.2vw, 2.4rem)",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            Three steps, no algorithm deciding who you meet.
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-10">
+            {STEPS.map((s, i) => (
+              <motion.div
+                key={s.n}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+              >
+                <p
+                  className="text-sm mb-3"
+                  style={{
+                    fontFamily: "var(--rm-font-mono)",
+                    color: "var(--rm-coral-light)",
+                  }}
+                >
+                  {s.n}
+                </p>
+                <h3 className="text-lg font-semibold text-white mb-2">
+                  {s.title}
+                </h3>
+                <p
+                  className="text-sm leading-relaxed"
+                  style={{ color: "var(--rm-text-secondary)" }}
+                >
+                  {s.body}
+                </p>
+              </motion.div>
+            ))}
           </div>
         </div>
+      </section>
+
+      {/* ── FINAL CTA ────────────────────────────────────────── */}
+      <section
+        className="py-24 md:py-32 px-6 text-center border-t"
+        style={{ borderColor: "var(--rm-border)" }}
+      >
+        <div className="max-w-xl mx-auto">
+          <h2
+            className="font-semibold mb-8"
+            style={{
+              fontFamily: "var(--rm-font-display)",
+              fontSize: "clamp(1.9rem, 4vw, 2.8rem)",
+              letterSpacing: "-0.01em",
+              lineHeight: 1.15,
+            }}
+          >
+            Your next collaborator is probably already{" "}
+            <span
+              style={{
+                fontStyle: "italic",
+                fontWeight: 500,
+                color: "var(--rm-coral-light)",
+              }}
+            >
+              looking
+            </span>
+            .
+          </h2>
+          <button
+            onClick={() => navigate("/signup")}
+            className="rm-btn rm-btn-primary text-sm px-7 py-3"
+            style={{ fontWeight: 600 }}
+          >
+            Join RhyMerge — it's free <ArrowRight size={15} />
+          </button>
+        </div>
+      </section>
+
+      {/* ── FOOTER ───────────────────────────────────────────── */}
+      <footer
+        className="border-t py-8 px-6 md:px-10 flex flex-col sm:flex-row items-center justify-between gap-4"
+        style={{ borderColor: "var(--rm-border)" }}
+      >
+        <img src={logo} alt="RhyMerge" className="h-5 w-auto opacity-70" />
+        <p className="text-xs" style={{ color: "var(--rm-text-muted)" }}>
+          © {new Date().getFullYear()} RhyMerge.
+        </p>
       </footer>
     </div>
   );

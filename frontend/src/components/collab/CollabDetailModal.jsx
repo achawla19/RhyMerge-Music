@@ -27,7 +27,7 @@ const STATUS_OPTS = ["Open", "Collaborating", "Closed"];
 
 const TERMS_COLOR = {
   Paid: "#34D399",
-  "Revenue Split": "#C084FC",
+  "Revenue Split": "#FF8B93",
   "Credit Only": "#60A5FA",
   "Just for Fun": "#F59E0B",
 };
@@ -146,7 +146,7 @@ const CollabDetailModal = ({ post, isOpen, onClose, onChanged, onDeleted }) => {
           <img
             src={
               post.postedBy?.avatar ||
-              `https://ui-avatars.com/api/?name=${post.postedBy?.username}&background=7c3aed&color=fff`
+              `https://ui-avatars.com/api/?name=${post.postedBy?.username}&background=F9576F&color=fff`
             }
             alt=""
             onClick={() => navigate(`/profile/${post.postedBy?.username}`)}
@@ -231,7 +231,7 @@ const CollabDetailModal = ({ post, isOpen, onClose, onChanged, onDeleted }) => {
         {isMine ? (
           <div
             style={{
-              borderTop: "1px solid rgba(124,58,237,0.1)",
+              borderTop: "1px solid rgba(249,87,111,0.1)",
               paddingTop: 16,
             }}
           >
@@ -294,7 +294,7 @@ const CollabDetailModal = ({ post, isOpen, onClose, onChanged, onDeleted }) => {
                       <img
                         src={
                           r.responder?.avatar ||
-                          `https://ui-avatars.com/api/?name=${r.responder?.username}&background=7c3aed&color=fff`
+                          `https://ui-avatars.com/api/?name=${r.responder?.username}&background=F9576F&color=fff`
                         }
                         alt=""
                         onClick={() =>
@@ -372,7 +372,7 @@ const CollabDetailModal = ({ post, isOpen, onClose, onChanged, onDeleted }) => {
         ) : (
           <div
             style={{
-              borderTop: "1px solid rgba(124,58,237,0.1)",
+              borderTop: "1px solid rgba(249,87,111,0.1)",
               paddingTop: 16,
             }}
           >

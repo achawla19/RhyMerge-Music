@@ -42,6 +42,16 @@ export default function Profile() {
   const [avatarUploading, setAvatarUploading] = useState(false);
 
   useEffect(() => {
+    // Guards against the literal string "undefined"/"null" too — that
+    // happens if a caller ever builds this route from `user?.username`
+    // before `user` has loaded, which used to fire two doomed requests
+    // (GET /api/users/undefined, GET /api/projects/user/undefined)
+    // instead of failing loudly.
+    if (!username || username === "undefined" || username === "null") {
+      setError("No profile specified.");
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError("");
     Promise.all([getUserByUsername(username), getProjectsByUsername(username)])
@@ -141,7 +151,7 @@ export default function Profile() {
           className="h-36 relative overflow-hidden"
           style={{
             background:
-              "linear-gradient(90deg, rgba(124,58,237,0.25), rgba(192,132,252,0.1), rgba(124,58,237,0.25))",
+              "linear-gradient(90deg, rgba(249,87,111,0.25), rgba(192,132,252,0.1), rgba(249,87,111,0.25))",
           }}
         >
           <div
@@ -172,7 +182,7 @@ export default function Profile() {
                 <img
                   src={
                     profileData.avatar ||
-                    `https://ui-avatars.com/api/?name=${encodeURIComponent(profileData.name || profileData.username)}&background=7c3aed&color=fff`
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(profileData.name || profileData.username)}&background=F9576F&color=fff`
                   }
                   alt={profileData.name}
                   className="w-full h-full object-cover"
@@ -255,7 +265,7 @@ export default function Profile() {
                   className="px-5 py-2.5 rounded-xl text-sm font-medium text-white transition-all"
                   style={{ background: "var(--rm-purple)" }}
                   onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = "#6D28D9")
+                    (e.currentTarget.style.background = "#D63850")
                   }
                   onMouseLeave={(e) =>
                     (e.currentTarget.style.background = "var(--rm-purple)")

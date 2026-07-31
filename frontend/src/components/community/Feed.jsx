@@ -34,7 +34,7 @@ const EmptyFeed = () => {
           transition: "transform 0.9s ease",
         }}
       >
-        <Radio size={22} color="#C084FC" />
+        <Radio size={22} color="#FF8B93" />
       </div>
       <p
         className="text-sm font-medium"

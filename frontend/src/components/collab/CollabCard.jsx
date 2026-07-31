@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 
 const TERMS_COLOR = {
   Paid: "#34D399",
-  "Revenue Split": "#C084FC",
+  "Revenue Split": "#FF8B93",
   "Credit Only": "#60A5FA",
   "Just for Fun": "#F59E0B",
 };
@@ -35,7 +35,7 @@ const CollabCard = ({ post, onOpen }) => {
         transition: "border-color 0.2s ease",
       }}
       onMouseEnter={(e) =>
-        (e.currentTarget.style.borderColor = "rgba(124,58,237,0.4)")
+        (e.currentTarget.style.borderColor = "rgba(249,87,111,0.4)")
       }
       onMouseLeave={(e) =>
         (e.currentTarget.style.borderColor = "var(--rm-border)")
@@ -45,7 +45,7 @@ const CollabCard = ({ post, onOpen }) => {
         <img
           src={
             post.postedBy?.avatar ||
-            `https://ui-avatars.com/api/?name=${post.postedBy?.username}&background=7c3aed&color=fff`
+            `https://ui-avatars.com/api/?name=${post.postedBy?.username}&background=F9576F&color=fff`
           }
           alt=""
           onClick={(e) => {
@@ -136,9 +136,9 @@ const CollabCard = ({ post, onOpen }) => {
             className="text-[10px] px-2.5 py-0.5 rounded-full"
             style={{
               fontFamily: "var(--rm-font-mono)",
-              background: "var(--rm-purple-dim)",
-              color: "var(--rm-purple-light)",
-              border: "1px solid var(--rm-purple-border)",
+              background: "var(--rm-accent-violet-dim)",
+              color: "var(--rm-accent-violet)",
+              border: "1px solid rgba(140,123,168,0.3)",
             }}
           >
             {g}
@@ -149,7 +149,7 @@ const CollabCard = ({ post, onOpen }) => {
       <div
         className="flex items-center gap-4 pt-3 text-xs"
         style={{
-          borderTop: "1px solid rgba(124,58,237,0.1)",
+          borderTop: "1px solid rgba(249,87,111,0.1)",
           fontFamily: "var(--rm-font-mono)",
         }}
       >
@@ -179,7 +179,7 @@ const CollabCard = ({ post, onOpen }) => {
           className="mt-2 text-[11px] text-center py-1.5 rounded-lg"
           style={{
             fontFamily: "var(--rm-font-mono)",
-            background: "rgba(124,58,237,0.08)",
+            background: "rgba(249,87,111,0.08)",
             color: "var(--rm-purple-light)",
           }}
         >

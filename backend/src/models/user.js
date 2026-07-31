@@ -77,13 +77,10 @@ const userSchema = new mongoose.Schema(
 
     savedProjects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Project" }],
 
-    // User preferences — Appearance + Notifications settings
+    // User preferences — Notifications/Privacy settings.
+    // (accentColor used to live here for the Appearance settings section,
+    // which has been removed — RhyMerge now ships one fixed brand palette.)
     preferences: {
-      accentColor: {
-        type: String,
-        enum: ["#7C3AED", "#EC4899", "#3B82F6", "#10B981", "#F59E0B"],
-        default: "#7C3AED",
-      },
       notifications: {
         email: { type: Boolean, default: true },
         push: { type: Boolean, default: false },

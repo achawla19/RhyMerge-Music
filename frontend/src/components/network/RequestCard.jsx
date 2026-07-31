@@ -11,7 +11,7 @@ const RequestCard = ({ data, onAccept, onDecline }) => {
         border: "1px solid var(--rm-border)",
       }}
       onMouseEnter={(e) =>
-        (e.currentTarget.style.borderColor = "rgba(124,58,237,0.4)")
+        (e.currentTarget.style.borderColor = "rgba(249,87,111,0.4)")
       }
       onMouseLeave={(e) =>
         (e.currentTarget.style.borderColor = "var(--rm-border)")
@@ -58,15 +58,15 @@ const RequestCard = ({ data, onAccept, onDecline }) => {
           onClick={() => onAccept(data._id)}
           className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
           style={{
-            background: "rgba(16,185,129,0.12)",
-            color: "#34D399",
-            border: "1px solid rgba(16,185,129,0.3)",
+            background: "var(--rm-success-dim)",
+            color: "var(--rm-success)",
+            border: "1px solid rgba(79,190,138,0.35)",
           }}
           onMouseEnter={(e) =>
-            (e.currentTarget.style.background = "rgba(16,185,129,0.2)")
+            (e.currentTarget.style.background = "rgba(79,190,138,0.24)")
           }
           onMouseLeave={(e) =>
-            (e.currentTarget.style.background = "rgba(16,185,129,0.12)")
+            (e.currentTarget.style.background = "var(--rm-success-dim)")
           }
         >
           Accept
@@ -75,15 +75,15 @@ const RequestCard = ({ data, onAccept, onDecline }) => {
           onClick={() => onDecline(data._id)}
           className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
           style={{
-            background: "rgba(248,113,113,0.08)",
-            color: "#F87171",
-            border: "1px solid rgba(248,113,113,0.25)",
+            background: "var(--rm-error-dim)",
+            color: "var(--rm-error)",
+            border: "1px solid rgba(229,72,77,0.3)",
           }}
           onMouseEnter={(e) =>
-            (e.currentTarget.style.background = "rgba(248,113,113,0.16)")
+            (e.currentTarget.style.background = "rgba(229,72,77,0.22)")
           }
           onMouseLeave={(e) =>
-            (e.currentTarget.style.background = "rgba(248,113,113,0.08)")
+            (e.currentTarget.style.background = "var(--rm-error-dim)")
           }
         >
           Decline

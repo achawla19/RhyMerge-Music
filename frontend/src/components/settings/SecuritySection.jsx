@@ -163,7 +163,7 @@ export default function SecuritySection() {
             border: "1px solid var(--rm-purple-border)",
           }}
         >
-          <Shield size={16} color="#C084FC" />
+          <Shield size={16} color="#FF8B93" />
         </div>
         <div>
           <h2 className="text-white font-semibold text-lg">Security</h2>
@@ -212,7 +212,7 @@ export default function SecuritySection() {
             style={{ background: "var(--rm-purple)" }}
             onMouseEnter={(e) =>
               !e.currentTarget.disabled &&
-              (e.currentTarget.style.background = "#6D28D9")
+              (e.currentTarget.style.background = "#D63850")
             }
             onMouseLeave={(e) =>
               !e.currentTarget.disabled &&

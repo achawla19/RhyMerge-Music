@@ -1,44 +1,75 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&family=Alex+Brush&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ─── RhyMerge Design Tokens ─────────────────────────────────── */
+/* Palette lifted directly from the logo mark — a warm coral-red
+   ("Rhy...Merge") against ink. No purple, no default AI-gradient. */
 :root {
-  /* Brand */
-  --rm-purple: #7c3aed;
-  --rm-purple-light: #c084fc;
-  --rm-purple-dim: rgba(124, 58, 237, 0.15);
-  --rm-purple-border: rgba(124, 58, 237, 0.25);
-  --rm-amber: #f59e0b;
-  --rm-amber-dim: rgba(245, 158, 11, 0.12);
-  --rm-green: #10b981;
-  --rm-green-dim: rgba(16, 185, 129, 0.12);
+  /* Brand — from the logo. CTAs, active nav, record/play, PulseBar accent */
+  --rm-coral: #f9576f;
+  --rm-coral-light: #ff8b93;
+  --rm-coral-deep: #d63850;
+  --rm-coral-dim: rgba(249, 87, 111, 0.14);
+  --rm-coral-border: rgba(249, 87, 111, 0.28);
 
-  /* Surface */
-  --rm-bg: #0b0b12;
-  --rm-bg-card: #110820;
-  --rm-bg-raised: #1a0a2e;
-  --rm-border: rgba(124, 58, 237, 0.18);
-  --rm-border-subtle: rgba(255, 255, 255, 0.05);
+  /* kept for any lingering references — now mapped onto brand coral
+     instead of purple, so nothing breaks visually if a class slips by */
+  --rm-purple: var(--rm-coral);
+  --rm-purple-light: var(--rm-coral-light);
+  --rm-purple-dim: var(--rm-coral-dim);
+  --rm-purple-border: var(--rm-coral-border);
 
-  /* Text */
-  --rm-text-primary: #f3e8ff;
-  --rm-text-secondary: #a78bfa;
-  --rm-text-muted: #6b7280;
+  /* Surfaces — warm ink, unified across PlayerBar/GlobalTicker/modals */
+  --rm-bg: #0e0b0a;
+  --rm-bg-card: #171211;
+  --rm-bg-raised: #1f1816;
+  --rm-border: rgba(249, 87, 111, 0.16);
+  --rm-border-subtle: #2a2119;
+
+  /* Status — warm-shifted, not stock Tailwind red/green/amber */
+  --rm-success: #4fbe8a;
+  --rm-success-dim: rgba(79, 190, 138, 0.14);
+  --rm-pending: #eab054;
+  --rm-pending-dim: rgba(234, 176, 84, 0.14);
+  --rm-error: #e5484d;
+  --rm-error-dim: rgba(229, 72, 77, 0.14);
+  --rm-offline: #5a4e49;
+  --rm-offline-dim: rgba(90, 78, 73, 0.25);
+
+  /* kept for any lingering references to the old amber/green names */
+  --rm-gold: var(--rm-pending);
+  --rm-gold-dim: var(--rm-pending-dim);
+  --rm-amber: var(--rm-pending);
+  --rm-amber-dim: var(--rm-pending-dim);
+  --rm-green: var(--rm-success);
+  --rm-green-dim: var(--rm-success-dim);
+
+  /* Content accents — feed tags, collab roles, trending, search filters.
+     Muted/dusty, not saturated — reads as a deliberate system, not a
+     rainbow of default Tailwind swatches. */
+  --rm-accent-gold: #c9a24a;
+  --rm-accent-gold-dim: rgba(201, 162, 74, 0.14);
+  --rm-accent-teal: #5c8a7a;
+  --rm-accent-teal-dim: rgba(92, 138, 122, 0.14);
+  --rm-accent-violet: #8c7ba8;
+  --rm-accent-violet-dim: rgba(140, 123, 168, 0.14);
+
+  /* Text — warm off-white / warm gray, never cool gray */
+  --rm-text-primary: #f7f0ec;
+  --rm-text-secondary: #cbb9b3;
+  --rm-text-muted: #8a7a75;
 
   /* Typography */
-  --rm-font-sans: "Space Grotesk", system-ui, sans-serif;
-  --rm-font-mono: "Space Mono", ui-monospace, monospace;
-  /* Matches the logo's flowing calligraphic style. Scoped to headline/
-     brand moments ONLY (page titles, hero copy) — never body text, forms,
-     nav, or lists. Script faces measurably slow down reading at small
-     sizes and in dense text; using it everywhere "to match the logo"
-     would trade the whole app's usability for a vibe. This gets the
-     personality where it actually reads well and costs nothing where it
-     wouldn't. */
-  --rm-font-script: "Alex Brush", cursive;
+  --rm-font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --rm-font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  /* Fraunces is a variable serif with real optical-size personality —
+     used for headlines and brand moments to echo the logo's flowing
+     linework without resorting to a literal script font. Scoped to
+     headings/hero copy only; body, forms and nav stay in Inter. */
+  --rm-font-display: "Fraunces", Georgia, serif;
 
   /* Transitions */
   --rm-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -97,10 +128,17 @@ code,
   font-family: var(--rm-font-mono);
 }
 
+/* Reserved for hero/section headlines — apply explicitly, not globally */
+.rm-display {
+  font-family: var(--rm-font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
 /* ─── Scrollbar ──────────────────────────────────────────────── */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--rm-purple-border) transparent;
+  scrollbar-color: var(--rm-coral-border) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -111,16 +149,16 @@ code,
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--rm-purple-border);
+  background: var(--rm-coral-border);
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--rm-purple);
+  background: var(--rm-coral);
 }
 
 /* ─── Selection ──────────────────────────────────────────────── */
 ::selection {
-  background: var(--rm-purple-dim);
+  background: var(--rm-coral-dim);
   color: var(--rm-text-primary);
 }
 
@@ -130,7 +168,7 @@ code,
 }
 
 :focus-visible {
-  outline: 2px solid var(--rm-purple-light);
+  outline: 2px solid var(--rm-coral-light);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -143,8 +181,8 @@ select:focus-visible,
 [role="combobox"]:focus-visible {
   outline: none;
   box-shadow:
-    0 0 0 2px var(--rm-purple-dim),
-    0 0 0 1px var(--rm-purple);
+    0 0 0 2px var(--rm-coral-dim),
+    0 0 0 1px var(--rm-coral);
   border-radius: inherit;
 }
 
@@ -172,7 +210,7 @@ select:focus-visible,
 .rm-waveform-bar {
   width: 2.5px;
   border-radius: 2px;
-  background: var(--rm-purple);
+  background: var(--rm-coral);
   opacity: 0.7;
   animation: rmWave 1.2s ease-in-out infinite;
 }
@@ -208,7 +246,7 @@ select:focus-visible,
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--rm-purple);
+  background: var(--rm-coral);
   animation: rmPulse 1.4s ease-in-out infinite;
 }
 
@@ -216,7 +254,7 @@ select:focus-visible,
   background: var(--rm-green);
 }
 .rm-pulse.amber {
-  background: var(--rm-amber);
+  background: var(--rm-gold);
 }
 
 @keyframes rmPulse {
@@ -240,7 +278,7 @@ select:focus-visible,
 }
 
 .rm-card:hover {
-  border-color: rgba(124, 58, 237, 0.4);
+  border-color: rgba(249, 87, 111, 0.4);
 }
 
 /* Badge — genre/role tag */
@@ -256,21 +294,21 @@ select:focus-visible,
 }
 
 .rm-badge-purple {
-  background: rgba(124, 58, 237, 0.15);
-  color: var(--rm-purple-light);
-  border: 1px solid var(--rm-purple-border);
+  background: rgba(249, 87, 111, 0.15);
+  color: var(--rm-coral-light);
+  border: 1px solid var(--rm-coral-border);
 }
 
 .rm-badge-green {
   background: var(--rm-green-dim);
   color: var(--rm-green);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  border: 1px solid rgba(62, 207, 142, 0.3);
 }
 
 .rm-badge-amber {
-  background: var(--rm-amber-dim);
-  color: var(--rm-amber);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: var(--rm-gold-dim);
+  color: var(--rm-gold);
+  border: 1px solid rgba(234, 176, 84, 0.3);
 }
 
 /* Button — primary */
@@ -289,23 +327,23 @@ select:focus-visible,
 }
 
 .rm-btn-primary {
-  background: var(--rm-purple);
+  background: var(--rm-coral);
   color: #fff;
 }
 
 .rm-btn-primary:hover {
-  background: #6d28d9;
+  background: var(--rm-coral-deep);
 }
 
 .rm-btn-ghost {
   background: transparent;
-  color: var(--rm-purple-light);
-  border: 1px solid var(--rm-purple-border);
+  color: var(--rm-coral-light);
+  border: 1px solid var(--rm-coral-border);
 }
 
 .rm-btn-ghost:hover {
-  border-color: var(--rm-purple);
-  background: var(--rm-purple-dim);
+  border-color: var(--rm-coral);
+  background: var(--rm-coral-dim);
 }
 
 /* Slide-in animation for toasts / new cards */
@@ -358,4 +396,12 @@ select:focus-visible,
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

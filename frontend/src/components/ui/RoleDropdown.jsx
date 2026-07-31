@@ -14,7 +14,7 @@ export default function RoleDropdown({ value, onChange }) {
           whileTap={{ scale: 0.98 }}
           className="w-full flex justify-between items-center px-4 py-3 rounded-xl
           bg-white/5 backdrop-blur-xl border border-white/10 text-white
-          hover:border-purple-400/40 transition"
+          hover:border-[#FF8B93]/40 transition"
         >
           <span>{value || "Select Role"}</span>
           <ChevronDown className="w-4 h-4 opacity-70" />
@@ -29,7 +29,7 @@ export default function RoleDropdown({ value, onChange }) {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
             className="absolute mt-2 w-full rounded-xl overflow-y-auto max-h-60
-            bg-[#0f172a]/95 backdrop-blur-xl border border-white/10 z-50 shadow-2xl"
+            bg-[#1F1816]/95 backdrop-blur-xl border border-white/10 z-50 shadow-2xl"
           >
             {roles.map((role) => (
               <Listbox.Option key={role} value={role}>
@@ -38,7 +38,7 @@ export default function RoleDropdown({ value, onChange }) {
                     className={`flex items-center justify-between px-4 py-3 cursor-pointer transition
                       ${
                         active
-                          ? "bg-gradient-to-r from-purple-500/20 to-cyan-500/20 text-white"
+                          ? "bg-gradient-to-r from-[#F9576F]/20 to-[#EAB054]/20 text-white"
                           : "text-gray-300 hover:bg-white/5"
                       }`}
                   >

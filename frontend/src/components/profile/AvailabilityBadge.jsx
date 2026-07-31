@@ -1,18 +1,18 @@
 const map = {
   Available: {
-    color: "#34D399",
-    bg: "rgba(16,185,129,0.1)",
-    border: "rgba(16,185,129,0.3)",
+    color: "var(--rm-success)",
+    bg: "var(--rm-success-dim)",
+    border: "rgba(79,190,138,0.35)",
   },
   Busy: {
-    color: "#FBBF24",
-    bg: "rgba(245,158,11,0.1)",
-    border: "rgba(245,158,11,0.3)",
+    color: "var(--rm-pending)",
+    bg: "var(--rm-pending-dim)",
+    border: "rgba(234,176,84,0.35)",
   },
   "Not Looking": {
-    color: "#6B7280",
-    bg: "rgba(107,114,128,0.1)",
-    border: "rgba(107,114,128,0.3)",
+    color: "var(--rm-text-muted)",
+    bg: "var(--rm-offline-dim)",
+    border: "rgba(90,78,73,0.4)",
   },
 };
 

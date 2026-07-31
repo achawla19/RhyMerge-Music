@@ -185,12 +185,12 @@ const Messages = () => {
           className="w-72 flex flex-col flex-shrink-0"
           style={{
             background: "var(--rm-bg-card)",
-            borderRight: "1px solid rgba(124,58,237,0.15)",
+            borderRight: "1px solid rgba(249,87,111,0.15)",
           }}
         >
           <div
             className="p-5"
-            style={{ borderBottom: "1px solid rgba(124,58,237,0.12)" }}
+            style={{ borderBottom: "1px solid rgba(249,87,111,0.12)" }}
           >
             <h2 className="text-lg font-semibold text-white">Messages</h2>
             <p

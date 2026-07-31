@@ -189,7 +189,7 @@ export default function ProfileSection() {
             border: "1px solid var(--rm-purple-border)",
           }}
         >
-          <User size={16} color="#C084FC" />
+          <User size={16} color="#FF8B93" />
         </div>
         <div>
           <h2 className="text-white font-semibold text-lg">Profile</h2>
@@ -414,7 +414,7 @@ export default function ProfileSection() {
         style={{ background: "var(--rm-purple)" }}
         onMouseEnter={(e) =>
           !e.currentTarget.disabled &&
-          (e.currentTarget.style.background = "#6D28D9")
+          (e.currentTarget.style.background = "#D63850")
         }
         onMouseLeave={(e) =>
           !e.currentTarget.disabled &&

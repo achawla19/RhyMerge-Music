@@ -79,8 +79,8 @@ export default function Select({
         <div
           className="absolute z-50 w-full mt-1 rounded-xl overflow-hidden"
           style={{
-            background: "#130d24",
-            border: "1px solid rgba(124,58,237,0.3)",
+            background: "var(--rm-bg-raised)",
+            border: "1px solid rgba(249,87,111,0.3)",
             boxShadow: "0 16px 40px rgba(0,0,0,0.55)",
             maxHeight: 240,
             overflowY: "auto",
@@ -95,7 +95,7 @@ export default function Select({
                 onClick={() => pick(opt.value)}
                 className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-left transition-all"
                 style={{
-                  background: active ? "rgba(124,58,237,0.18)" : "transparent",
+                  background: active ? "rgba(249,87,111,0.18)" : "transparent",
                   color: active
                     ? "var(--rm-purple-light)"
                     : "var(--rm-text-secondary)",
@@ -103,7 +103,7 @@ export default function Select({
                 }}
                 onMouseEnter={(e) => {
                   if (!active)
-                    e.currentTarget.style.background = "rgba(124,58,237,0.08)";
+                    e.currentTarget.style.background = "rgba(249,87,111,0.08)";
                 }}
                 onMouseLeave={(e) => {
                   if (!active) e.currentTarget.style.background = "transparent";

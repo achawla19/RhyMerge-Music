@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 export default function HeroBanner() {
   return (
     <div className="relative overflow-hidden rounded-[32px] p-10 border border-white/10 bg-white/[0.03] backdrop-blur-xl">
-      <div className="absolute top-0 left-0 w-72 h-72 bg-purple-500/20 blur-[120px]" />
+      <div className="absolute top-0 left-0 w-72 h-72 bg-[#F9576F]/20 blur-[120px]" />
       <div className="absolute bottom-0 right-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
 
       <div className="relative z-10">
@@ -13,8 +13,8 @@ export default function HeroBanner() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex items-center gap-3 mb-4">
-            <Music2 className="text-purple-400" />
-            <span className="text-purple-300">
+            <Music2 className="text-[#FF8B93]" />
+            <span className="text-[#FFC2C7]">
               Music Collaboration Platform
             </span>
           </div>

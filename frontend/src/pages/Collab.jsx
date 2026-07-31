@@ -112,7 +112,7 @@ const Collab = () => {
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-all"
               style={{ background: "var(--rm-purple)" }}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "#6D28D9")
+                (e.currentTarget.style.background = "#D63850")
               }
               onMouseLeave={(e) =>
                 (e.currentTarget.style.background = "var(--rm-purple)")

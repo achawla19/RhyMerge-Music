@@ -175,31 +175,17 @@ export const uploadAvatar = async (req, res) => {
   }
 };
 
-// ── UPDATE PREFERENCES (appearance + notifications) ───────────────────────────
+// ── UPDATE PREFERENCES (notifications + privacy) ───────────────────────────
 export const updatePreferences = async (req, res) => {
   try {
-    const { accentColor, notifications, privacy } = req.body;
+    const { notifications, privacy } = req.body;
 
-    const ALLOWED_COLORS = [
-      "#7C3AED",
-      "#EC4899",
-      "#3B82F6",
-      "#10B981",
-      "#F59E0B",
-    ];
     const NOTIF_KEYS = ["email", "push", "connectionRequests", "messages"];
     const MSG_PERMS = ["everyone", "connections", "nobody"];
     const PROJECT_VIS = ["everyone", "connections", "nobody"];
 
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ msg: "User not found" });
-
-    if (accentColor !== undefined) {
-      if (!ALLOWED_COLORS.includes(accentColor)) {
-        return res.status(400).json({ msg: "Invalid accent color" });
-      }
-      user.preferences.accentColor = accentColor;
-    }
 
     if (notifications !== undefined && typeof notifications === "object") {
       for (const key of NOTIF_KEYS) {

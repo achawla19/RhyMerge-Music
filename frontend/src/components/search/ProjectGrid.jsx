@@ -2,8 +2,8 @@ import { useNavigate } from "react-router-dom";
 
 const statusStyle = {
   Planning: { bg: "rgba(245,158,11,0.1)", color: "#FBBF24" },
-  Recording: { bg: "rgba(124,58,237,0.12)", color: "var(--rm-purple-light)" },
-  Production: { bg: "rgba(124,58,237,0.12)", color: "var(--rm-purple-light)" },
+  Recording: { bg: "rgba(249,87,111,0.12)", color: "var(--rm-purple-light)" },
+  Production: { bg: "rgba(249,87,111,0.12)", color: "var(--rm-purple-light)" },
   Mixing: { bg: "rgba(96,165,250,0.1)", color: "#60A5FA" },
   Completed: { bg: "rgba(16,185,129,0.1)", color: "#34D399" },
 };
@@ -48,7 +48,7 @@ const ProjectGrid = ({ projects }) => {
               border: "1px solid var(--rm-border)",
             }}
             onMouseEnter={(e) =>
-              (e.currentTarget.style.borderColor = "rgba(124,58,237,0.4)")
+              (e.currentTarget.style.borderColor = "rgba(249,87,111,0.4)")
             }
             onMouseLeave={(e) =>
               (e.currentTarget.style.borderColor = "var(--rm-border)")
@@ -89,12 +89,12 @@ const ProjectGrid = ({ projects }) => {
 
             <div
               className="mt-5 pt-4 flex items-center gap-3"
-              style={{ borderTop: "1px solid rgba(124,58,237,0.12)" }}
+              style={{ borderTop: "1px solid rgba(249,87,111,0.12)" }}
             >
               <img
                 src={
                   project.owner?.avatar ||
-                  `https://ui-avatars.com/api/?name=${project.owner?.username || "User"}&background=7c3aed&color=fff`
+                  `https://ui-avatars.com/api/?name=${project.owner?.username || "User"}&background=F9576F&color=fff`
                 }
                 alt=""
                 className="w-9 h-9 rounded-full"

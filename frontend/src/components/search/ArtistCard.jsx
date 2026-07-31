@@ -31,7 +31,7 @@ const ArtistCard = ({ artist, initiallyPending = false }) => {
         border: "1px solid var(--rm-border)",
       }}
       onMouseEnter={(e) =>
-        (e.currentTarget.style.borderColor = "rgba(124,58,237,0.4)")
+        (e.currentTarget.style.borderColor = "rgba(249,87,111,0.4)")
       }
       onMouseLeave={(e) =>
         (e.currentTarget.style.borderColor = "var(--rm-border)")
@@ -41,7 +41,7 @@ const ArtistCard = ({ artist, initiallyPending = false }) => {
         <img
           src={
             artist.avatar ||
-            `https://ui-avatars.com/api/?name=${artist.username}&background=7c3aed&color=fff`
+            `https://ui-avatars.com/api/?name=${artist.username}&background=F9576F&color=fff`
           }
           alt=""
           className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
@@ -67,8 +67,8 @@ const ArtistCard = ({ artist, initiallyPending = false }) => {
                   key={genre}
                   className="px-2 py-1 rounded-lg text-[10px]"
                   style={{
-                    background: "var(--rm-purple-dim)",
-                    color: "var(--rm-purple-light)",
+                    background: "var(--rm-accent-violet-dim)",
+                    color: "var(--rm-accent-violet)",
                     fontFamily: "var(--rm-font-mono)",
                   }}
                 >

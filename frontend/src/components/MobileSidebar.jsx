@@ -144,7 +144,7 @@ const MobileSidebar = ({ open, onClose }) => {
           background: "rgba(10, 6, 18, 0.98)",
           backdropFilter: "blur(24px)",
           WebkitBackdropFilter: "blur(24px)",
-          borderRight: "1px solid rgba(124,58,237,0.2)",
+          borderRight: "1px solid rgba(249,87,111,0.2)",
           boxShadow: "8px 0 40px rgba(0,0,0,0.5)",
           animation: open
             ? "rmSlideInLeft 0.28s var(--rm-ease) both"
@@ -154,7 +154,7 @@ const MobileSidebar = ({ open, onClose }) => {
         {/* ── Header ── */}
         <div
           className="flex items-center justify-between px-5 py-5"
-          style={{ borderBottom: "1px solid rgba(124,58,237,0.12)" }}
+          style={{ borderBottom: "1px solid rgba(249,87,111,0.12)" }}
         >
           <button
             onClick={() => handleNavigate("/")}
@@ -226,8 +226,8 @@ const MobileSidebar = ({ open, onClose }) => {
                 style={
                   active
                     ? {
-                        background: "rgba(124,58,237,0.14)",
-                        border: "1px solid rgba(124,58,237,0.3)",
+                        background: "rgba(249,87,111,0.14)",
+                        border: "1px solid rgba(249,87,111,0.3)",
                       }
                     : {
                         background: "transparent",
@@ -290,13 +290,13 @@ const MobileSidebar = ({ open, onClose }) => {
         {/* ── User stem ── */}
         <div
           className="p-4 space-y-2"
-          style={{ borderTop: "1px solid rgba(124,58,237,0.12)" }}
+          style={{ borderTop: "1px solid rgba(249,87,111,0.12)" }}
         >
           <button
             onClick={() => handleNavigate(`/profile/${user?.username || ""}`)}
             className="w-full flex items-center gap-3 p-3 rounded-xl transition-all"
             style={{
-              background: "rgba(124,58,237,0.07)",
+              background: "rgba(249,87,111,0.07)",
               border: "1px solid var(--rm-border)",
             }}
           >
@@ -304,7 +304,7 @@ const MobileSidebar = ({ open, onClose }) => {
               <img
                 src={
                   user?.avatar ||
-                  `https://ui-avatars.com/api/?name=${user?.username || "U"}&background=7c3aed&color=fff`
+                  `https://ui-avatars.com/api/?name=${user?.username || "U"}&background=F9576F&color=fff`
                 }
                 alt="avatar"
                 className="w-9 h-9 rounded-full object-cover"
@@ -314,7 +314,7 @@ const MobileSidebar = ({ open, onClose }) => {
                 className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full"
                 style={{
                   background: "var(--rm-green)",
-                  border: "1.5px solid #0B0814",
+                  border: "1.5px solid #0E0B0A",
                 }}
               />
             </div>

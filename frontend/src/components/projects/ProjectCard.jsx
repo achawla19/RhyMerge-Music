@@ -9,12 +9,12 @@ const statusStyle = {
     color: "#FBBF24",
   },
   Recording: {
-    bg: "rgba(124,58,237,0.12)",
+    bg: "rgba(249,87,111,0.12)",
     border: "var(--rm-purple-border)",
     color: "var(--rm-purple-light)",
   },
   Production: {
-    bg: "rgba(124,58,237,0.12)",
+    bg: "rgba(249,87,111,0.12)",
     border: "var(--rm-purple-border)",
     color: "var(--rm-purple-light)",
   },
@@ -78,13 +78,13 @@ export default function ProjectCard({ project }) {
       style={{
         background: "var(--rm-bg-card)",
         border: isActive
-          ? "1px solid rgba(124,58,237,0.6)"
+          ? "1px solid rgba(249,87,111,0.6)"
           : "1px solid var(--rm-border)",
-        boxShadow: isActive ? "0 0 0 1px rgba(124,58,237,0.3)" : "none",
+        boxShadow: isActive ? "0 0 0 1px rgba(249,87,111,0.3)" : "none",
       }}
       onMouseEnter={(e) => {
         if (!isActive)
-          e.currentTarget.style.borderColor = "rgba(124,58,237,0.45)";
+          e.currentTarget.style.borderColor = "rgba(249,87,111,0.45)";
       }}
       onMouseLeave={(e) => {
         if (!isActive) e.currentTarget.style.borderColor = "var(--rm-border)";
@@ -101,7 +101,7 @@ export default function ProjectCard({ project }) {
           className="h-2 w-full"
           style={{
             background:
-              "linear-gradient(90deg, var(--rm-purple) 0%, #C084FC 100%)",
+              "linear-gradient(90deg, var(--rm-purple) 0%, #FF8B93 100%)",
             opacity: 0.6,
           }}
         />
@@ -115,7 +115,7 @@ export default function ProjectCard({ project }) {
                 className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                 style={{ background: "var(--rm-purple-dim)" }}
               >
-                <Music size={16} color="#C084FC" />
+                <Music size={16} color="#FF8B93" />
               </div>
             )}
             <div className="min-w-0">

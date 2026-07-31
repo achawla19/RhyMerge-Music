@@ -222,7 +222,7 @@ export default function Network() {
                   border: "1px dashed var(--rm-purple-border)",
                 }}
               >
-                <Users size={26} color="#C084FC" className="mx-auto mb-3" />
+                <Users size={26} color="#FF8B93" className="mx-auto mb-3" />
                 <p
                   className="text-sm"
                   style={{ color: "var(--rm-text-primary)" }}

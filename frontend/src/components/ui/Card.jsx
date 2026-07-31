@@ -14,7 +14,7 @@ const Card = ({ children, className = "", hover = false }) => {
 
         transition-all duration-300
 
-        ${hover ? "hover:bg-white/[0.06] hover:border-purple-500/20" : ""}
+        ${hover ? "hover:bg-white/[0.06] hover:border-[#F9576F]/20" : ""}
 
         ${className}
       `}

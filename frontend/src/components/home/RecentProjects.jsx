@@ -2,37 +2,39 @@ import { Music2, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getProjects } from "../../api/projects";
+import { useProjectPanel } from "../../context/ProjectPanelContext";
 
 const statusStyle = {
   Planning: {
-    bg: "rgba(245,158,11,0.1)",
-    border: "rgba(245,158,11,0.3)",
-    color: "#FBBF24",
+    bg: "var(--rm-pending-dim)",
+    border: "rgba(234,176,84,0.35)",
+    color: "var(--rm-pending)",
   },
   Recording: {
-    bg: "rgba(124,58,237,0.12)",
-    border: "var(--rm-purple-border)",
-    color: "var(--rm-purple-light)",
+    bg: "var(--rm-coral-dim)",
+    border: "var(--rm-coral-border)",
+    color: "var(--rm-coral-light)",
   },
   Production: {
-    bg: "rgba(124,58,237,0.12)",
-    border: "var(--rm-purple-border)",
-    color: "var(--rm-purple-light)",
+    bg: "var(--rm-coral-dim)",
+    border: "var(--rm-coral-border)",
+    color: "var(--rm-coral-light)",
   },
   Mixing: {
-    bg: "rgba(96,165,250,0.1)",
-    border: "rgba(96,165,250,0.3)",
-    color: "#60A5FA",
+    bg: "var(--rm-accent-teal-dim)",
+    border: "rgba(92,138,122,0.35)",
+    color: "var(--rm-accent-teal)",
   },
   Completed: {
-    bg: "rgba(16,185,129,0.1)",
-    border: "rgba(16,185,129,0.3)",
-    color: "#34D399",
+    bg: "var(--rm-success-dim)",
+    border: "rgba(79,190,138,0.35)",
+    color: "var(--rm-success)",
   },
 };
 
 export default function RecentProjects() {
   const navigate = useNavigate();
+  const { openPanel } = useProjectPanel();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -101,15 +103,14 @@ export default function RecentProjects() {
             return (
               <div
                 key={project._id}
-                onClick={() => navigate(`/projects/${project._id}`)}
+                onClick={() => openPanel(project._id)}
                 className="p-3.5 rounded-xl cursor-pointer transition-all"
                 style={{
                   background: "rgba(255,255,255,0.02)",
                   border: "1px solid transparent",
                 }}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.borderColor =
-                    "var(--rm-purple-border)")
+                  (e.currentTarget.style.borderColor = "var(--rm-coral-border)")
                 }
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.borderColor = "transparent")
@@ -120,7 +121,7 @@ export default function RecentProjects() {
                     <div className="flex items-center gap-2 min-w-0">
                       <Music2
                         size={14}
-                        color="#C084FC"
+                        color="#FF8B93"
                         className="flex-shrink-0"
                       />
                       <h3 className="text-sm font-medium text-white truncate">

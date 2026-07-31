@@ -25,21 +25,21 @@ const ToastContext = createContext(null);
 const VARIANTS = {
   success: {
     icon: CheckCircle2,
-    color: "#34D399",
-    border: "rgba(16,185,129,0.35)",
-    bg: "rgba(16,185,129,0.08)",
+    color: "var(--rm-success)",
+    border: "rgba(79,190,138,0.35)",
+    bg: "var(--rm-success-dim)",
   },
   error: {
     icon: XCircle,
-    color: "#F87171",
-    border: "rgba(248,113,113,0.35)",
-    bg: "rgba(248,113,113,0.08)",
+    color: "var(--rm-error)",
+    border: "rgba(229,72,77,0.35)",
+    bg: "var(--rm-error-dim)",
   },
   info: {
     icon: Info,
-    color: "#C084FC",
-    border: "var(--rm-purple-border)",
-    bg: "var(--rm-purple-dim)",
+    color: "var(--rm-coral-light)",
+    border: "var(--rm-coral-border)",
+    bg: "var(--rm-coral-dim)",
   },
 };
 

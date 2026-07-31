@@ -32,7 +32,7 @@ export default function AboutTab({ profileData }) {
           }}
         >
           <div className="flex items-center gap-2 mb-4">
-            <Sparkles size={15} color="#C084FC" />
+            <Sparkles size={15} color="#FF8B93" />
             <h2 className="text-white font-semibold">About</h2>
           </div>
           <p className="text-sm leading-relaxed" style={{ color: "#D1D5DB" }}>
@@ -48,7 +48,7 @@ export default function AboutTab({ profileData }) {
           }}
         >
           <div className="flex items-center gap-2 mb-4">
-            <Music2 size={15} color="#C084FC" />
+            <Music2 size={15} color="#FF8B93" />
             <h2 className="text-white font-semibold">Sounds & Skills</h2>
           </div>
 
@@ -122,7 +122,7 @@ export default function AboutTab({ profileData }) {
           }}
         >
           <div className="flex items-center gap-2 mb-3">
-            <Clock size={14} color="#C084FC" />
+            <Clock size={14} color="#FF8B93" />
             <h3 className="text-white font-medium text-sm">Availability</h3>
           </div>
           <AvailabilityBadge availability={profileData.availability} />
@@ -137,7 +137,7 @@ export default function AboutTab({ profileData }) {
             }}
           >
             <div className="flex items-center gap-2 mb-3">
-              <Award size={14} color="#C084FC" />
+              <Award size={14} color="#FF8B93" />
               <h3 className="text-white font-medium text-sm">Certifications</h3>
             </div>
             <div className="space-y-2">
@@ -165,7 +165,7 @@ export default function AboutTab({ profileData }) {
           }}
         >
           <div className="flex items-center gap-2 mb-3">
-            <Share2 size={14} color="#C084FC" />
+            <Share2 size={14} color="#FF8B93" />
             <h3 className="text-white font-medium text-sm">Share Profile</h3>
           </div>
           <div className="flex gap-2">

@@ -153,7 +153,7 @@ export default function NavbarSearch({ width = "lg:w-[360px]" }) {
             inset-0
             z-[200]
 
-            bg-[#0B0B12]
+            bg-[#171211]
           "
         >
           {/* HEADER */}
@@ -254,7 +254,7 @@ function SearchDropdown({
 
             rounded-2xl
 
-            bg-[#12131D]
+            bg-[#171211]
             border border-white/[0.06]
 
             overflow-hidden
@@ -365,14 +365,14 @@ function SearchDropdown({
 
                     rounded-xl
 
-                    bg-purple-500/20
+                    bg-[#F9576F]/20
 
                     flex
                     items-center
                     justify-center
                   "
               >
-                <Music2 size={16} className="text-purple-400" />
+                <Music2 size={16} className="text-[#FF8B93]" />
               </div>
 
               <div className="text-left">

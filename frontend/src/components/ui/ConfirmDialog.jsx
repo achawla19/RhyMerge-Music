@@ -112,7 +112,7 @@ export const ConfirmProvider = ({ children }) => {
                     {danger ? (
                       <AlertTriangle size={16} color="#F87171" />
                     ) : (
-                      <HelpCircle size={16} color="#C084FC" />
+                      <HelpCircle size={16} color="#FF8B93" />
                     )}
                   </div>
                   <div className="min-w-0 pt-1">
@@ -162,7 +162,7 @@ export const ConfirmProvider = ({ children }) => {
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.background = danger
                         ? "#B91C1C"
-                        : "#6D28D9")
+                        : "#D63850")
                     }
                     onMouseLeave={(e) =>
                       (e.currentTarget.style.background = danger

@@ -56,11 +56,11 @@ const PrivacySection = () => {
         {/* Public Profile */}
         <div
           className="flex items-center justify-between py-3.5"
-          style={{ borderBottom: "1px solid rgba(124,58,237,0.1)" }}
+          style={{ borderBottom: "1px solid rgba(249,87,111,0.1)" }}
         >
           <div className="flex items-center gap-3">
             {privacy.profileVisible ? (
-              <Eye size={16} color="#C084FC" />
+              <Eye size={16} color="#FF8B93" />
             ) : (
               <EyeOff size={16} color="var(--rm-text-muted)" />
             )}
@@ -95,7 +95,7 @@ const PrivacySection = () => {
         {/* Show Email */}
         <div
           className="flex items-center justify-between py-3.5"
-          style={{ borderBottom: "1px solid rgba(124,58,237,0.1)" }}
+          style={{ borderBottom: "1px solid rgba(249,87,111,0.1)" }}
         >
           <div>
             <p className="text-white text-sm font-medium">Show Email</p>
@@ -125,7 +125,7 @@ const PrivacySection = () => {
         {/* Who can message you */}
         <div
           className="py-3.5"
-          style={{ borderBottom: "1px solid rgba(124,58,237,0.1)" }}
+          style={{ borderBottom: "1px solid rgba(249,87,111,0.1)" }}
         >
           <div className="flex items-center gap-2 mb-3">
             <MessageCircle size={15} color="var(--rm-text-muted)" />

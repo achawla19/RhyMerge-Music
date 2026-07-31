@@ -63,7 +63,7 @@ export default function Library() {
               border: "1px solid var(--rm-purple-border)",
             }}
           >
-            <LibraryIcon size={18} color="#C084FC" />
+            <LibraryIcon size={18} color="#FF8B93" />
           </div>
           <div>
             <h1
@@ -140,7 +140,7 @@ export default function Library() {
         >
           {tab === "Saved Projects" ? (
             <>
-              <Bookmark size={28} color="#C084FC" className="mx-auto mb-3" />
+              <Bookmark size={28} color="#FF8B93" className="mx-auto mb-3" />
               <p className="text-sm text-white">No saved projects yet</p>
               <p
                 className="text-xs mt-1"
@@ -161,7 +161,7 @@ export default function Library() {
             </>
           ) : (
             <>
-              <Music2 size={28} color="#C084FC" className="mx-auto mb-3" />
+              <Music2 size={28} color="#FF8B93" className="mx-auto mb-3" />
               <p className="text-sm text-white">No projects created yet</p>
               <p
                 className="text-xs mt-1"

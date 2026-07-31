@@ -49,7 +49,7 @@ const ReelTrack = ({ track, onOpenProject }) => {
         border: "1px solid rgba(255,255,255,0.06)",
       }}
       onMouseEnter={(e) =>
-        (e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)")
+        (e.currentTarget.style.borderColor = "rgba(249,87,111,0.3)")
       }
       onMouseLeave={(e) =>
         (e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)")
@@ -66,7 +66,7 @@ const ReelTrack = ({ track, onOpenProject }) => {
         {playing ? (
           <Pause size={13} color="#fff" />
         ) : (
-          <Play size={13} color="#C084FC" />
+          <Play size={13} color="#FF8B93" />
         )}
       </button>
 
@@ -148,7 +148,7 @@ export default function AudioReelTab({ username, isOwnProfile }) {
       }}
     >
       <div className="flex items-center gap-2 mb-5">
-        <Headphones size={16} color="#C084FC" />
+        <Headphones size={16} color="#FF8B93" />
         <h2 className="text-white font-semibold">Audio Reel</h2>
       </div>
 

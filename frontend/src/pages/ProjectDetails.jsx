@@ -50,12 +50,12 @@ const statusStyle = {
     color: "#FBBF24",
   },
   Recording: {
-    bg: "rgba(124,58,237,0.12)",
+    bg: "rgba(249,87,111,0.12)",
     border: "var(--rm-purple-border)",
     color: "var(--rm-purple-light)",
   },
   Production: {
-    bg: "rgba(124,58,237,0.12)",
+    bg: "rgba(249,87,111,0.12)",
     border: "var(--rm-purple-border)",
     color: "var(--rm-purple-light)",
   },
@@ -524,7 +524,7 @@ const ProjectDetails = () => {
           style={{
             background: project.coverImage
               ? `linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(11,8,20,0.97)), url(${project.coverImage}) center/cover`
-              : "linear-gradient(135deg, rgba(124,58,237,0.12), var(--rm-bg-card))",
+              : "linear-gradient(135deg, rgba(249,87,111,0.12), var(--rm-bg-card))",
             border: "1px solid var(--rm-border)",
           }}
         >
@@ -613,7 +613,7 @@ const ProjectDetails = () => {
                     color: "var(--rm-purple-light)",
                   }}
                   onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = "rgba(124,58,237,0.2)")
+                    (e.currentTarget.style.background = "rgba(249,87,111,0.2)")
                   }
                   onMouseLeave={(e) =>
                     (e.currentTarget.style.background = "var(--rm-purple-dim)")
@@ -667,7 +667,7 @@ const ProjectDetails = () => {
                 className="px-5 py-3 rounded-2xl text-white font-medium transition-all"
                 style={{ background: "var(--rm-purple)" }}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "#6D28D9")
+                  (e.currentTarget.style.background = "#D63850")
                 }
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.background = "var(--rm-purple)")
@@ -803,7 +803,7 @@ const ProjectDetails = () => {
                 <h3 className="text-white font-semibold mb-4">Project Info</h3>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <Music2 size={15} color="#C084FC" />
+                    <Music2 size={15} color="#FF8B93" />
                     <span className="text-sm" style={{ color: "#9CA3AF" }}>
                       {project.genre || "—"}
                     </span>
@@ -855,7 +855,7 @@ const ProjectDetails = () => {
                         className="flex items-center gap-2"
                         style={{ color: "#D1D5DB" }}
                       >
-                        <Plus size={13} color="#C084FC" />
+                        <Plus size={13} color="#FF8B93" />
                         <span className="text-sm">{role}</span>
                       </div>
                     ))}
@@ -901,7 +901,7 @@ const ProjectDetails = () => {
                 <img
                   src={
                     project.owner?.avatar ||
-                    `https://ui-avatars.com/api/?name=${project.owner?.username}&background=7c3aed&color=fff`
+                    `https://ui-avatars.com/api/?name=${project.owner?.username}&background=F9576F&color=fff`
                   }
                   alt=""
                   onClick={() =>
@@ -941,7 +941,7 @@ const ProjectDetails = () => {
                   <img
                     src={
                       member.avatar ||
-                      `https://ui-avatars.com/api/?name=${member.username}&background=7c3aed&color=fff`
+                      `https://ui-avatars.com/api/?name=${member.username}&background=F9576F&color=fff`
                     }
                     alt=""
                     onClick={() => navigate(`/profile/${member.username}`)}

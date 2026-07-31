@@ -15,6 +15,7 @@ import {
   Handshake,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useProjectPanel } from "../context/ProjectPanelContext";
 import { getProjects, searchProjects } from "../api/projects";
 import { getCollabPosts } from "../api/collab";
 import { sendConnectionRequest, getSentRequests } from "../api/connection";
@@ -37,7 +38,7 @@ const GENRES = [
 ];
 
 const GENRE_COLORS = {
-  "Hip-Hop": "#C084FC",
+  "Hip-Hop": "#FF8B93",
   "R&B": "#F472B6",
   Pop: "#60A5FA",
   Electronic: "#34D399",
@@ -59,8 +60,8 @@ const ProjectRow = ({ project, onClick }) => (
       border: "1px solid transparent",
     }}
     onMouseEnter={(e) => {
-      e.currentTarget.style.background = "rgba(124,58,237,0.07)";
-      e.currentTarget.style.borderColor = "rgba(124,58,237,0.2)";
+      e.currentTarget.style.background = "rgba(249,87,111,0.07)";
+      e.currentTarget.style.borderColor = "rgba(249,87,111,0.2)";
     }}
     onMouseLeave={(e) => {
       e.currentTarget.style.background = "rgba(255,255,255,0.02)";
@@ -81,11 +82,11 @@ const ProjectRow = ({ project, onClick }) => (
           className="w-full h-full object-cover"
         />
       ) : (
-        <Music2 size={16} color="#C084FC" />
+        <Music2 size={16} color="#FF8B93" />
       )}
     </div>
     <div className="flex-1 min-w-0">
-      <p className="text-sm font-medium text-white truncate group-hover:text-purple-300 transition-colors">
+      <p className="text-sm font-medium text-white truncate group-hover:text-[#FFC2C7] transition-colors">
         {project.title}
       </p>
       <div className="flex items-center gap-2 mt-0.5">
@@ -161,8 +162,8 @@ const CreatorCard = ({ creator, isPending, onConnect }) => {
         border: "1px solid transparent",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = "rgba(124,58,237,0.07)";
-        e.currentTarget.style.borderColor = "rgba(124,58,237,0.2)";
+        e.currentTarget.style.background = "rgba(249,87,111,0.07)";
+        e.currentTarget.style.borderColor = "rgba(249,87,111,0.2)";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.background = "rgba(255,255,255,0.02)";
@@ -173,7 +174,7 @@ const CreatorCard = ({ creator, isPending, onConnect }) => {
         <img
           src={
             creator.avatar ||
-            `https://ui-avatars.com/api/?name=${encodeURIComponent(creator.name || creator.username)}&background=7c3aed&color=fff`
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(creator.name || creator.username)}&background=F9576F&color=fff`
           }
           alt=""
           className="w-11 h-11 rounded-xl object-cover"
@@ -236,6 +237,7 @@ const CreatorCard = ({ creator, isPending, onConnect }) => {
 
 export default function Home() {
   const navigate = useNavigate();
+  const { openPanel } = useProjectPanel();
   const { user } = useAuth();
 
   const [activeGenre, setActiveGenre] = useState("All");
@@ -345,7 +347,7 @@ export default function Home() {
           onClick={() => navigate("/projects")}
           className="hidden md:flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all"
           style={{ background: "var(--rm-purple)" }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#6D28D9")}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "#D63850")}
           onMouseLeave={(e) =>
             (e.currentTarget.style.background = "var(--rm-purple)")
           }
@@ -360,7 +362,7 @@ export default function Home() {
           {
             label: "projects on platform",
             value: stats.projects,
-            icon: <Music2 size={13} color="#C084FC" />,
+            icon: <Music2 size={13} color="#FF8B93" />,
             onClick: () => navigate("/projects"),
           },
           {
@@ -379,8 +381,8 @@ export default function Home() {
               border: "1px solid rgba(255,255,255,0.08)",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "rgba(124,58,237,0.35)";
-              e.currentTarget.style.background = "rgba(124,58,237,0.06)";
+              e.currentTarget.style.borderColor = "rgba(249,87,111,0.35)";
+              e.currentTarget.style.background = "rgba(249,87,111,0.06)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
@@ -408,7 +410,7 @@ export default function Home() {
       >
         {GENRES.map((genre) => {
           const active = activeGenre === genre;
-          const color = GENRE_COLORS[genre] || "#C084FC";
+          const color = GENRE_COLORS[genre] || "#FF8B93";
           return (
             <button
               key={genre}
@@ -460,7 +462,7 @@ export default function Home() {
         >
           <div className="flex items-center justify-between px-5 pt-5 pb-3">
             <div className="flex items-center gap-2">
-              <Music2 size={15} color="#C084FC" />
+              <Music2 size={15} color="#FF8B93" />
               <h2 className="font-semibold text-white text-sm">
                 {activeGenre === "All"
                   ? "Open Projects"
@@ -522,7 +524,7 @@ export default function Home() {
                     <div className="flex-1">
                       <ProjectRow
                         project={p}
-                        onClick={() => navigate(`/projects/${p._id}`)}
+                        onClick={() => openPanel(p._id)}
                       />
                     </div>
                   </div>

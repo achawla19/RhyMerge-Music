@@ -94,13 +94,13 @@ const Sidebar = () => {
         background: "rgba(11, 8, 20, 0.97)",
         backdropFilter: "blur(24px)",
         WebkitBackdropFilter: "blur(24px)",
-        border: "1px solid rgba(124, 58, 237, 0.15)",
+        border: "1px solid rgba(249, 87, 111, 0.15)",
       }}
     >
       {/* LOGO — navigates home */}
       <div
         className="px-5 py-5 flex items-center gap-3 cursor-pointer group flex-shrink-0"
-        style={{ borderBottom: "1px solid rgba(124, 58, 237, 0.12)" }}
+        style={{ borderBottom: "1px solid rgba(249, 87, 111, 0.12)" }}
         onClick={() => navigate("/")}
       >
         <img src={logo} alt="RhyMerge" className="h-8 w-auto flex-shrink-0" />
@@ -141,8 +141,8 @@ const Sidebar = () => {
               style={
                 active
                   ? {
-                      background: "rgba(124,58,237,0.14)",
-                      border: "1px solid rgba(124,58,237,0.3)",
+                      background: "rgba(249,87,111,0.14)",
+                      border: "1px solid rgba(249,87,111,0.3)",
                     }
                   : {
                       background: "transparent",
@@ -151,7 +151,7 @@ const Sidebar = () => {
               }
               onMouseEnter={(e) => {
                 if (!active)
-                  e.currentTarget.style.background = "rgba(124,58,237,0.07)";
+                  e.currentTarget.style.background = "rgba(249,87,111,0.07)";
               }}
               onMouseLeave={(e) => {
                 if (!active) e.currentTarget.style.background = "transparent";
@@ -207,12 +207,12 @@ const Sidebar = () => {
       {/* USER — bottom, logout only (no profile nav here — use avatar in topbar) */}
       <div
         className="p-3 flex-shrink-0"
-        style={{ borderTop: "1px solid rgba(124,58,237,0.12)" }}
+        style={{ borderTop: "1px solid rgba(249,87,111,0.12)" }}
       >
         <div
           className="flex items-center gap-3 px-3 py-2 rounded-xl mb-1"
           style={{
-            background: "rgba(124,58,237,0.07)",
+            background: "rgba(249,87,111,0.07)",
             border: "1px solid var(--rm-border)",
           }}
         >
@@ -220,7 +220,7 @@ const Sidebar = () => {
             <img
               src={
                 user?.avatar ||
-                `https://ui-avatars.com/api/?name=${user?.username || "U"}&background=7c3aed&color=fff`
+                `https://ui-avatars.com/api/?name=${user?.username || "U"}&background=F9576F&color=fff`
               }
               alt=""
               className="w-8 h-8 rounded-full object-cover"
@@ -228,7 +228,7 @@ const Sidebar = () => {
             />
             <span
               className="absolute bottom-0 right-0 w-2 h-2 rounded-full"
-              style={{ background: "#22C55E", border: "1.5px solid #0B0814" }}
+              style={{ background: "#22C55E", border: "1.5px solid #0E0B0A" }}
             />
           </div>
           <div className="flex-1 min-w-0">

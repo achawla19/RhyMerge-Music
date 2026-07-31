@@ -66,7 +66,7 @@ const Community = () => {
         }}
       >
         <div className="flex items-center gap-2 mb-3">
-          <Radio size={14} color="#C084FC" />
+          <Radio size={14} color="#FF8B93" />
           <span
             className="text-[11px] uppercase tracking-wider"
             style={{
@@ -119,7 +119,7 @@ const Community = () => {
             style={{ background: "var(--rm-purple)" }}
             onMouseEnter={(e) =>
               !e.currentTarget.disabled &&
-              (e.currentTarget.style.background = "#6D28D9")
+              (e.currentTarget.style.background = "#D63850")
             }
             onMouseLeave={(e) =>
               !e.currentTarget.disabled &&

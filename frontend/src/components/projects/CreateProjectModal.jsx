@@ -183,7 +183,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate }) {
                 border: "1px solid var(--rm-purple-border)",
               }}
             >
-              <Music2 size={16} color="#C084FC" />
+              <Music2 size={16} color="#FF8B93" />
             </div>
             <div>
               <h2 className="text-white font-bold text-xl">Post a Project</h2>
@@ -210,8 +210,8 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate }) {
             style={{
               background: coverPreview
                 ? `url(${coverPreview}) center/cover`
-                : "rgba(124,58,237,0.06)",
-              border: "1px dashed rgba(124,58,237,0.25)",
+                : "rgba(249,87,111,0.06)",
+              border: "1px dashed rgba(249,87,111,0.25)",
             }}
             onClick={() => document.getElementById("cover-input").click()}
           >
@@ -561,7 +561,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate }) {
               style={{ background: "var(--rm-purple)" }}
               onMouseEnter={(e) =>
                 !e.currentTarget.disabled &&
-                (e.currentTarget.style.background = "#6D28D9")
+                (e.currentTarget.style.background = "#D63850")
               }
               onMouseLeave={(e) =>
                 !e.currentTarget.disabled &&

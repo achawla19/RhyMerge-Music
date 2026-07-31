@@ -264,7 +264,7 @@ const CollabComposer = ({ isOpen, onClose, onCreated }) => {
           className="w-full py-3 rounded-xl text-sm font-medium text-white transition-all disabled:opacity-60"
           style={{ background: "var(--rm-purple)" }}
           onMouseEnter={(e) =>
-            !saving && (e.currentTarget.style.background = "#6D28D9")
+            !saving && (e.currentTarget.style.background = "#D63850")
           }
           onMouseLeave={(e) =>
             !saving && (e.currentTarget.style.background = "var(--rm-purple)")

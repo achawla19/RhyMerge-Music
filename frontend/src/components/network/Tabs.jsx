@@ -12,7 +12,7 @@ export default function Tabs({
   return (
     <div
       className="flex items-center gap-6"
-      style={{ borderBottom: "1px solid rgba(124,58,237,0.15)" }}
+      style={{ borderBottom: "1px solid rgba(249,87,111,0.15)" }}
     >
       {tabs.map((tab) => {
         const active = activeTab === tab.key;

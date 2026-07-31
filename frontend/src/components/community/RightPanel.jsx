@@ -17,7 +17,7 @@ const RightPanel = ({ onTagClick }) => {
           className="rounded-2xl p-5 relative overflow-hidden"
           style={{
             background:
-              "linear-gradient(135deg, rgba(124,58,237,0.18), rgba(192,132,252,0.08))",
+              "linear-gradient(135deg, rgba(249,87,111,0.18), rgba(192,132,252,0.08))",
             border: "1px solid var(--rm-purple-border)",
           }}
         >
@@ -41,7 +41,7 @@ const RightPanel = ({ onTagClick }) => {
             onClick={() => setShowProModal(true)}
             className="w-full py-2.5 rounded-xl text-sm font-medium text-white transition-all"
             style={{ background: "var(--rm-purple)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#6D28D9")}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#D63850")}
             onMouseLeave={(e) =>
               (e.currentTarget.style.background = "var(--rm-purple)")
             }
@@ -81,7 +81,7 @@ const RightPanel = ({ onTagClick }) => {
                 border: "1px solid var(--rm-purple-border)",
               }}
             >
-              <Sparkles size={22} color="#C084FC" />
+              <Sparkles size={22} color="#FF8B93" />
             </div>
             <h3 className="text-white font-semibold text-lg mb-2">
               RhyMerge Pro

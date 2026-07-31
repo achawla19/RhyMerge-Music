@@ -9,8 +9,8 @@ const ChatHeader = ({ user, online, isTyping }) => {
     <div
       className="flex items-center justify-between px-6 py-4"
       style={{
-        borderBottom: "1px solid rgba(124,58,237,0.15)",
-        background: "rgba(124,58,237,0.04)",
+        borderBottom: "1px solid rgba(249,87,111,0.15)",
+        background: "rgba(249,87,111,0.04)",
       }}
     >
       <button

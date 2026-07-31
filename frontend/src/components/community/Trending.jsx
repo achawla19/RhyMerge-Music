@@ -39,12 +39,12 @@ const Trending = ({ onTagClick }) => {
       }}
     >
       <div className="flex items-center gap-2 mb-4">
-        <TrendingUp size={15} color="#C084FC" />
+        <TrendingUp size={15} color="var(--rm-accent-gold)" />
         <h2
           className="text-xs font-semibold uppercase tracking-wider"
           style={{
             fontFamily: "var(--rm-font-mono)",
-            color: "var(--rm-purple-light)",
+            color: "var(--rm-accent-gold)",
           }}
         >
           trending frequencies
@@ -80,7 +80,7 @@ const Trending = ({ onTagClick }) => {
               className="w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all"
               style={{ background: "rgba(255,255,255,0.02)" }}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "var(--rm-purple-dim)")
+                (e.currentTarget.style.background = "var(--rm-accent-gold-dim)")
               }
               onMouseLeave={(e) =>
                 (e.currentTarget.style.background = "rgba(255,255,255,0.02)")
@@ -107,7 +107,7 @@ const Trending = ({ onTagClick }) => {
                 className="text-[10px] flex-shrink-0"
                 style={{
                   fontFamily: "var(--rm-font-mono)",
-                  color: "var(--rm-purple-light)",
+                  color: "var(--rm-accent-gold)",
                 }}
               >
                 {t.count}

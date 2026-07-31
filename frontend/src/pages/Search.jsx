@@ -42,13 +42,13 @@ const GENRES = [
 const AVAIL = ["Available", "Busy", "Not Looking"];
 
 const GENRE_COLORS = {
-  "Hip-Hop": "#C084FC",
+  "Hip-Hop": "#FF8B93",
   "R&B": "#F472B6",
   Pop: "#60A5FA",
   Electronic: "#34D399",
   Rock: "#FBBF24",
   Jazz: "#FB923C",
-  Classical: "#A78BFA",
+  Classical: "#F2A6AE",
   Afrobeats: "#4ADE80",
   "Lo-Fi": "#67E8F9",
   Trap: "#F87171",
@@ -84,7 +84,7 @@ const ArtistCard = ({ artist, isPending, onConnect }) => {
         border: "1px solid var(--rm-border)",
       }}
       onMouseEnter={(e) =>
-        (e.currentTarget.style.borderColor = "rgba(124,58,237,0.45)")
+        (e.currentTarget.style.borderColor = "rgba(249,87,111,0.45)")
       }
       onMouseLeave={(e) =>
         (e.currentTarget.style.borderColor = "var(--rm-border)")
@@ -94,7 +94,7 @@ const ArtistCard = ({ artist, isPending, onConnect }) => {
         <img
           src={
             artist.avatar ||
-            `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name || artist.username)}&background=7c3aed&color=fff`
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name || artist.username)}&background=F9576F&color=fff`
           }
           alt=""
           className="w-12 h-12 rounded-xl object-cover flex-shrink-0"
@@ -610,12 +610,12 @@ export default function Search() {
           {/* Browse by genre */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Compass size={16} color="#C084FC" />
+              <Compass size={16} color="#FF8B93" />
               <h2 className="font-semibold text-white">Browse by Genre</h2>
             </div>
             <div className="flex flex-wrap gap-2 mb-4">
               {GENRES.map((g) => {
-                const color = GENRE_COLORS[g] || "#C084FC";
+                const color = GENRE_COLORS[g] || "#FF8B93";
                 const active = activeGenre === g;
                 return (
                   <button
@@ -741,7 +741,7 @@ export default function Search() {
                   }}
                   onMouseEnter={(e) =>
                     (e.currentTarget.style.borderColor =
-                      "rgba(124,58,237,0.45)")
+                      "rgba(249,87,111,0.45)")
                   }
                   onMouseLeave={(e) =>
                     (e.currentTarget.style.borderColor = "var(--rm-border)")

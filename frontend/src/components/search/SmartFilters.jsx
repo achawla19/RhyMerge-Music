@@ -41,7 +41,7 @@ const SmartFilters = ({
             className="flex items-center gap-1 text-xs transition-colors"
             style={{ color: "var(--rm-text-muted)" }}
             onMouseEnter={(e) =>
-              (e.currentTarget.style.color = "var(--rm-purple-light)")
+              (e.currentTarget.style.color = "var(--rm-coral-light)")
             }
             onMouseLeave={(e) =>
               (e.currentTarget.style.color = "var(--rm-text-muted)")
@@ -75,9 +75,9 @@ const SmartFilters = ({
                   style={
                     active
                       ? {
-                          background: "var(--rm-purple-dim)",
-                          border: "1px solid var(--rm-purple-border)",
-                          color: "var(--rm-purple-light)",
+                          background: "var(--rm-accent-teal-dim)",
+                          border: "1px solid rgba(92,138,122,0.35)",
+                          color: "var(--rm-accent-teal)",
                         }
                       : {
                           background: "rgba(255,255,255,0.03)",
@@ -115,9 +115,9 @@ const SmartFilters = ({
                   style={
                     active
                       ? {
-                          background: "var(--rm-purple-dim)",
-                          border: "1px solid var(--rm-purple-border)",
-                          color: "var(--rm-purple-light)",
+                          background: "var(--rm-accent-violet-dim)",
+                          border: "1px solid rgba(140,123,168,0.35)",
+                          color: "var(--rm-accent-violet)",
                         }
                       : {
                           background: "rgba(255,255,255,0.03)",

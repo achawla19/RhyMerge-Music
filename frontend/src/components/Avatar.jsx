@@ -14,7 +14,7 @@ const Avatar = ({ src, alt, size = "md", online }) => {
       />
 
       {online && (
-        <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-[#0a0a12]" />
+        <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-[#0E0B0A]" />
       )}
     </div>
   );

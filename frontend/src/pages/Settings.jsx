@@ -5,7 +5,6 @@ import { useLocation } from "react-router-dom";
 import SettingsSidebar from "../components/settings/SettingsSidebar";
 import AccountSection from "../components/settings/AccountSection";
 import ProfileSection from "../components/settings/ProfileSection";
-import AppearanceSection from "../components/settings/AppearanceSection";
 import NotificationsSection from "../components/settings/NotificationsSection";
 import PrivacySection from "../components/settings/PrivacySection";
 import SecuritySection from "../components/settings/SecuritySection";
@@ -14,7 +13,6 @@ import PageHeader from "../components/ui/PageHeader";
 const SECTIONS = [
   "account",
   "profile",
-  "appearance",
   "notifications",
   "privacy",
   "security",
@@ -23,7 +21,6 @@ const SECTIONS = [
 const sectionComponents = {
   account: <AccountSection />,
   profile: <ProfileSection />,
-  appearance: <AppearanceSection />,
   notifications: <NotificationsSection />,
   privacy: <PrivacySection />,
   security: <SecuritySection />,
@@ -45,7 +42,7 @@ export default function Settings() {
         NOTE: the original page had a global "Save Changes" button here that
         only ran a fake setTimeout — it never called any API. Each section
         below manages its own save action against the backend instead
-        (Account, Profile, Appearance, and Notifications all persist for
+        (Account, Profile, and Notifications all persist for
         real now; Privacy/Security have their own dedicated flows).
       */}
       <PageHeader

@@ -79,7 +79,7 @@ export default function ConnectButton({ profileData, currentUser }) {
       style={{ background: "var(--rm-purple)" }}
       onMouseEnter={(e) =>
         !e.currentTarget.disabled &&
-        (e.currentTarget.style.background = "#6D28D9")
+        (e.currentTarget.style.background = "#D63850")
       }
       onMouseLeave={(e) =>
         !e.currentTarget.disabled &&

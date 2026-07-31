@@ -78,7 +78,7 @@ const NotificationsSection = () => {
   return (
     <div>
       <div className="flex items-center gap-3 mb-1">
-        <Bell size={16} color="#C084FC" />
+        <Bell size={16} color="#FF8B93" />
         <h2 className="text-white font-semibold text-lg">Notifications</h2>
       </div>
       <p className="text-sm mb-5" style={{ color: "var(--rm-text-muted)" }}>
@@ -92,7 +92,7 @@ const NotificationsSection = () => {
             className="flex items-center justify-between py-3.5"
             style={{
               borderBottom:
-                i < ROWS.length - 1 ? "1px solid rgba(124,58,237,0.1)" : "none",
+                i < ROWS.length - 1 ? "1px solid rgba(249,87,111,0.1)" : "none",
             }}
           >
             <div className="flex items-center gap-3 min-w-0">

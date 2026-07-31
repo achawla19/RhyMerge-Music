@@ -32,7 +32,7 @@ export default function ConnectionCard({ data }) {
         border: "1px solid var(--rm-border)",
       }}
       onMouseEnter={(e) =>
-        (e.currentTarget.style.borderColor = "rgba(124,58,237,0.4)")
+        (e.currentTarget.style.borderColor = "rgba(249,87,111,0.4)")
       }
       onMouseLeave={(e) =>
         (e.currentTarget.style.borderColor = "var(--rm-border)")
@@ -43,7 +43,7 @@ export default function ConnectionCard({ data }) {
           <img
             src={
               data.avatar ||
-              `https://ui-avatars.com/api/?name=${data.username}&background=7c3aed&color=fff`
+              `https://ui-avatars.com/api/?name=${data.username}&background=F9576F&color=fff`
             }
             alt=""
             onClick={() => navigate(`/profile/${data.username}`)}
@@ -146,7 +146,7 @@ export default function ConnectionCard({ data }) {
                 fontFamily: "var(--rm-font-mono)",
               }}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "rgba(124,58,237,0.25)")
+                (e.currentTarget.style.background = "rgba(249,87,111,0.25)")
               }
               onMouseLeave={(e) =>
                 (e.currentTarget.style.background = "var(--rm-purple-dim)")
@@ -191,7 +191,7 @@ export default function ConnectionCard({ data }) {
           }
           className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white text-sm font-medium transition-all"
           style={{ background: "var(--rm-purple)" }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#6D28D9")}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "#D63850")}
           onMouseLeave={(e) =>
             (e.currentTarget.style.background = "var(--rm-purple)")
           }

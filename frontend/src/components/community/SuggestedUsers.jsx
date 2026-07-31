@@ -49,7 +49,7 @@ const SuggestedUsers = () => {
       }}
     >
       <div className="flex items-center gap-2 mb-4">
-        <Sparkles size={15} color="#C084FC" />
+        <Sparkles size={15} color="#FF8B93" />
         <h2
           className="text-xs font-semibold uppercase tracking-wider"
           style={{
@@ -92,7 +92,7 @@ const SuggestedUsers = () => {
                 <img
                   src={
                     u.avatar ||
-                    `https://ui-avatars.com/api/?name=${u.username}&background=7c3aed&color=fff`
+                    `https://ui-avatars.com/api/?name=${u.username}&background=F9576F&color=fff`
                   }
                   alt={u.username}
                   className="w-9 h-9 rounded-full object-cover"

@@ -5,10 +5,10 @@ const Badge = ({ children }) => {
         px-3
         py-1
         rounded-full
-        bg-purple-500/10
+        bg-[#F9576F]/10
         border
-        border-purple-500/20
-        text-purple-300
+        border-[#F9576F]/20
+        text-[#FFC2C7]
         text-xs
       "
     >

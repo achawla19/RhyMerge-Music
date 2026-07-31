@@ -67,7 +67,7 @@ export default function AIInsightsPanel({ projectId }) {
       className="rounded-2xl overflow-hidden"
       style={{
         background:
-          "linear-gradient(135deg, rgba(124,58,237,0.1), rgba(192,132,252,0.06))",
+          "linear-gradient(135deg, rgba(249,87,111,0.1), rgba(192,132,252,0.06))",
         border: "1px solid var(--rm-purple-border)",
       }}
     >
@@ -75,7 +75,7 @@ export default function AIInsightsPanel({ projectId }) {
         onClick={toggle}
         className="w-full flex items-center justify-between px-5 py-4 transition-all"
         onMouseEnter={(e) =>
-          (e.currentTarget.style.background = "rgba(124,58,237,0.08)")
+          (e.currentTarget.style.background = "rgba(249,87,111,0.08)")
         }
         onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
       >
@@ -88,9 +88,9 @@ export default function AIInsightsPanel({ projectId }) {
             }}
           >
             {loading ? (
-              <Loader2 size={14} color="#C084FC" className="animate-spin" />
+              <Loader2 size={14} color="#FF8B93" className="animate-spin" />
             ) : (
-              <Sparkles size={14} color="#C084FC" />
+              <Sparkles size={14} color="#FF8B93" />
             )}
           </div>
           <div className="text-left">
@@ -123,7 +123,7 @@ export default function AIInsightsPanel({ projectId }) {
       {open && insight && (
         <div
           className="px-5 pb-5 space-y-5 border-t"
-          style={{ borderColor: "rgba(124,58,237,0.15)" }}
+          style={{ borderColor: "rgba(249,87,111,0.15)" }}
         >
           <div className="pt-4">
             <p

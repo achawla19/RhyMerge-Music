@@ -71,24 +71,24 @@ const Login = () => {
     return (
       <div
         className="h-screen flex items-center justify-center"
-        style={{ background: "#0B0814" }}
+        style={{ background: "#0E0B0A" }}
       >
-        <Loader2 className="animate-spin w-6 h-6" color="#C084FC" />
+        <Loader2 className="animate-spin w-6 h-6" color="#FF8B93" />
       </div>
     );
 
   const inputStyle = {
-    border: "1px solid rgba(124,58,237,0.3)",
+    border: "1px solid rgba(249,87,111,0.3)",
     color: "white",
   };
-  const focus = (e) => (e.currentTarget.style.borderColor = "#7C3AED");
+  const focus = (e) => (e.currentTarget.style.borderColor = "#F9576F");
   const blur = (e) =>
-    (e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)");
+    (e.currentTarget.style.borderColor = "rgba(249,87,111,0.3)");
 
   return (
     <div
       className="h-screen w-full flex text-white"
-      style={{ background: "#0B0814" }}
+      style={{ background: "#0E0B0A" }}
     >
       {/* LEFT */}
       <div className="w-1/2 relative hidden lg:flex items-center justify-center">
@@ -107,7 +107,7 @@ const Login = () => {
         />
         <div className="relative z-10 text-center px-10">
           <img src={logo} alt="RhyMerge" className="h-16 w-auto mx-auto" />
-          <p className="mt-4 text-sm" style={{ color: "#C4B5FD" }}>
+          <p className="mt-4 text-sm" style={{ color: "#FF8B93" }}>
             Elevate Your Sound. Collaborate. Create. Conquer.
           </p>
         </div>
@@ -119,9 +119,9 @@ const Login = () => {
           onSubmit={handleLogin}
           className="w-full max-w-md p-8 rounded-3xl"
           style={{
-            background: "rgba(124,58,237,0.04)",
+            background: "rgba(249,87,111,0.04)",
             backdropFilter: "blur(20px)",
-            border: "1px solid rgba(124,58,237,0.25)",
+            border: "1px solid rgba(249,87,111,0.25)",
             boxShadow: "0 0 60px rgba(139,92,246,0.15)",
           }}
         >
@@ -171,7 +171,7 @@ const Login = () => {
             disabled={loading || success}
             className="w-full mt-6 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2"
             style={{
-              background: success ? "#10B981" : "#7C3AED",
+              background: success ? "#10B981" : "#F9576F",
               color: "#fff",
             }}
           >
@@ -189,7 +189,7 @@ const Login = () => {
             <span
               onClick={() => navigate("/signup")}
               className="cursor-pointer"
-              style={{ color: "#C084FC" }}
+              style={{ color: "#FF8B93" }}
             >
               Signup
             </span>

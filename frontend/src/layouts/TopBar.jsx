@@ -19,12 +19,12 @@ import NavbarSearch from "../components/search/NavbarSearch";
 import { useState, useRef, useEffect } from "react";
 
 const TYPE_STYLE = {
-  project_request: { bg: "rgba(124,58,237,0.12)", dot: "#C084FC" },
+  project_request: { bg: "rgba(249,87,111,0.12)", dot: "#FF8B93" },
   request_accepted: { bg: "rgba(16,185,129,0.10)", dot: "#34D399" },
   request_rejected: { bg: "rgba(248,113,113,0.10)", dot: "#F87171" },
-  connection_request: { bg: "rgba(124,58,237,0.12)", dot: "#C084FC" },
+  connection_request: { bg: "rgba(249,87,111,0.12)", dot: "#FF8B93" },
   connection_accepted: { bg: "rgba(16,185,129,0.10)", dot: "#34D399" },
-  collab_interest: { bg: "rgba(124,58,237,0.12)", dot: "#C084FC" },
+  collab_interest: { bg: "rgba(249,87,111,0.12)", dot: "#FF8B93" },
   collab_accepted: { bg: "rgba(16,185,129,0.10)", dot: "#34D399" },
   collab_declined: { bg: "rgba(248,113,113,0.10)", dot: "#F87171" },
   system: { bg: "rgba(96,165,250,0.10)", dot: "#60A5FA" },
@@ -78,7 +78,7 @@ const notifText = (n) => {
         <>
           <span className="font-semibold">{n.sender?.username}</span> wants to
           collaborate on{" "}
-          <span className="font-semibold" style={{ color: "#C084FC" }}>
+          <span className="font-semibold" style={{ color: "#FF8B93" }}>
             {n.collabPost?.title}
           </span>
         </>
@@ -173,7 +173,7 @@ export default function TopBar({ onMenuClick }) {
           background: "rgba(11,8,20,0.96)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(124,58,237,0.14)",
+          borderBottom: "1px solid rgba(249,87,111,0.14)",
         }}
       >
         <div className="h-16 px-4 lg:px-5 flex items-center justify-between gap-4">
@@ -259,7 +259,7 @@ export default function TopBar({ onMenuClick }) {
               className={iconBtn}
               style={{
                 background: notifOpen
-                  ? "rgba(124,58,237,0.2)"
+                  ? "rgba(249,87,111,0.2)"
                   : "rgba(255,255,255,0.06)",
                 color: notifOpen ? "var(--rm-purple-light)" : "#D1D5DB",
               }}
@@ -306,7 +306,7 @@ export default function TopBar({ onMenuClick }) {
               <img
                 src={
                   user?.avatar ||
-                  `https://ui-avatars.com/api/?name=${user?.username || "U"}&background=7c3aed&color=fff`
+                  `https://ui-avatars.com/api/?name=${user?.username || "U"}&background=F9576F&color=fff`
                 }
                 alt=""
                 className="w-full h-full object-cover"
@@ -326,8 +326,8 @@ export default function TopBar({ onMenuClick }) {
             right: 16,
             width: 220,
             zIndex: 9999,
-            background: "#110820",
-            border: "1px solid rgba(124,58,237,0.28)",
+            background: "var(--rm-bg-raised)",
+            border: "1px solid rgba(249,87,111,0.28)",
             borderRadius: 16,
             boxShadow: "0 16px 48px rgba(0,0,0,0.6)",
             overflow: "hidden",
@@ -336,12 +336,12 @@ export default function TopBar({ onMenuClick }) {
           {/* User info */}
           <div
             className="flex items-center gap-3 px-4 py-3"
-            style={{ borderBottom: "1px solid rgba(124,58,237,0.15)" }}
+            style={{ borderBottom: "1px solid rgba(249,87,111,0.15)" }}
           >
             <img
               src={
                 user?.avatar ||
-                `https://ui-avatars.com/api/?name=${user?.username}&background=7c3aed&color=fff`
+                `https://ui-avatars.com/api/?name=${user?.username}&background=F9576F&color=fff`
               }
               alt=""
               className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
@@ -369,7 +369,8 @@ export default function TopBar({ onMenuClick }) {
               icon: <User size={14} />,
               label: "View Profile",
               action: () => {
-                navigate(`/profile/${user?.username}`);
+                if (!user?.username) return;
+                navigate(`/profile/${user.username}`);
                 setProfileOpen(false);
               },
             },
@@ -388,7 +389,7 @@ export default function TopBar({ onMenuClick }) {
               className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-all"
               style={{ color: "var(--rm-text-secondary)" }}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "rgba(124,58,237,0.1)")
+                (e.currentTarget.style.background = "rgba(249,87,111,0.1)")
               }
               onMouseLeave={(e) =>
                 (e.currentTarget.style.background = "transparent")
@@ -398,7 +399,7 @@ export default function TopBar({ onMenuClick }) {
             </button>
           ))}
 
-          <div style={{ borderTop: "1px solid rgba(124,58,237,0.15)" }}>
+          <div style={{ borderTop: "1px solid rgba(249,87,111,0.15)" }}>
             <button
               onClick={async () => {
                 await logout();
@@ -430,8 +431,8 @@ export default function TopBar({ onMenuClick }) {
             width: 360,
             maxHeight: "72vh",
             overflowY: "auto",
-            background: "#110820",
-            border: "1px solid rgba(124,58,237,0.28)",
+            background: "var(--rm-bg-raised)",
+            border: "1px solid rgba(249,87,111,0.28)",
             borderRadius: 16,
             boxShadow: "0 24px 60px rgba(0,0,0,0.65)",
             zIndex: 9998,
@@ -440,8 +441,8 @@ export default function TopBar({ onMenuClick }) {
           <div
             className="flex items-center justify-between px-4 py-3 sticky top-0"
             style={{
-              borderBottom: "1px solid rgba(124,58,237,0.15)",
-              background: "#110820",
+              borderBottom: "1px solid rgba(249,87,111,0.15)",
+              background: "var(--rm-bg-raised)",
               zIndex: 1,
             }}
           >
@@ -500,11 +501,11 @@ export default function TopBar({ onMenuClick }) {
                   key={n._id}
                   className="flex items-start gap-3 px-4 py-3 group transition-all cursor-pointer"
                   style={{
-                    borderBottom: "1px solid rgba(124,58,237,0.07)",
+                    borderBottom: "1px solid rgba(249,87,111,0.07)",
                     background: !n.isRead ? s.bg : "transparent",
                   }}
                   onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = "rgba(124,58,237,0.08)")
+                    (e.currentTarget.style.background = "rgba(249,87,111,0.08)")
                   }
                   onMouseLeave={(e) =>
                     (e.currentTarget.style.background = !n.isRead

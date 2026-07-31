@@ -87,7 +87,7 @@ const PostCard = ({ post }) => {
         transition: "border-color 0.2s ease",
       }}
       onMouseEnter={(e) =>
-        (e.currentTarget.style.borderColor = "rgba(124,58,237,0.4)")
+        (e.currentTarget.style.borderColor = "rgba(249,87,111,0.4)")
       }
       onMouseLeave={(e) =>
         (e.currentTarget.style.borderColor = "var(--rm-border)")
@@ -97,7 +97,7 @@ const PostCard = ({ post }) => {
         <img
           src={
             post.author?.avatar ||
-            `https://ui-avatars.com/api/?name=${post.author?.username}&background=7c3aed&color=fff`
+            `https://ui-avatars.com/api/?name=${post.author?.username}&background=F9576F&color=fff`
           }
           alt=""
           onClick={() => navigate(`/profile/${post.author?.username}`)}
@@ -266,13 +266,13 @@ const PostCard = ({ post }) => {
 
       <div
         className="flex items-center gap-5 pt-3"
-        style={{ borderTop: "1px solid rgba(124,58,237,0.1)" }}
+        style={{ borderTop: "1px solid rgba(249,87,111,0.1)" }}
       >
         <button
           onClick={handleLike}
           className="flex items-center gap-1.5 text-xs transition-all"
           style={{
-            color: isLiked ? "#C084FC" : "var(--rm-text-muted)",
+            color: isLiked ? "#FF8B93" : "var(--rm-text-muted)",
             fontFamily: "var(--rm-font-mono)",
           }}
         >
@@ -320,7 +320,7 @@ const PostCard = ({ post }) => {
       {showComments && (
         <div
           className="mt-3 pt-3 space-y-2"
-          style={{ borderTop: "1px solid rgba(124,58,237,0.1)" }}
+          style={{ borderTop: "1px solid rgba(249,87,111,0.1)" }}
         >
           {comments.map((comment) => (
             <div
@@ -365,7 +365,7 @@ const PostCard = ({ post }) => {
               className="px-4 py-2 rounded-xl text-sm font-medium text-white transition-all"
               style={{ background: "var(--rm-purple)" }}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "#6D28D9")
+                (e.currentTarget.style.background = "#D63850")
               }
               onMouseLeave={(e) =>
                 (e.currentTarget.style.background = "var(--rm-purple)")

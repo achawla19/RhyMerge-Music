@@ -39,7 +39,7 @@ const SearchBar = ({ query, onChange, onFocus, onBlur }) => {
 
           outline-none
 
-          focus:border-purple-500/30
+          focus:border-[#F9576F]/30
           focus:bg-white/[0.05]
 
           transition-all

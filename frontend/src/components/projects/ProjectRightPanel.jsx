@@ -51,14 +51,14 @@ const statusStyle = {
     border: "rgba(245,158,11,0.3)",
   },
   Recording: {
-    color: "#C084FC",
-    bg: "rgba(124,58,237,0.12)",
-    border: "rgba(124,58,237,0.3)",
+    color: "#FF8B93",
+    bg: "rgba(249,87,111,0.12)",
+    border: "rgba(249,87,111,0.3)",
   },
   Production: {
-    color: "#C084FC",
-    bg: "rgba(124,58,237,0.12)",
-    border: "rgba(124,58,237,0.3)",
+    color: "#FF8B93",
+    bg: "rgba(249,87,111,0.12)",
+    border: "rgba(249,87,111,0.3)",
   },
   Mixing: {
     color: "#60A5FA",
@@ -154,8 +154,8 @@ const EditModal = ({ project, onClose, onSaved }) => {
       <div
         className="w-full max-w-xl rounded-2xl p-6 my-4"
         style={{
-          background: "#110820",
-          border: "1px solid rgba(124,58,237,0.3)",
+          background: "var(--rm-bg-raised)",
+          border: "1px solid rgba(249,87,111,0.3)",
           boxShadow: "0 24px 60px rgba(0,0,0,0.7)",
         }}
       >
@@ -389,7 +389,7 @@ export default function ProjectRightPanel({ projectId, onClose }) {
   if (loading)
     return (
       <div className="h-full flex items-center justify-center">
-        <Loader2 size={22} color="#C084FC" className="animate-spin" />
+        <Loader2 size={22} color="#FF8B93" className="animate-spin" />
       </div>
     );
 
@@ -473,7 +473,7 @@ export default function ProjectRightPanel({ projectId, onClose }) {
           height: 160,
           background: project.coverImage
             ? `linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(11,8,20,0.98)), url(${project.coverImage}) center/cover`
-            : "linear-gradient(135deg, rgba(124,58,237,0.4), rgba(192,132,252,0.1), rgba(11,8,20,0.98))",
+            : "linear-gradient(135deg, rgba(249,87,111,0.4), rgba(192,132,252,0.1), rgba(11,8,20,0.98))",
         }}
       >
         <button
@@ -582,7 +582,7 @@ export default function ProjectRightPanel({ projectId, onClose }) {
                 color: "var(--rm-purple-light)",
               }}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "rgba(124,58,237,0.2)")
+                (e.currentTarget.style.background = "rgba(249,87,111,0.2)")
               }
               onMouseLeave={(e) =>
                 (e.currentTarget.style.background = "var(--rm-purple-dim)")
@@ -781,7 +781,7 @@ export default function ProjectRightPanel({ projectId, onClose }) {
               </p>
               {[
                 {
-                  icon: <Music2 size={12} color="#C084FC" />,
+                  icon: <Music2 size={12} color="#FF8B93" />,
                   label: project.genre || "—",
                 },
                 ...(project.bpm
@@ -833,7 +833,7 @@ export default function ProjectRightPanel({ projectId, onClose }) {
                 <div className="space-y-1.5">
                   {project.neededRoles.map((role) => (
                     <div key={role} className="flex items-center gap-2">
-                      <Plus size={11} color="#C084FC" />
+                      <Plus size={11} color="#FF8B93" />
                       <span className="text-xs" style={{ color: "#D1D5DB" }}>
                         {role}
                       </span>
@@ -873,7 +873,7 @@ export default function ProjectRightPanel({ projectId, onClose }) {
               <img
                 src={
                   project.owner?.avatar ||
-                  `https://ui-avatars.com/api/?name=${project.owner?.username}&background=7c3aed&color=fff`
+                  `https://ui-avatars.com/api/?name=${project.owner?.username}&background=F9576F&color=fff`
                 }
                 alt=""
                 className="w-9 h-9 rounded-xl object-cover flex-shrink-0"
@@ -914,7 +914,7 @@ export default function ProjectRightPanel({ projectId, onClose }) {
                 }}
                 onClick={() => navigate(`/profile/${member.username}`)}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.borderColor = "rgba(124,58,237,0.35)")
+                  (e.currentTarget.style.borderColor = "rgba(249,87,111,0.35)")
                 }
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)")
@@ -923,7 +923,7 @@ export default function ProjectRightPanel({ projectId, onClose }) {
                 <img
                   src={
                     member.avatar ||
-                    `https://ui-avatars.com/api/?name=${member.username}&background=7c3aed&color=fff`
+                    `https://ui-avatars.com/api/?name=${member.username}&background=F9576F&color=fff`
                   }
                   alt=""
                   className="w-9 h-9 rounded-xl object-cover flex-shrink-0"

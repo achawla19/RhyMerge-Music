@@ -32,7 +32,7 @@ export default function SocialLinks({ socials }) {
             color: "var(--rm-text-muted)",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = "rgba(124,58,237,0.4)";
+            e.currentTarget.style.borderColor = "rgba(249,87,111,0.4)";
             e.currentTarget.style.color = "var(--rm-purple-light)";
           }}
           onMouseLeave={(e) => {

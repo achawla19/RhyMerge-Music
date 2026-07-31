@@ -56,17 +56,17 @@ const Signup = () => {
   };
 
   const inputStyle = {
-    border: "1px solid rgba(124,58,237,0.3)",
+    border: "1px solid rgba(249,87,111,0.3)",
     color: "white",
   };
-  const focus = (e) => (e.currentTarget.style.borderColor = "#7C3AED");
+  const focus = (e) => (e.currentTarget.style.borderColor = "#F9576F");
   const blur = (e) =>
-    (e.currentTarget.style.borderColor = "rgba(124,58,237,0.3)");
+    (e.currentTarget.style.borderColor = "rgba(249,87,111,0.3)");
 
   return (
     <div
       className="h-screen w-full flex text-white overflow-y-auto"
-      style={{ background: "#0B0814" }}
+      style={{ background: "#0E0B0A" }}
     >
       {/* LEFT */}
       <div className="w-1/2 relative hidden lg:flex items-center justify-center flex-shrink-0">
@@ -85,7 +85,7 @@ const Signup = () => {
         />
         <div className="relative z-10 text-center px-10">
           <img src={logo} alt="RhyMerge" className="h-16 w-auto mx-auto" />
-          <p className="mt-4 text-sm" style={{ color: "#C4B5FD" }}>
+          <p className="mt-4 text-sm" style={{ color: "#FF8B93" }}>
             Elevate Your Sound. Collaborate. Create. Conquer.
           </p>
         </div>
@@ -97,9 +97,9 @@ const Signup = () => {
           onSubmit={handleSignup}
           className="relative w-full max-w-md p-8 rounded-3xl"
           style={{
-            background: "rgba(124,58,237,0.04)",
+            background: "rgba(249,87,111,0.04)",
             backdropFilter: "blur(20px)",
-            border: "1px solid rgba(124,58,237,0.25)",
+            border: "1px solid rgba(249,87,111,0.25)",
             boxShadow: "0 0 60px rgba(139,92,246,0.1)",
           }}
         >
@@ -166,14 +166,14 @@ const Signup = () => {
             type="submit"
             disabled={loading}
             className="w-full mt-6 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-60"
-            style={{ background: "#7C3AED", color: "#fff" }}
+            style={{ background: "#F9576F", color: "#fff" }}
             onMouseEnter={(e) =>
               !e.currentTarget.disabled &&
-              (e.currentTarget.style.background = "#6D28D9")
+              (e.currentTarget.style.background = "#D63850")
             }
             onMouseLeave={(e) =>
               !e.currentTarget.disabled &&
-              (e.currentTarget.style.background = "#7C3AED")
+              (e.currentTarget.style.background = "#F9576F")
             }
           >
             {loading && <Loader2 size={16} className="animate-spin" />}
@@ -183,14 +183,14 @@ const Signup = () => {
           <div className="flex items-center gap-4 my-6">
             <div
               className="flex-1 h-px"
-              style={{ background: "rgba(124,58,237,0.2)" }}
+              style={{ background: "rgba(249,87,111,0.2)" }}
             />
             <span className="text-sm" style={{ color: "#6B7280" }}>
               Or continue with
             </span>
             <div
               className="flex-1 h-px"
-              style={{ background: "rgba(124,58,237,0.2)" }}
+              style={{ background: "rgba(249,87,111,0.2)" }}
             />
           </div>
 
@@ -214,7 +214,7 @@ const Signup = () => {
             <span
               onClick={() => navigate("/login")}
               className="cursor-pointer hover:underline"
-              style={{ color: "#C084FC" }}
+              style={{ color: "#FF8B93" }}
             >
               Login
             </span>

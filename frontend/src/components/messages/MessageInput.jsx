@@ -146,8 +146,8 @@ const MessageInput = ({ onSend, onTypingChange, activeChat }) => {
   return (
     <div
       style={{
-        borderTop: "1px solid rgba(124,58,237,0.15)",
-        background: "rgba(124,58,237,0.04)",
+        borderTop: "1px solid rgba(249,87,111,0.15)",
+        background: "rgba(249,87,111,0.04)",
       }}
     >
       {/* File preview */}
@@ -251,7 +251,7 @@ const MessageInput = ({ onSend, onTypingChange, activeChat }) => {
             color: "var(--rm-text-muted)",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = "rgba(124,58,237,0.4)";
+            e.currentTarget.style.borderColor = "rgba(249,87,111,0.4)";
             e.currentTarget.style.color = "var(--rm-purple-light)";
           }}
           onMouseLeave={(e) => {
@@ -289,7 +289,7 @@ const MessageInput = ({ onSend, onTypingChange, activeChat }) => {
           className="p-3 rounded-full transition-all flex-shrink-0 disabled:opacity-40"
           style={{ background: "var(--rm-purple)" }}
           onMouseEnter={(e) =>
-            canSend && (e.currentTarget.style.background = "#6D28D9")
+            canSend && (e.currentTarget.style.background = "#D63850")
           }
           onMouseLeave={(e) =>
             canSend && (e.currentTarget.style.background = "var(--rm-purple)")

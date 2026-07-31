@@ -33,7 +33,7 @@ export default function GlobalTicker() {
         border-b
         border-white/[0.06]
 
-        bg-[#0B0B12]/70
+        bg-[#171211]/80
         backdrop-blur-xl
       "
     >
@@ -55,7 +55,7 @@ export default function GlobalTicker() {
             uppercase
             tracking-[0.25em]
 
-            text-purple-400
+            text-[#FF8B93]
           "
         >
           LIVE

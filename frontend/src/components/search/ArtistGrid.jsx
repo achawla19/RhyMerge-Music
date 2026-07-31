@@ -17,7 +17,7 @@ const ArtistGrid = ({ artists = [], pendingIds = [] }) => {
           className="w-14 h-14 rounded-full flex items-center justify-center mb-4"
           style={{ background: "var(--rm-purple-dim)" }}
         >
-          <Search size={22} color="#C084FC" />
+          <Search size={22} color="#FF8B93" />
         </div>
         <h3 className="text-white text-base font-medium">No creators found</h3>
         <p

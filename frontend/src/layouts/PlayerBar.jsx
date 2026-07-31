@@ -37,7 +37,7 @@ export default function PlayerBar() {
         background: "rgba(11,8,20,0.98)",
         backdropFilter: "blur(24px)",
         WebkitBackdropFilter: "blur(24px)",
-        borderTop: "1px solid rgba(124,58,237,0.2)",
+        borderTop: "1px solid rgba(249,87,111,0.2)",
       }}
     >
       {/* Track info */}
@@ -59,7 +59,7 @@ export default function PlayerBar() {
               className="w-full h-full object-cover"
             />
           ) : (
-            <Music2 size={16} color="#C084FC" />
+            <Music2 size={16} color="#FF8B93" />
           )}
         </div>
         <div className="min-w-0">
@@ -84,7 +84,7 @@ export default function PlayerBar() {
           onClick={togglePlay}
           className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
           style={{ background: "var(--rm-purple)" }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#6D28D9")}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "#D63850")}
           onMouseLeave={(e) =>
             (e.currentTarget.style.background = "var(--rm-purple)")
           }

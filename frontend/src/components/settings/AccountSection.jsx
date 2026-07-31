@@ -51,7 +51,7 @@ const AccountSection = () => {
           className="flex items-center justify-between p-4 rounded-xl"
           style={{
             background: "var(--rm-bg)",
-            border: "1px solid rgba(124,58,237,0.15)",
+            border: "1px solid rgba(249,87,111,0.15)",
           }}
         >
           <div className="flex items-center gap-3">
@@ -59,7 +59,7 @@ const AccountSection = () => {
               className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
               style={{ background: "var(--rm-purple-dim)" }}
             >
-              <Mail size={15} color="#C084FC" />
+              <Mail size={15} color="#FF8B93" />
             </div>
             <div>
               <p className="text-sm text-white">{user?.email || "—"}</p>
@@ -88,14 +88,14 @@ const AccountSection = () => {
           className="flex items-center gap-3 p-4 rounded-xl"
           style={{
             background: "var(--rm-bg)",
-            border: "1px solid rgba(124,58,237,0.15)",
+            border: "1px solid rgba(249,87,111,0.15)",
           }}
         >
           <div
             className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ background: "var(--rm-purple-dim)" }}
           >
-            <Calendar size={15} color="#C084FC" />
+            <Calendar size={15} color="#FF8B93" />
           </div>
           <div>
             <p className="text-sm text-white">{memberSince}</p>
@@ -113,7 +113,7 @@ const AccountSection = () => {
           className="flex items-center justify-between gap-3 p-4 rounded-xl"
           style={{
             background: "var(--rm-bg)",
-            border: "1px solid rgba(124,58,237,0.15)",
+            border: "1px solid rgba(249,87,111,0.15)",
           }}
         >
           <div className="flex items-center gap-3 min-w-0">
@@ -121,7 +121,7 @@ const AccountSection = () => {
               className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
               style={{ background: "var(--rm-purple-dim)" }}
             >
-              <Hash size={15} color="#C084FC" />
+              <Hash size={15} color="#FF8B93" />
             </div>
             <div className="min-w-0">
               <p

@@ -64,7 +64,7 @@ export default function ProjectRequests({ requests, refresh }) {
                 <img
                   src={
                     request.sender.avatar ||
-                    `https://ui-avatars.com/api/?name=${request.sender.username}&background=7c3aed&color=fff`
+                    `https://ui-avatars.com/api/?name=${request.sender.username}&background=F9576F&color=fff`
                   }
                   alt=""
                   className="w-12 h-12 rounded-full transition-transform hover:scale-105"
@@ -95,9 +95,9 @@ export default function ProjectRequests({ requests, refresh }) {
                   disabled={isProcessing}
                   className="px-4 py-2 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
                   style={{
-                    background: "rgba(16,185,129,0.12)",
-                    color: "#34D399",
-                    border: "1px solid rgba(16,185,129,0.3)",
+                    background: "var(--rm-success-dim)",
+                    color: "var(--rm-success)",
+                    border: "1px solid rgba(79,190,138,0.35)",
                   }}
                 >
                   {isProcessing ? "..." : "Accept"}
@@ -107,9 +107,9 @@ export default function ProjectRequests({ requests, refresh }) {
                   disabled={isProcessing}
                   className="px-4 py-2 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
                   style={{
-                    background: "rgba(248,113,113,0.08)",
-                    color: "#F87171",
-                    border: "1px solid rgba(248,113,113,0.25)",
+                    background: "var(--rm-error-dim)",
+                    color: "var(--rm-error)",
+                    border: "1px solid rgba(229,72,77,0.3)",
                   }}
                 >
                   {isProcessing ? "..." : "Reject"}

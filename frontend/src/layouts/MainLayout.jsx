@@ -26,7 +26,7 @@ const AmbientMesh = () => (
         width: 700,
         height: 700,
         borderRadius: "50%",
-        background: "rgba(124,58,237,0.22)",
+        background: "rgba(249,87,111,0.22)",
         filter: "blur(180px)",
         animation: "rmDrift1 28s ease-in-out infinite",
       }}
@@ -125,7 +125,7 @@ const LayoutInner = ({ children }) => {
             style={{
               width: 380,
               background: "rgba(11,8,20,0.97)",
-              border: "1px solid rgba(124,58,237,0.2)",
+              border: "1px solid rgba(249,87,111,0.2)",
               backdropFilter: "blur(24px)",
               animation: "rmSlideFromRight 0.32s cubic-bezier(0.22,1,0.36,1)",
             }}

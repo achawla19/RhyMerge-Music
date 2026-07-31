@@ -42,7 +42,7 @@ const AudioAttachment = ({ url, name, isMe }) => {
     }
   };
 
-  const accentColor = isMe ? "#C084FC" : "#60A5FA";
+  const accentColor = isMe ? "#FF8B93" : "#60A5FA";
 
   return (
     <div className="flex items-center gap-3 py-1">
@@ -247,7 +247,7 @@ const MessageBubble = ({ message, isMe }) => {
           </span>
           {isMe &&
             (message.isRead ? (
-              <CheckCheck size={12} color="#C084FC" />
+              <CheckCheck size={12} color="#FF8B93" />
             ) : (
               <Check size={12} color="var(--rm-text-muted)" />
             ))}

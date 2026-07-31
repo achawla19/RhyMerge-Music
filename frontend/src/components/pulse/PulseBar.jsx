@@ -76,7 +76,7 @@ export default function PulseBar({ notifications = [] }) {
         border-white/[0.06]
 
         bg-gradient-to-r
-        from-purple-500/[0.05]
+        from-[#F9576F]/[0.06]
         via-transparent
         to-cyan-500/[0.05]
 
@@ -110,7 +110,7 @@ export default function PulseBar({ notifications = [] }) {
             h-[2px]
 
             bg-gradient-to-r
-            from-purple-500
+            from-[#F9576F]
             to-cyan-500
           "
         />
@@ -155,7 +155,7 @@ export default function PulseBar({ notifications = [] }) {
 
               tracking-[0.25em]
 
-              text-purple-400
+              text-[#FF8B93]
 
               font-semibold
             "
@@ -202,7 +202,7 @@ export default function PulseBar({ notifications = [] }) {
 
                 text-xs
 
-                text-purple-400
+                text-[#FF8B93]
 
                 hidden
                 md:block

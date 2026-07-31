@@ -1,9 +1,8 @@
-import { User, Bell, Lock, Palette, Edit, Shield } from "lucide-react";
+import { User, Bell, Lock, Edit, Shield } from "lucide-react";
 
 const navItems = [
   { id: "account", label: "Account", icon: User },
   { id: "profile", label: "Profile", icon: Edit },
-  { id: "appearance", label: "Appearance", icon: Palette },
   { id: "notifications", label: "Notifications", icon: Bell },
   { id: "privacy", label: "Privacy", icon: Shield },
   { id: "security", label: "Security", icon: Lock },

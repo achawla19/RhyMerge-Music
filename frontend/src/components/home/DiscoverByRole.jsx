@@ -61,7 +61,7 @@ const DiscoverByRole = () => {
                 border: "1px solid var(--rm-border)",
               }}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.borderColor = "var(--rm-purple)")
+                (e.currentTarget.style.borderColor = "var(--rm-accent-teal)")
               }
               onMouseLeave={(e) =>
                 (e.currentTarget.style.borderColor = "var(--rm-border)")
@@ -69,9 +69,9 @@ const DiscoverByRole = () => {
             >
               <div
                 className="w-9 h-9 rounded-lg flex items-center justify-center mb-3"
-                style={{ background: "var(--rm-purple-dim)" }}
+                style={{ background: "var(--rm-accent-teal-dim)" }}
               >
-                <Icon size={16} color="#C084FC" />
+                <Icon size={16} color="var(--rm-accent-teal)" />
               </div>
               <h3 className="text-sm font-semibold text-white mb-1.5">
                 {role.title}

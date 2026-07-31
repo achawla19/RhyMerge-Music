@@ -137,7 +137,7 @@ export default function Projects() {
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-2 px-5 py-3 rounded-2xl text-white font-medium transition-all"
             style={{ background: "var(--rm-purple)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#6D28D9")}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#D63850")}
             onMouseLeave={(e) =>
               (e.currentTarget.style.background = "var(--rm-purple)")
             }

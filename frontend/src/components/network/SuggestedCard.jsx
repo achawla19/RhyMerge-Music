@@ -12,7 +12,7 @@ export default function SuggestedCard({ data, pending, onConnect }) {
         border: "1px solid var(--rm-border)",
       }}
       onMouseEnter={(e) =>
-        (e.currentTarget.style.borderColor = "rgba(124,58,237,0.4)")
+        (e.currentTarget.style.borderColor = "rgba(249,87,111,0.4)")
       }
       onMouseLeave={(e) =>
         (e.currentTarget.style.borderColor = "var(--rm-border)")
@@ -25,7 +25,7 @@ export default function SuggestedCard({ data, pending, onConnect }) {
         <img
           src={
             data.avatar ||
-            `https://ui-avatars.com/api/?name=${data.username}&background=7c3aed&color=fff`
+            `https://ui-avatars.com/api/?name=${data.username}&background=F9576F&color=fff`
           }
           alt=""
           className="w-16 h-16 rounded-2xl object-cover flex-shrink-0"
@@ -101,7 +101,7 @@ export default function SuggestedCard({ data, pending, onConnect }) {
               : { background: "var(--rm-purple)", color: "#fff" }
           }
           onMouseEnter={(e) =>
-            !pending && (e.currentTarget.style.background = "#6D28D9")
+            !pending && (e.currentTarget.style.background = "#D63850")
           }
           onMouseLeave={(e) =>
             !pending && (e.currentTarget.style.background = "var(--rm-purple)")
