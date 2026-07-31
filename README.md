@@ -1,244 +1,194 @@
-<div align="center">
+# RhyMerge
 
-<img src="frontend/src/assets/logo.png" alt="RhyMerge" width="360" />
+**A collaboration platform for independent musicians** — producers, vocalists, songwriters, and mix engineers finding each other through real collaboration requests and shared project rooms, not another social feed.
 
-### Where musicians find each other.
-A producer looking for a lyricist. A singer looking for a guitarist. A mix engineer looking for a project worth mixing.
-RhyMerge is the place independent musicians post the work they're proud of, find the collaborator their project is
-missing, and build a real network of people they'd actually want a text from when a new idea shows up.
-
-[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev)
-[![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=node.js&logoColor=white)](https://nodejs.org)
-[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/atlas)
-[![Socket.io](https://img.shields.io/badge/Socket.io-realtime-black?logo=socket.io)](https://socket.io)
-[![Vite](https://img.shields.io/badge/Vite-frontend-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
-
-</div>
+Live: [rhymerge.vercel.app](https://rhymerge.vercel.app) · API: [rhymerge.onrender.com](https://rhymerge.onrender.com)
 
 ---
 
-## Table of Contents
+## What it actually does
 
-- [What is RhyMerge](#what-is-rhymerge)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Architecture](#architecture)
-- [Getting Started](#getting-started)
-- [Environment Variables](#environment-variables)
-- [Project Structure](#project-structure)
-- [Demo Data](#demo-data)
-- [Load Testing](#load-testing)
-- [Security](#security)
-- [Deployment](#deployment)
-- [Roadmap](#roadmap)
-- [License](#license)
+RhyMerge is built around a simple loop: **post or browse a collab request → connect and message directly → move into a shared project room once you're actually working together.**
+
+### Core features
+
+- **Collab requests** — post what you need (role, genre, and terms: paid / revenue split / credit only / just for fun); browse and filter active requests by role and genre.
+- **Project rooms** — a dedicated space per collaboration: file/stem uploads with version tracking, in-browser playback, a request queue for who's asking to join, and a Team tab.
+- **Real-time messaging** — Socket.io-backed private chat, with messages encrypted at rest (AES-256-GCM) and JWT httpOnly-cookie auth with refresh-token rotation.
+- **Signal** — a live activity feed (new collab posts, connection requests, project updates) so relevant activity surfaces without an algorithmic feed.
+- **Search & discover** — filter creators by role, genre, and availability status (Available / Busy / Not Looking).
+- **Connections/network** — send, accept, and manage connection requests between creators.
+- **AI project insights** — optional, per-project production suggestions via the Anthropic Claude API, with a graceful static fallback if no API key is configured.
+- **Notifications & settings** — account, profile, privacy, and security settings; email notifications via Resend.
 
 ---
 
-## What is RhyMerge
+## Tech stack
 
-Think of it as the intersection of LinkedIn, Instagram, and Twitter — but built entirely around one idea:
-**everyone here is looking for someone.** A producer for a lyricist. A singer for a guitarist. A finished beat
-looking for a voice.
+**Frontend**
+- React + Vite
+- Tailwind CSS
+- Framer Motion
+- React Router
 
-There's no boss, no résumé, no application process. You post what you're working on or what you need, someone
-who's into it reaches out, and you either make something together or you don't. That's the whole model.
+**Backend**
+- Node.js + Express
+- MongoDB + Mongoose
+- Socket.io (real-time messaging)
+- JWT (httpOnly cookies + refresh-token rotation)
+- AES-256-GCM (message encryption)
+- Cloudinary (media/file storage)
+- Resend (transactional email)
+- Anthropic API (AI project insights, optional)
 
-- **Signals** — a real feed for musicians: clips, thoughts, updates, not algorithmically optimized noise
-- **Collab** — post what your project is missing, or answer someone else's call
-- **Projects** — a portfolio that's actually listenable: stems, credits, the people who built it with you
-- **Syncs** — your real network of people worth reaching out to again
+**Infrastructure**
+- Frontend deployed on **Vercel**
+- Backend deployed on **Render**
+- Load testing with **k6**
 
-## Features
+---
 
-<table>
-<tr><td width="50%" valign="top">
-
-**Collaboration & Discovery**
-- Collab posts — "need a vocalist" style callouts, with a full respond → accept/decline flow
-- Project portfolios with real audio playback (Cloudinary-hosted stems)
-- Unified search across creators and projects
-- Role/genre/availability-based discovery
-- Community feed with likes, comments, and posts that embed a linked project or Collab card
-
-**Real-time**
-- Socket.io messaging with typing indicators, read receipts, and presence
-- AES-256-GCM end-to-end message encryption
-- Live in-app notifications, pushed over the same socket connection
-- Cross-browser auth fallback (memory-token strategy for browsers that block third-party cookies on the WebSocket upgrade, e.g. Brave)
-
-</td><td width="50%" valign="top">
-
-**Identity & Networking**
-- Full profiles: bio, genres, instruments, experience level, availability, social links
-- Connection requests ("Syncs") with accept/reject
-- An audio reel — a flat, playable stream of everything you've actually shipped across your projects
-
-**Trust & Control**
-- Granular privacy: profile visibility, email visibility, who can message you, who can see your projects
-- httpOnly JWT cookies + refresh tokens, bcrypt password hashing
-- Change password / delete account (soft-delete, reversible data model)
-- Helmet, custom Mongo-injection sanitization, per-route rate limiting, file-type/size-restricted uploads
-
-</td></tr>
-</table>
-
-## Tech Stack
-
-| Layer | Choice |
-|---|---|
-| Frontend | React + Vite + Tailwind CSS + Framer Motion |
-| Backend | Node.js + Express + Mongoose |
-| Database | MongoDB (Atlas in production) |
-| Real-time | Socket.io |
-| Media storage | Cloudinary (avatars, covers, stems, message attachments) |
-| Auth | JWT (httpOnly cookies + refresh rotation) + bcrypt |
-| Email | Resend |
-| Hosting | Vercel (frontend) + Render (backend) |
-| Load testing | k6 |
-
-## Architecture
+## Project structure
 
 ```
-┌─────────────┐        HTTPS / REST        ┌─────────────┐        ┌──────────────┐
-│   Vercel    │ ─────────────────────────▶ │   Render    │ ─────▶ │ MongoDB Atlas│
-│  (frontend) │ ◀───────────────────────── │  (backend)  │ ◀───── │              │
-└─────────────┘      WebSocket (Socket.io)  └─────────────┘        └──────────────┘
-                                                   │
-                                                   ▼
-                                            ┌──────────────┐
-                                            │  Cloudinary  │  (all media)
-                                            └──────────────┘
-                                                   │
-                                                   ▼
-                                            ┌──────────────┐
-                                            │    Resend    │  (email notifications)
-                                            └──────────────┘
+rhymerge/
+├── frontend/
+│   └── src/
+│       ├── pages/           # route-level views (Home, Landing, Profile, Projects, ...)
+│       ├── components/      # feature components, grouped by domain
+│       │   ├── projects/    # project rooms, files, requests
+│       │   ├── collab/      # collab posts/cards
+│       │   ├── community/   # feed, trending, suggested users
+│       │   ├── network/     # connections
+│       │   ├── search/      # filters, artist/project grids
+│       │   ├── settings/    # account/profile/privacy/security
+│       │   └── ui/          # shared primitives (Toast, ConfirmDialog, ...)
+│       ├── context/         # AuthContext, SocketContext, ProjectPanelContext, ...
+│       ├── layouts/         # TopBar, Sidebar, PlayerBar, MainLayout
+│       └── api/             # fetch wrappers per resource
+│
+└── backend/
+    └── src/
+        ├── controllers/     # request handlers
+        ├── models/          # Mongoose schemas
+        ├── routes/          # auth, users, projects, project-files, collab,
+        │                    # connections, messages, notifications, search,
+        │                    # trending, recommendations, saved-projects, AI insights
+        ├── socket/           # Socket.io connection/event handling
+        ├── scripts/          # seed.js (append-only by default)
+        └── utils/            # sendEmail, encryption, etc.
 ```
 
-Auth cookies are `httpOnly`, with `secure`/`sameSite:none` enabled in production so the split-domain
-Vercel ↔ Render setup works correctly. Socket.io authenticates via the same JWT, read from the cookie
-where possible and falling back to an in-memory token passed at handshake time for browsers that block
-third-party cookies on WebSocket upgrades.
+---
 
-## Getting Started
+## Getting started
 
-**Prerequisites:** Node.js 18+, a MongoDB connection (local or [Atlas](https://www.mongodb.com/atlas)),
-a [Cloudinary](https://cloudinary.com) account.
+### Prerequisites
+- Node.js 18+
+- A MongoDB instance (Atlas or local)
+- Cloudinary account (media storage)
+- Resend account (transactional email)
+- Anthropic API key (optional — AI insights degrade gracefully without one)
 
-```bash
-git clone https://github.com/achawla19/RhyMerge-Music/
-cd RhyMerge-Self
-```
+### Environment variables
 
-**Backend:**
-```bash
-cd backend
-npm install
-cp .env.example .env    # fill in your own values — see below
-npm start
-```
-
-**Frontend** (in a second terminal):
-```bash
-cd frontend
-npm install
-cp .env.example .env
-npm run dev
-```
-
-The frontend runs at `http://localhost:5173`, the backend at `http://localhost:5000`.
-
-## Environment Variables
-
-See `backend/.env.example` and `frontend/.env.example` for the full, documented list. At minimum, the
-backend needs:
+**Backend** (`backend/.env`)
 
 | Variable | Purpose |
 |---|---|
+| `PORT` | Server port |
+| `NODE_ENV` | `development` / `production` |
 | `MONGO_URI` | MongoDB connection string |
-| `JWT_SECRET` / `JWT_REFRESH_SECRET` | Two **different** random secrets — see `.env.example` for how to generate |
-| `MESSAGE_ENCRYPTION_KEY` | 32-byte hex key for AES-256-GCM message encryption. **Back this up** — losing it makes every existing message permanently undecryptable |
-| `CLOUDINARY_URL` | From your Cloudinary dashboard |
-| `CLIENT_URL` | Your deployed frontend URL — used for CORS and email links |
-| `RESEND_API_KEY` | Optional — email notifications degrade gracefully without it |
+| `CLIENT_URL` | Frontend origin, for CORS + email links |
+| `JWT_SECRET` | Access token signing secret |
+| `JWT_REFRESH_SECRET` | Refresh token signing secret |
+| `MESSAGE_ENCRYPTION_KEY` | AES-256-GCM key for message encryption at rest |
+| `CLOUDINARY_URL` | Cloudinary connection string |
+| `RESEND_API_KEY` | Resend API key |
+| `RESEND_FROM_EMAIL` | Verified sender address |
+| `ANTHROPIC_API_KEY` | *(optional)* enables AI project insights |
 
-## Project Structure
+**Frontend** (`frontend/.env`)
 
-```
-backend/
-  src/
-    controllers/     # request handlers
-    models/           # Mongoose schemas
-    routes/           # Express routers
-    middleware/       # auth, rate limiting, security, uploads
-    socket/           # Socket.io connection + event handlers
-    utils/            # encryption, email, sanitization, notifications
-    scripts/          # seed.js — local demo data generator
-frontend/
-  src/
-    pages/            # route-level views
-    components/       # shared/reusable UI, grouped by feature
-    context/           # Auth, Socket, Notifications, Messages, ProjectPanel
-    api/               # one file per REST resource
-    layouts/           # app shell (Sidebar, TopBar, PlayerBar)
-k6/                    # load test scripts + README
-```
+| Variable | Purpose |
+|---|---|
+| `VITE_API_URL` | Backend base URL (e.g. `http://localhost:5000` locally) |
 
-## Demo Data
-
-`backend/src/scripts/seed.js` populates a **local/dev** database with realistic musicians, projects,
-Collab posts, connections, and messages — useful for development and testing.
+### Install & run
 
 ```bash
-node backend/src/scripts/seed.js            # adds demo data, never touches existing accounts
-node backend/src/scripts/seed.js --force    # wipes ALL data first — local/dev only, never production
+# backend
+cd backend
+npm install
+npm run dev          # check package.json for the exact script name in your setup
+
+# frontend
+cd frontend
+npm install
+npm run dev
 ```
 
-All seeded accounts share the password `Password123!`. **This script is for local development only** —
-it's intentionally never run against the production database, since fake profiles that can't actually
-respond to a real user's message or Collab reach-out would undermine the entire point of the product.
+### Seeding data
 
-## Load Testing
-
-Three [k6](https://k6.io) scripts in `/k6`, covering public browsing, the login flow specifically
-(bcrypt is usually where a server buckles first), and a full authenticated session. See `k6/README.md`
-for setup and how to read the results.
-
-## Security
-
-- Helmet with a real Content-Security-Policy (not default-permissive)
-- Custom recursive Mongo-operator sanitization on all request bodies/params
-- Per-route rate limiting (tighter on auth endpoints), disabled automatically outside `NODE_ENV=production`
-  so it doesn't get in the way of local development
-- All user-generated text (bios, project titles, post content) is HTML-stripped on write and re-escaped
-  again before ever reaching an email template — defense in depth against stored XSS
-- Ownership/authorization checks on every mutating endpoint (can't edit/delete something you don't own)
-- Soft-delete throughout (users, projects) rather than destructive deletes
-
-## Deployment
-
-- **Frontend → Vercel**: `frontend/vercel.json` includes the SPA rewrite rule required for client-side
-  routing (without it, refreshing on a deep link like `/collab/:id` 404s)
-- **Backend → Render**: `backend/render.yaml` provides a ready-to-import Blueprint
-- **Database → MongoDB Atlas**
-
-Both Vercel and Render auto-deploy on push to your connected branch once set up.
-
-## Roadmap
-
-- Comment editing/deletion on Community posts
-- Push notifications (web push), beyond the current in-app real-time layer
-- CI pipeline (lint + build check on PRs)
-
-## License
-
-Private project — all rights reserved.
+```bash
+cd backend
+node src/scripts/seed.js
+```
+Append-only by default — safe to re-run without wiping existing data.
 
 ---
 
-<div align="center">
+## Deployment
 
-**RhyMerge** — where rhythms collide.
+- **Frontend** → Vercel, auto-deploys from the connected branch.
+- **Backend** → Render, auto-deploys from the connected branch. Note: on Render's free/hobby tier the service spins down after inactivity, so the first request after idle time will be slow (see load test notes below) — this is a hosting-tier characteristic, not an application issue.
 
-</div>
+---
+
+## Performance
+
+Load tested with [k6](https://k6.io) against the live production API (`https://rhymerge.onrender.com`).
+
+**Test config:** `k6/browse.js`, 5 virtual users, 1 minute sustained load, hitting `/projects`, `/collab`, and user search endpoints.
+
+**Thresholds — both passed:**
+
+| Threshold | Target | Result |
+|---|---|---|
+| `http_req_duration` p(95) | < 800ms | **619.81ms** ✅ |
+| `http_req_failed` rate | < 2% | **0.00%** ✅ |
+
+**Full results:**
+
+| Metric | Value |
+|---|---|
+| Total requests | 123 (1.88 req/s) |
+| Checks passed | 164 / 164 (**100%**) |
+| Error rate | 0.00% |
+| Median response time | 241.88ms |
+| p(90) response time | 401.2ms |
+| p(95) response time | 619.81ms |
+| Average response time | 1.2s |
+| Max response time | 23.66s |
+| Iterations completed | 41 |
+| Data transferred | 1.8 MB received / 22 KB sent |
+
+**Reading the numbers honestly:** the gap between the median (242ms) and the average/max (1.2s / 23.66s) is a cold-start signature, not the application being slow — Render's free tier spins the backend down after idle periods, and one or two requests in the run hit a cold instance. The p(95) figure (619ms) still cleared the 800ms threshold despite that outlier dragging the average up, and every check across all three endpoint types (`projects`, `collab`, `user search`) passed with zero failures. On an always-on instance, expect the average to track much closer to the median.
+
+To reproduce:
+```bash
+k6 run -e BASE_URL=https://rhymerge.onrender.com --vus 5 --duration 1m k6/browse.js
+```
+
+---
+
+## Roadmap / known gaps
+
+- In-app audio DAW/editing was considered and deliberately scoped out for now — it's a different category of engineering (real-time audio engine, waveform rendering at scale, mixing) than the collaboration/matching problem RhyMerge is solving. A lighter version (timestamped comments on a waveform, A/B version comparison) is a more likely near-term addition.
+- Existing `accentColor` field may still be present on older user documents in the database after the Appearance settings feature was removed; harmless, ignored by the app, optional cleanup via a one-off `$unset` migration.
+
+---
+
+## License
+
+All Rights Reserved. See [`LICENSE`](./LICENSE) for details. This code is not open source — no permission is granted to use, copy, modify, or distribute it without explicit written consent.
